@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: "Outfit", sans-serif;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-transition: background-color 0.8s ease;
+            transition: background-color 0.8s ease;
+        }
+
+        body.nightlight {
+            background-color: hsl(22, 100%, 50%);
+        }
+
+        body.nightlight .clock,
+        body.nightlight .date {
+            color: hsla(22, 100%, 30%, 0.2);
+        }
+
+        .clock {
+            font-size: 15vw;
+            font-weight: 600;
+            margin-bottom: 0rem;
+            -webkit-transition: color 0.8s ease, margin-bottom 0.5s ease;
+            transition: color 0.8s ease, margin-bottom 0.5s ease;
+            letter-spacing: -0.02em;
+        }
+
+        .date {
+            font-size: 4vw;
+            font-weight: 600;
+            -webkit-transition: color 0.8s ease;
+            transition: color 0.8s ease;
+        }
+
+        /* ─── Nightlight Button ─── */
+        #nightlight-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 52px;
+            height: 52px;
+            background-color: #cc2200;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            -webkit-transition: background-color 0.3s ease, -webkit-transform 0.15s ease, box-shadow 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 0px rgba(255, 80, 0, 0);
+            outline: none;
+            /* flame/moon icon via SVG inline */
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+
+        #nightlight-btn svg {
+            width: 26px;
+            height: 26px;
+            fill: rgba(255,255,255,0.85);
+            -webkit-transition: fill 0.3s ease;
+            transition: fill 0.3s ease;
+        }
+
+        #nightlight-btn:active {
+            -webkit-transform: scale(0.88);
+            transform: scale(0.88);
+        }
+
+        #nightlight-btn.active {
+            background-color: #333;
+            box-shadow: 0 0 24px rgba(255, 100, 0, 0.5);
+        }
+
+        #nightlight-btn.active svg {
+            fill: #ff9944;
+        }
+
+        /* ─── Brightness Slider Panel ─── */
+        #brightness-panel {
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            width: 52px;
+            background-color: rgba(30,30,30,0.9);
+            border-radius: 26px;
+            padding: 16px 0;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-align-items: center;
+            align-items: center;
+            /* hidden by default */
+            opacity: 0;
+            pointer-events: none;
+            -webkit-transform: translateY(12px);
+            transform: translateY(12px);
+            -webkit-transition: opacity 0.4s ease, -webkit-transform 0.4s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        #brightness-panel.visible {
+            opacity: 1;
+            pointer-events: all;
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        /* Vertical slider using webkit-appearance for old webviews */
+        #brightness-slider {
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            width: 28px;
+            height: 140px;
+            cursor: pointer;
+            accent-color: #ff6600;
+        }
+
+        /* Fallback for browsers that don't support slider-vertical */
+        @supports not (appearance: slider-vertical) {
+            #brightness-slider {
+                -webkit-appearance: none;
+                appearance: none;
+                writing-mode: vertical-lr;
+                direction: rtl;
+                width: 28px;
+                height: 140px;
+            }
+        }
+
+        #brightness-label {
+            font-family: "Outfit", sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            margin-top: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ─── Nightlight overlay for brightness control ─── */
+        #nightlight-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #000000;
+            pointer-events: none;
+            opacity: 0;
+            -webkit-transition: opacity 0.1s linear;
+            transition: opacity 0.1s linear;
+        }
+
+        /* ─── Weather widget (top-right, from original) ─── */
+        .wlr {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: "Outfit", sans-serif;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Weather block -->
+    <!-- <div id="id1c055f8167e7f" a='{"t":"r","v":"1.2","lang":"sv","locs":[865],"ssot":"c","sics":"ms","cbkg":"#000000","cfnt":"#FFFFFF","codd":"#000000","cont":"#E0E0E0","stof":"3","sfnt":"a"}'>Weather Data Source: <a href="https://sharpweather.com/weather_linkoping/30_days/">weather forecast Linkoping 30 days</a></div>
+    <script async src="https://static1.sharpweather.com/widgetjs/?id=id1c055f8167e7f"></script> -->
+
+    <!-- Clock & Date -->
+    <div class="clock" id="clock"></div>
+    <div class="date" id="date"></div>
+
+    <!-- Darkness overlay (for brightness dimming) -->
+    <div id="nightlight-overlay"></div>
+
+    <!-- Brightness slider panel (shown in nightlight mode) -->
+    <div id="brightness-panel">
+        <input type="range" id="brightness-slider" min="0" max="100" value="80" orient="vertical">
+        <span id="brightness-label">LYS</span>
+    </div>
+
+    <!-- Nightlight toggle button -->
+    <button id="nightlight-btn" title="Nightlight">
+        <!-- Candle / flame icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2c0 0-1.5 2-1.5 3.5a1.5 1.5 0 0 0 3 0C13.5 4 12 2 12 2z"/>
+            <path d="M12 7a5 5 0 0 0-5 5c0 3.5 2.5 5.5 5 8 2.5-2.5 5-4.5 5-8a5 5 0 0 0-5-5z"/>
+        </svg>
+    </button>
+
+    <script>
+        // ─── Clock ───────────────────────────────────────────
+        function updateTime() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+
+            var days = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag'];
+            // Note: getDay() returns 0=Sunday. Remap for Swedish Monday-first:
+            var dayIndex = now.getDay(); // 0=Sun,1=Mon...6=Sat
+            var swedishIndex = (dayIndex + 6) % 7; // 0=Mon...6=Sun
+            var day = days[swedishIndex];
+
+            var date = now.toLocaleDateString('de-DE');
+
+            var hStr = hours < 10 ? '0' + hours : '' + hours;
+            var mStr = minutes < 10 ? '0' + minutes : '' + minutes;
+
+            document.getElementById('clock').innerHTML = hStr + ':' + mStr;
+            document.getElementById('date').innerHTML = day + ', ' + date;
+        }
+
+        // Margin toggle (screensaver burn-in prevention)
+        function toggleClockMargin() {
+            var el = document.getElementById('clock');
+            el.style.marginBottom = (el.style.marginBottom === '4rem') ? '0rem' : '4rem';
+        }
+
+        setInterval(updateTime, 1000);
+        setInterval(toggleClockMargin, 5 * 60 * 1000);
+        updateTime();
+
+        // ─── Nightlight ───────────────────────────────────────
+        var nightlightActive = false;
+        var btn = document.getElementById('nightlight-btn');
+        var panel = document.getElementById('brightness-panel');
+        var overlay = document.getElementById('nightlight-overlay');
+        var slider = document.getElementById('brightness-slider');
+
+        btn.addEventListener('click', function() {
+            nightlightActive = !nightlightActive;
+
+            if (nightlightActive) {
+                document.body.className = 'nightlight';
+                btn.className = 'active';
+                panel.className = 'visible';
+                applyBrightness(slider.value);
+            } else {
+                document.body.className = '';
+                btn.className = '';
+                panel.className = '';
+                overlay.style.opacity = '0';
+            }
+        });
+
+        function applyBrightness(val) {
+            // val: 0-100, where 100 = full orange (no dimming), 0 = almost black
+            // We darken by increasing overlay opacity
+            var dimAmount = (100 - val) / 100 * 0.92; // max dim ~92%
+            overlay.style.opacity = dimAmount;
+        }
+
+        slider.addEventListener('input', function() {
+            if (nightlightActive) {
+                applyBrightness(this.value);
+            }
+        });
+
+        // Also allow tapping anywhere on the body (not the button/panel) to dismiss
+        document.body.addEventListener('click', function(e) {
+            if (nightlightActive && e.target === document.body) {
+                // Don't dismiss on body tap — user may want nightlight for a while
+                // Could add dismiss logic here if desired
+            }
+        });
+    </script>
+</body>
+</html>
