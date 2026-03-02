@@ -38,7 +38,7 @@
 
         body.nightlight .clock,
         body.nightlight .date {
-            color: hsla(22, 100%, 30%, 0.2);
+            color: hsla(22, 100%, 35%, 0.5);
         }
 
         .clock {
@@ -107,7 +107,7 @@
         #brightness-panel {
             position: fixed;
             bottom: 90px;
-            right: 16px;
+            right: 24px;
             width: 52px;
             background-color: rgba(30,30,30,0.9);
             border-radius: 26px;
@@ -134,26 +134,42 @@
             transform: translateY(0);
         }
 
-        /* Vertical slider using webkit-appearance for old webviews */
-        #brightness-slider {
-            -webkit-appearance: slider-vertical;
-            appearance: slider-vertical;
-            width: 28px;
+
+        /* ─── Custom Vertical Slider ─── */
+        #custom-slider {
+            position: relative;
+            width: 20px;
             height: 140px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
             cursor: pointer;
-            accent-color: #ff6600;
+            /* Prevent touch actions like scrolling from hijacking the drag */
+            touch-action: none; 
         }
 
-        /* Fallback for browsers that don't support slider-vertical */
-        @supports not (appearance: slider-vertical) {
-            #brightness-slider {
-                -webkit-appearance: none;
-                appearance: none;
-                writing-mode: vertical-lr;
-                direction: rtl;
-                width: 28px;
-                height: 140px;
-            }
+        #slider-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80%; /* Will be overridden by JS */
+            background-color: #ff6600;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        #slider-thumb {
+            position: absolute;
+            bottom: 80%; /* Will be overridden by JS */
+            left: 50%;
+            -webkit-transform: translate(-50%, 50%);
+            transform: translate(-50%, 50%);
+            width: 32px;
+            height: 32px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            pointer-events: none; /* Let the container capture the events */
         }
 
         #brightness-label {
@@ -161,7 +177,7 @@
             font-size: 11px;
             font-weight: 600;
             color: rgba(255,255,255,0.5);
-            margin-top: 10px;
+            margin-top: 18px;
             letter-spacing: 0.05em;
         }
 
@@ -202,20 +218,24 @@
 
     <!-- Brightness slider panel (shown in nightlight mode) -->
     <div id="brightness-panel">
-        <input type="range" id="brightness-slider" min="0" max="100" value="80" orient="vertical">
-        <span id="brightness-label">LYS</span>
+        <div id="custom-slider">
+            <div id="slider-fill"></div>
+            <div id="slider-thumb"></div>
+        </div>
     </div>
+
 
     <!-- Nightlight toggle button -->
     <button id="nightlight-btn" title="Nightlight">
         <!-- Candle / flame icon -->
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2c0 0-1.5 2-1.5 3.5a1.5 1.5 0 0 0 3 0C13.5 4 12 2 12 2z"/>
-            <path d="M12 7a5 5 0 0 0-5 5c0 3.5 2.5 5.5 5 8 2.5-2.5 5-4.5 5-8a5 5 0 0 0-5-5z"/>
-        </svg>
+        <svg fill="#000000" viewBox="-2 -1 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-candle"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M9 11v6h2v-6H9zm4 6h5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h5V9h6v8zM2 19v1h16v-1H2zm8-10.6a3 3 0 0 1-3-3C7 4.295 8 2.495 10 0c2 2.495 3 4.295 3 5.4a3 3 0 0 1-3 3zm0-1.952c.552 0 1-.48 1-1 0-.466-.333-1.109-1-2-.667.891-1 1.534-1 2 0 .52.448 1 1 1z"></path></g></svg>
     </button>
 
     <script>
+        fetch("/api").then(response => {
+            response.json().then(res => alert(JSON.stringify(res)))
+            <!-- response.json().then(res => console.log(JSON.stringify(res))) -->
+        })
         // ─── Clock ───────────────────────────────────────────
         function updateTime() {
             var now = new Date();
@@ -247,12 +267,26 @@
         setInterval(toggleClockMargin, 5 * 60 * 1000);
         updateTime();
 
-        // ─── Nightlight ───────────────────────────────────────
+
+        // ─── Nightlight & Custom Slider ────────────────────────
         var nightlightActive = false;
         var btn = document.getElementById('nightlight-btn');
         var panel = document.getElementById('brightness-panel');
         var overlay = document.getElementById('nightlight-overlay');
-        var slider = document.getElementById('brightness-slider');
+        
+        var sliderContainer = document.getElementById('custom-slider');
+        var sliderFill = document.getElementById('slider-fill');
+        var sliderThumb = document.getElementById('slider-thumb');
+        
+        var isDragging = false;
+        var currentBrightness = 80; // 0 to 100
+
+        // Initialize Slider Visuals
+        function renderSlider(val) {
+            sliderFill.style.height = val + '%';
+            sliderThumb.style.bottom = val + '%';
+        }
+        renderSlider(currentBrightness);
 
         btn.addEventListener('click', function() {
             nightlightActive = !nightlightActive;
@@ -261,7 +295,7 @@
                 document.body.className = 'nightlight';
                 btn.className = 'active';
                 panel.className = 'visible';
-                applyBrightness(slider.value);
+                applyBrightness(currentBrightness);
             } else {
                 document.body.className = '';
                 btn.className = '';
@@ -277,11 +311,25 @@
             overlay.style.opacity = dimAmount;
         }
 
-        slider.addEventListener('input', function() {
+        // Logic for converting touch/mouse Y position to percentage
+        function handleDrag(clientY) {
+            var rect = sliderContainer.getBoundingClientRect();
+            // Calculate distance from bottom
+            var yOffset = rect.bottom - clientY;
+            var height = rect.height;
+            
+            var percentage = (yOffset / height) * 100;
+            // Clamp between 0 and 100
+            percentage = Math.max(0, Math.min(100, percentage));
+            
+            currentBrightness = percentage;
+            renderSlider(currentBrightness);
+            
             if (nightlightActive) {
-                applyBrightness(this.value);
+                applyBrightness(currentBrightness);
             }
-        });
+        }
+
 
         // Also allow tapping anywhere on the body (not the button/panel) to dismiss
         document.body.addEventListener('click', function(e) {
@@ -290,6 +338,43 @@
                 // Could add dismiss logic here if desired
             }
         });
+
+         // --- Mouse Events (For PC testing) ---
+        sliderContainer.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            handleDrag(e.clientY);
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                handleDrag(e.clientY);
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+
+         // --- Touch Events (For the Tablet) ---
+        sliderContainer.addEventListener('touchstart', function(e) {
+            isDragging = true;
+            handleDrag(e.touches[0].clientY);
+            // Prevent zooming/scrolling on older tablets while sliding
+            e.preventDefault(); 
+        }, false);
+
+        document.addEventListener('touchmove', function(e) {
+            if (isDragging) {
+                handleDrag(e.touches[0].clientY);
+                e.preventDefault(); 
+            }
+        }, false);
+
+        document.addEventListener('touchend', function() {
+            isDragging = false;
+        }, false);
+
+        
     </script>
 </body>
 </html>
