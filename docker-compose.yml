@@ -2,7 +2,7 @@ services:
   ha-tablet-dash:
     build: .
     ports:
-      - "4567:4567"
+      - "0.0.0.0:4567:4567"
     volumes:
       - ./config:/config
       - ./frontend:/app/frontend
