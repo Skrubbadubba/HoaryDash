@@ -5,7 +5,7 @@ services:
       - "4567:4567"
     volumes:
       - ./config:/config
-      - ./build:/app     
+      - ./frontend:/app/frontend
     environment:
       - HA_URL=http://homeassistant.local:8123
       - HA_TOKEN=your_long_lived_token_here
