@@ -19,6 +19,10 @@ type Config struct {
 	Dashboard struct {
 		Nightlight bool
 	}
+	FullyKiosk struct {
+		Password           string `yaml:"password"`
+		ScreensaverTimeout int    `yaml:"screensaver_timeout"`
+	} `yaml:"fully_kiosk"`
 }
 
 var yamlPath string = "/app/config/test.yaml"

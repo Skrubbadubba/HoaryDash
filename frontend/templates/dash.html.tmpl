@@ -7,6 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <script>
+        window.CONFIG = {
+            fullyKiosk: {
+                password: "{{.FullyKiosk.Password}}",
+                screensaverTimeout: {{.FullyKiosk.ScreensaverTimeout}}
+            }
+        };
+    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -30,15 +38,6 @@
             overflow: hidden;
             -webkit-transition: background-color 0.8s ease;
             transition: background-color 0.8s ease;
-        }
-
-        body.nightlight {
-            background-color: hsl(22, 100%, 50%);
-        }
-
-        body.nightlight .clock,
-        body.nightlight .date {
-            color: hsla(22, 100%, 35%, 0.5);
         }
 
         .clock {
@@ -77,14 +76,24 @@
     <div class="clock" id="clock"></div>
     <div class="date" id="date"></div>
 
+    {{template "screenonlock" .}}
+
     {{if .Dashboard.Nightlight }}
         {{template "nightlight" .}}
     {{end}}
     <script>
-        fetch("/api").then(response => {
-            response.json().then(res => alert(JSON.stringify(res)))
-            <!-- response.json().then(res => console.log(JSON.stringify(res))) -->
-        })
+        var t0 = Date.now();
+        fetch("/api")
+            .then(function(response) { 
+                var t1 = Date.now();
+                console.log("fetch resolved: " + (t1 - t0) + "ms");
+                return response.json(); 
+            })
+            .then(function(res) {
+                var t2 = Date.now();
+                console.log("json parsed: " + (t2 - t0) + "ms");
+                alert((t2 - t0) + "ms — " + JSON.stringify(res));
+            });
         // ─── Clock ───────────────────────────────────────────
         function updateTime() {
             var now = new Date();
