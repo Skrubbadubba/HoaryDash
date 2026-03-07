@@ -22,11 +22,11 @@ type Config struct {
 }
 
 var yamlPath string = "/app/config/test.yaml"
-var frontendTemplatesPath string = "/app/frontend/templates"
+var frontendPath string = "/app/frontend"
 
 func check(e error, message string, v ...any) {
 	if e != nil {
-		panic(e)
+		log.Print(e)
 	}
 	log.Printf(message, v...)
 }
@@ -41,22 +41,22 @@ func templHandler(data Config) http.HandlerFunc {
 	}
 }
 
-func templBuilder() {
-	data := readConfig()
+func BuildDash() {
+	cfg := loadConfig()
 
-	outputFile, err := os.Create(frontendTemplatesPath + "/generated.html")
+	out, err := os.Create(frontendPath + "/static/dash.html")
 	check(err, "Created/opened output file")
-	defer outputFile.Close()
+	defer out.Close()
 
-	tmpl, err := template.ParseFiles(frontendTemplatesPath + "/index.html")
+	tmpl, err := template.ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	check(err, "Created template object")
 
-	err = tmpl.Execute(outputFile, data)
-	outputFile.Sync()
+	err = tmpl.ExecuteTemplate(out, "dash.html.tmpl", cfg)
+	out.Sync()
 	check(err, "Template executed")
 }
 
-func readConfig() Config {
+func loadConfig() Config {
 	config_file, err := os.ReadFile(yamlPath)
 	config := Config{}
 	err = yaml.Unmarshal(config_file, &config)
@@ -70,8 +70,8 @@ func init() {
 	if isDev {
 		log.Print("is dev")
 		yamlPath = strings.ReplaceAll(yamlPath, "/app", "..")
-		frontendTemplatesPath = strings.ReplaceAll(frontendTemplatesPath, "/app", "..")
-		log.Printf("paths are now:\n%s\n%s", yamlPath, frontendTemplatesPath)
+		frontendPath = strings.ReplaceAll(frontendPath, "/app", "..")
+		log.Printf("paths are now:\n%s\n%s", yamlPath, frontendPath)
 	}
 }
 
@@ -80,11 +80,6 @@ func main() {
 	if port == "" {
 		port = "4567"
 	}
-	fs := http.FileServer(http.Dir(frontendTemplatesPath))
-	// fs := http.FileServer(http.Dir("app/frontend/templates"))
-
-	http.Handle("/", fs)
-	http.HandleFunc("/api", helloHandler)
 
 	log.Printf("Serving on :%s", port)
 
@@ -99,7 +94,7 @@ func main() {
 			select {
 			case event := <-yamlWatcher.Event:
 				fmt.Println(event) // Print the event's info.
-				templBuilder()
+				BuildDash()
 			case err := <-yamlWatcher.Error:
 				log.Fatalln(err)
 			case <-yamlWatcher.Closed:
@@ -108,11 +103,14 @@ func main() {
 		}
 	}()
 
-	templBuilder()
+	BuildDash()
 
-	yamlWatcher.Start(1 * time.Second)
-	// http.HandleFunc("/template", templHandler(config))
+	go yamlWatcher.Start(1 * time.Second)
 
+	fs := http.FileServer(http.Dir(frontendPath + "/static"))
+	http.Handle("/", fs)
+	http.HandleFunc("/api", helloHandler)
+	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
 

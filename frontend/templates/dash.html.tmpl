@@ -57,7 +57,7 @@
             transition: color 0.8s ease;
         }
 
-         
+        /* ─── Weather widget (top-right, from original) ─── */
         .wlr {
             position: absolute;
             top: 15px;
@@ -69,27 +69,32 @@
 </head>
 <body>
 
-    
-    
+    <!-- Weather block -->
+    <!-- <div id="id1c055f8167e7f" a='{"t":"r","v":"1.2","lang":"sv","locs":[865],"ssot":"c","sics":"ms","cbkg":"#000000","cfnt":"#FFFFFF","codd":"#000000","cont":"#E0E0E0","stof":"3","sfnt":"a"}'>Weather Data Source: <a href="https://sharpweather.com/weather_linkoping/30_days/">weather forecast Linkoping 30 days</a></div>
+    <script async src="https://static1.sharpweather.com/widgetjs/?id=id1c055f8167e7f"></script> -->
 
-    
+    <!-- Clock & Date -->
     <div class="clock" id="clock"></div>
     <div class="date" id="date"></div>
+
+    {{if .Dashboard.Nightlight }}
+        {{template "nightlight" .}}
+    {{end}}
     <script>
         fetch("/api").then(response => {
             response.json().then(res => alert(JSON.stringify(res)))
-            
+            <!-- response.json().then(res => console.log(JSON.stringify(res))) -->
         })
-        
+        // ─── Clock ───────────────────────────────────────────
         function updateTime() {
             var now = new Date();
             var hours = now.getHours();
             var minutes = now.getMinutes();
 
             var days = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag'];
-            
-            var dayIndex = now.getDay(); 
-            var swedishIndex = (dayIndex + 6) % 7; 
+            // Note: getDay() returns 0=Sunday. Remap for Swedish Monday-first:
+            var dayIndex = now.getDay(); // 0=Sun,1=Mon...6=Sat
+            var swedishIndex = (dayIndex + 6) % 7; // 0=Mon...6=Sun
             var day = days[swedishIndex];
 
             var date = now.toLocaleDateString('de-DE');
@@ -101,7 +106,7 @@
             document.getElementById('date').innerHTML = day + ', ' + date;
         }
 
-        
+        // Margin toggle (screensaver burn-in prevention)
         function toggleClockMargin() {
             var el = document.getElementById('clock');
             el.style.marginBottom = (el.style.marginBottom === '4rem') ? '0rem' : '4rem';
