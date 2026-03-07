@@ -49,27 +49,13 @@
     var screenOnActive = false;
     var screenOnBtn = document.getElementById('screenon-btn');
 
-    function setScreensaverTimeout(seconds) {
-        var password = window.CONFIG.fullyKiosk.password;
-        var url = 'http://localhost:2323/?cmd=setStringSetting' +
-            '&key=timeToScreensaverV2' +
-            '&value=' + seconds +
-            '&password=' + encodeURIComponent(password);
-
-        fetch(url, { mode: 'no-cors' }).catch(function(err) {
-            console.log('Fully Kiosk call failed: ' + err);
-        });
-    }
-
     screenOnBtn.addEventListener('click', function() {
+        fetch('/api/kiosk/screensaver/toggle', { method: 'POST' })
+            .catch(function(err) {
+                console.log('toggle failed: ' + err);
+            });
         screenOnActive = !screenOnActive;
-        if (screenOnActive) {
-            screenOnBtn.className = 'active';
-            setScreensaverTimeout(0);
-        } else {
-            screenOnBtn.className = '';
-            setScreensaverTimeout(window.CONFIG.fullyKiosk.screensaverTimeout);
-        }
+        screenOnBtn.className = screenOnActive ? 'active' : '';
     });
 </script>
 {{end}}
