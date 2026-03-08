@@ -1,2 +1,5 @@
 dashboard:
-  nightlight: true
+  nightlight: false
+fully_kiosk:
+  password: "hej54321"
+  screensaver_timeout: 20

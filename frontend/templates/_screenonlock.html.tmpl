@@ -48,13 +48,25 @@
 <script>
     var screenOnActive = false;
     var screenOnBtn = document.getElementById('screenon-btn');
+    var previousTimer = fully.getStringSetting("timeToScreensaverV2");
+    screenOnBtn.className = previousTimer == 0 ? 'active' : '';
 
     screenOnBtn.addEventListener('click', function() {
-        fetch('/api/kiosk/screensaver/toggle', { method: 'POST' })
-            .catch(function(err) {
-                console.log('toggle failed: ' + err);
-            });
-        screenOnActive = !screenOnActive;
+        var currentTimer = fully.getStringSetting("timeToScreensaverV2")
+        console.log("Current screensaver timer is: ", currentTimer)
+        console.log(currentTimer)
+        if (currentTimer == 0) {
+            fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : {{ .FullyKiosk.ScreensaverTimeout }})
+            console.log("Set screensaver timer to ", previousTimer)
+            console.log(previousTimer)
+        }
+        else {
+            previousTimer = currentTimer;
+            console.log(previousTimer)
+            fully.setStringSetting("timeToScreensaverV2", 0)
+            console.log("Set screensaver timer to 0")
+        }
+        screenOnActive = currentTimer != 0;
         screenOnBtn.className = screenOnActive ? 'active' : '';
     });
 </script>

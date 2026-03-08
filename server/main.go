@@ -186,7 +186,7 @@ func kioskToggleHandler(cfg *Config) http.HandlerFunc {
 }
 
 func getKioskSetting(host, password, key string) (string, error) {
-	url := fmt.Sprintf("http://%s:2323/?cmd=getSettings&password=%s", host, password)
+	url := fmt.Sprintf("http://%s:2323/?cmd=listSettings&type=json&password=%s", host, password)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
