@@ -10,20 +10,21 @@
   function processEntities(entities) {
     var entityId, entity;
     for (entityId in entities) {
-      if (!entities.hasOwnProperty(entityId)) { continue; }
-      entity = entities[entityId];
+        if (!entities.hasOwnProperty(entityId)) { continue; }
+        entity = entities[entityId];
 
-      // "a" (added): full entity, just store s and a directly
-      // "c" (changed): partial diff, merge into existing
-      if (!window.entityState[entityId]) {
-        window.entityState[entityId] = {};
-      }
-      if (entity.s !== undefined) {
-        window.entityState[entityId].s = entity.s;
-      }
-      if (entity.a !== undefined) {
-        window.entityState[entityId].a = entity.a;
-      }
+        if (!window.entityState[entityId]) {
+            window.entityState[entityId] = {};
+        }
+
+        fields = entity['+'] !== undefined ? entity['+'] : entity;
+
+        if (fields.s !== undefined) {
+            window.entityState[entityId].s = fields.s;
+        }
+        if (fields.a !== undefined) {
+            window.entityState[entityId].a = fields.a;
+    }
 
       document.dispatchEvent(new CustomEvent('ha-state-change', {
         detail: {
