@@ -1,0 +1,72 @@
+{{define "websocket"}}
+<script>
+(function() {
+  var RECONNECT_DELAY_MS = 5000;
+  var entityIds = window.CONFIG.entity_ids;
+  var msgId = 1;
+
+  window.entityState = {};
+
+  function processEntities(entities) {
+    var entityId, entity;
+    for (entityId in entities) {
+      if (!entities.hasOwnProperty(entityId)) { continue; }
+      entity = entities[entityId];
+
+      // "a" (added): full entity, just store s and a directly
+      // "c" (changed): partial diff, merge into existing
+      if (!window.entityState[entityId]) {
+        window.entityState[entityId] = {};
+      }
+      if (entity.s !== undefined) {
+        window.entityState[entityId].s = entity.s;
+      }
+      if (entity.a !== undefined) {
+        window.entityState[entityId].a = entity.a;
+      }
+
+      document.dispatchEvent(new CustomEvent('ha-state-change', {
+        detail: {
+          entity_id: entityId,
+          state: window.entityState[entityId].s,
+          attributes: window.entityState[entityId].a
+        }
+      }));
+    }
+  }
+
+  function connect() {
+    var ws = new WebSocket(
+      (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/ws'
+    );
+
+    ws.onopen = function() {
+      ws.send(JSON.stringify({
+        id: msgId,
+        type: 'subscribe_entities',
+        entity_ids: entityIds
+      }));
+    };
+
+    ws.onmessage = function(evt) {
+      var msg;
+      try { msg = JSON.parse(evt.data); } catch(e) { return; }
+      console.log("Message from server ", msg);
+
+      if (msg.type !== 'event' || msg.id !== msgId) { return; }
+
+      var ev = msg.event;
+
+      if (ev.a) { processEntities(ev.a); }
+
+      if (ev.c) { processEntities(ev.c); }
+    };
+
+    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS); };
+    ws.onerror = function() { ws.close(); };
+  }
+
+  connect();
+})();
+</script>
+{{end}}

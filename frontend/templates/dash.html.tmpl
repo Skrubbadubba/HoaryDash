@@ -10,11 +10,20 @@
     <script>
         window.CONFIG = {
             fullyKiosk: {
-                password: "{{.FullyKiosk.Password}}",
-                screensaverTimeout: {{.FullyKiosk.ScreensaverTimeout}}
-            }
+                password: "{{.Config.FullyKiosk.Password}}",
+                screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
+            },
+            entity_ids: [
+                    {{range .Config.Dashboard.Sensors}}"{{.EntityID}}",{{end}}
+                ]
         };
     </script>
+    {{if .IsDev }}
+        {{template "isdev"}}
+    {{end}}
+    {{ if .Config.Dashboard.Sensors }}
+        {{template "websocket"}}
+    {{end}}
     <style>
         * {
             box-sizing: border-box;
@@ -72,17 +81,23 @@
     <!-- <div id="id1c055f8167e7f" a='{"t":"r","v":"1.2","lang":"sv","locs":[865],"ssot":"c","sics":"ms","cbkg":"#000000","cfnt":"#FFFFFF","codd":"#000000","cont":"#E0E0E0","stof":"3","sfnt":"a"}'>Weather Data Source: <a href="https://sharpweather.com/weather_linkoping/30_days/">weather forecast Linkoping 30 days</a></div>
     <script async src="https://static1.sharpweather.com/widgetjs/?id=id1c055f8167e7f"></script> -->
 
+    {{template "websocket" .}}
+
+    {{range .Config.Dashboard.Sensors}}
+        {{template "sensor" .}}
+    {{end}}
+
     <!-- Clock & Date -->
     <div class="clock" id="clock"></div>
     <div class="date" id="date"></div>
 
     {{template "screenonlock" .}}
 
-    {{if .Dashboard.Nightlight }}
+    {{if .Config.Dashboard.Nightlight }}
         {{template "nightlight" .}}
     {{end}}
     <script>
-        var t0 = Date.now();
+        {{/* var t0 = Date.now();
         fetch("/api")
             .then(function(response) { 
                 var t1 = Date.now();
@@ -93,7 +108,7 @@
                 var t2 = Date.now();
                 console.log("json parsed: " + (t2 - t0) + "ms");
                 alert((t2 - t0) + "ms — " + JSON.stringify(res));
-            });
+            }); */}}
         // ─── Clock ───────────────────────────────────────────
         function updateTime() {
             var now = new Date();

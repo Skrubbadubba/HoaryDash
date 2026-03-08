@@ -21,11 +21,25 @@ import (
 type Config struct {
 	Dashboard struct {
 		Nightlight bool
+		Sensors    []struct {
+			EntityID string `yaml:"entity_id"`
+			Label    string
+			Unit     string
+		}
 	}
 	FullyKiosk struct {
 		Password           string `yaml:"password"`
 		ScreensaverTimeout int    `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
+	HomeAssistant struct {
+		URL   string
+		TOKEN string
+	} `yaml:"home_assistant"`
+}
+
+type TemplateData struct {
+	Config
+	IsDev bool
 }
 
 var yamlPath string = "/app/config/test.yaml"
@@ -55,6 +69,8 @@ func BuildDash() {
 		return
 	}
 
+	data := TemplateData{*cfg, isDev}
+
 	out, err := os.Create(frontendPath + "/static/dash.html")
 	check(err, "Created/opened output file")
 	defer out.Close()
@@ -62,7 +78,7 @@ func BuildDash() {
 	tmpl, err := template.ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	check(err, "Created template object")
 
-	err = tmpl.ExecuteTemplate(out, "dash.html.tmpl", cfg)
+	err = tmpl.ExecuteTemplate(out, "dash.html.tmpl", data)
 	out.Sync()
 	check(err, "Template executed")
 }
@@ -119,12 +135,14 @@ func main() {
 
 	cfg, err := loadConfig()
 	check(err, "Config loaded successfully")
+	log.Printf("Config is: %v", cfg)
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
 	http.Handle("/", fs)
 	http.HandleFunc("/api", helloHandler)
 	http.HandleFunc("/api/kiosk/screensaver/toggle", kioskToggleHandler(cfg))
+	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
