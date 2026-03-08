@@ -2,9 +2,9 @@ services:
   ha-tablet-dash:
     build: .
     ports:
-      - "0.0.0.0:4567:4567"
+      - "4567:4567"
     volumes:
-      - ./config:/config
+      - ./config:/app/config
       - ./frontend:/app/frontend
     environment:
       - HA_URL=http://homeassistant.local:8123
