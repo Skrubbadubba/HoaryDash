@@ -20,17 +20,33 @@
 <div class="date" id="date"></div>
 <script>
     var locale = '{{.Locale}}' || navigator.language || 'en-US';
+    var timezone = '{{.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var hour12 = {{if .Hour12}}true{{else}}false{{end}};
     function updateTime() {
         var now = new Date();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var hStr = hours < 10 ? '0' + hours : '' + hours;
-        var mStr = minutes < 10 ? '0' + minutes : '' + minutes;
 
-        var day = now.toLocaleDateString(locale, { weekday: 'long' });
+        var time = now.toLocaleTimeString(locale, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: hour12,
+            timeZone: timezone
+        });
+
+        var day = now.toLocaleDateString(locale, {
+            weekday: 'long',
+            timeZone: timezone
+        });
+
+        var date = now.toLocaleDateString(locale, {
+            dateStyle: 'short',
+            timeZone: timezone
+        });
+        {{if .CapitaliseDay}}
+        day = day.charAt(0).toUpperCase() + day.slice(1);
+        {{end}}
         var date = now.toLocaleDateString(locale);
 
-        document.getElementById('clock').textContent = hStr + ':' + mStr;
+        document.getElementById('clock').textContent = time;
         document.getElementById('date').textContent = day + ', ' + date;
     }
 
