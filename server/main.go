@@ -26,6 +26,11 @@ type Config struct {
 			Label    string
 			Unit     string
 		}
+		Theme struct {
+			BodyBackground   string `yaml:"body_background"`
+			ButtonBackground string `yaml:"button_background"`
+			FontColor        string `yaml:"font_color"`
+		}
 	}
 	FullyKiosk struct {
 		Password           string `yaml:"password"`
@@ -75,15 +80,24 @@ func BuildDash() {
 	check(err, "Created/opened output file")
 	defer out.Close()
 
-	tmpl, err := template.New("").ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	funcMap := template.FuncMap{
+		"default": func(def string, val interface{}) template.CSS {
+			s, ok := val.(string)
+			if !ok || s == "" {
+				return template.CSS(def)
+			}
+			return template.CSS(s)
+		},
+	}
+	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	if err != nil {
-		log.Printf("Could not return root level templates")
+		log.Printf("Could not return root level templates %v", err)
 		return
 	}
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
 	check(err, "Created template object")
 
-	err = tmpl.ExecuteTemplate(out, "dash.html.tmpl", data)
+	err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 	out.Sync()
 	check(err, "Template executed")
 }

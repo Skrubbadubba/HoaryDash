@@ -1,0 +1,27 @@
+{{define "base-style"}}
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        background-color: {{.BodyBackground | default "#000000"}};
+        color: {{.FontColor | default "#ffffff"}};
+        font-family: "Outfit", sans-serif;
+        display: -webkit-flex;
+        display: flex;
+    
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        -webkit-transition: background-color 0.8s ease;
+        transition: background-color 0.8s ease;
+    }
+</style>
+{{end}}
