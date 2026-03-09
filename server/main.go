@@ -32,6 +32,7 @@ type Config struct {
 			FontColor        string `yaml:"font_color"`
 		}
 	}
+	Locale     string
 	FullyKiosk struct {
 		Password           string `yaml:"password"`
 		ScreensaverTimeout int    `yaml:"screensaver_timeout"`

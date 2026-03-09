@@ -1,0 +1,47 @@
+{{define "dateclock"}}
+<style>
+    .clock {
+        font-size: 15vw;
+        font-weight: 600;
+        margin-bottom: 0rem;
+        -webkit-transition: color 0.8s ease, margin-bottom 0.5s ease;
+        transition: color 0.8s ease, margin-bottom 0.5s ease;
+        letter-spacing: -0.02em;
+    }
+
+    .date {
+        font-size: 4vw;
+        font-weight: 600;
+        -webkit-transition: color 0.8s ease;
+        transition: color 0.8s ease;
+    }
+</style>
+<div class="clock" id="clock"></div>
+<div class="date" id="date"></div>
+<script>
+    var locale = '{{.Locale}}' || navigator.language || 'en-US';
+    function updateTime() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var hStr = hours < 10 ? '0' + hours : '' + hours;
+        var mStr = minutes < 10 ? '0' + minutes : '' + minutes;
+
+        var day = now.toLocaleDateString(locale, { weekday: 'long' });
+        var date = now.toLocaleDateString(locale);
+
+        document.getElementById('clock').textContent = hStr + ':' + mStr;
+        document.getElementById('date').textContent = day + ', ' + date;
+    }
+
+    // Margin toggle (screensaver burn-in prevention)
+    function toggleClockMargin() {
+        var el = document.getElementById('clock');
+        el.style.marginBottom = (el.style.marginBottom === '4rem') ? '0rem' : '4rem';
+    }
+
+    setInterval(updateTime, 1000);
+    setInterval(toggleClockMargin, 5 * 60 * 1000);
+    updateTime();
+</script>
+{{end}}

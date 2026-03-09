@@ -27,22 +27,7 @@
     {{template "base-style" .Config.Dashboard.Theme}}
     {{template "btn-style" .Config.Dashboard.Theme}}
     <style>
-        .clock {
-            font-size: 15vw;
-            font-weight: 600;
-            margin-bottom: 0rem;
-            -webkit-transition: color 0.8s ease, margin-bottom 0.5s ease;
-            transition: color 0.8s ease, margin-bottom 0.5s ease;
-            letter-spacing: -0.02em;
-        }
-
-        .date {
-            font-size: 4vw;
-            font-weight: 600;
-            -webkit-transition: color 0.8s ease;
-            transition: color 0.8s ease;
-        }
-
+        
         /* ─── Weather widget (top-right, from original) ─── */
         .wlr {
             position: absolute;
@@ -77,58 +62,13 @@
         </div>
     {{end}}
 
-    <!-- Clock & Date -->
-    <div class="clock" id="clock"></div>
-    <div class="date" id="date"></div>
+    {{template "dateclock" .Config}}    
 
     {{template "screenonlock" .}}
 
     {{if .Config.Dashboard.Nightlight }}
         {{template "nightlight" .}}
     {{end}}
-    <script>
-        {{/* var t0 = Date.now();
-        fetch("/api")
-            .then(function(response) { 
-                var t1 = Date.now();
-                console.log("fetch resolved: " + (t1 - t0) + "ms");
-                return response.json(); 
-            })
-            .then(function(res) {
-                var t2 = Date.now();
-                console.log("json parsed: " + (t2 - t0) + "ms");
-                alert((t2 - t0) + "ms — " + JSON.stringify(res));
-            }); */}}
-        // ─── Clock ───────────────────────────────────────────
-        function updateTime() {
-            var now = new Date();
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
 
-            var days = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag'];
-            // Note: getDay() returns 0=Sunday. Remap for Swedish Monday-first:
-            var dayIndex = now.getDay(); // 0=Sun,1=Mon...6=Sat
-            var swedishIndex = (dayIndex + 6) % 7; // 0=Mon...6=Sun
-            var day = days[swedishIndex];
-
-            var date = now.toLocaleDateString('de-DE');
-
-            var hStr = hours < 10 ? '0' + hours : '' + hours;
-            var mStr = minutes < 10 ? '0' + minutes : '' + minutes;
-
-            document.getElementById('clock').innerHTML = hStr + ':' + mStr;
-            document.getElementById('date').innerHTML = day + ', ' + date;
-        }
-
-        // Margin toggle (screensaver burn-in prevention)
-        function toggleClockMargin() {
-            var el = document.getElementById('clock');
-            el.style.marginBottom = (el.style.marginBottom === '4rem') ? '0rem' : '4rem';
-        }
-
-        setInterval(updateTime, 1000);
-        setInterval(toggleClockMargin, 5 * 60 * 1000);
-        updateTime();
-    </script>
 </body>
 </html>
