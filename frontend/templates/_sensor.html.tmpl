@@ -1,4 +1,4 @@
-{{define "sensor"}}
+{{define "sensor-styles"}}
 <style>
   .sensor-widget {
     display: -webkit-box;
@@ -17,6 +17,7 @@
     padding: 1rem;
     background: rgba(255,255,255,0.07);
     border-radius: 12px;
+    margin-inline: 12px;
   }
 
   .sensor-label {
@@ -39,7 +40,9 @@
     margin-top: 0.25rem;
   }
 </style>
+{{end}}
 
+{{define "sensor"}}
 <div class="sensor-widget" id="sensor-{{.EntityID}}">
   <div class="sensor-label">{{.Label}}</div>
   <div class="sensor-value" id="sensor-value-{{.EntityID}}">—</div>

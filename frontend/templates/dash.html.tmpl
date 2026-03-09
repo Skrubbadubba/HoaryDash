@@ -24,6 +24,7 @@
     {{ if .Config.Dashboard.Sensors }}
         {{template "websocket"}}
     {{end}}
+    {{template "btn-style"}}
     <style>
         * {
             box-sizing: border-box;
@@ -83,8 +84,20 @@
 
     {{template "websocket" .}}
 
-    {{range .Config.Dashboard.Sensors}}
-        {{template "sensor" .}}
+    {{if .Config.Dashboard.Sensors}}
+        <style>
+            .sensors-container {
+                display: flex;
+                position: absolute;
+                bottom: 18%;
+            }
+        </style>
+        {{template "sensor-styles"}}
+       <div class="sensors-container">
+        {{range .Config.Dashboard.Sensors}}
+            {{template "sensor" .}}
+        {{end}}
+        </div>
     {{end}}
 
     <!-- Clock & Date -->

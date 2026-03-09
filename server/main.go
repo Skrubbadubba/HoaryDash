@@ -75,7 +75,12 @@ func BuildDash() {
 	check(err, "Created/opened output file")
 	defer out.Close()
 
-	tmpl, err := template.ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	tmpl, err := template.New("").ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	if err != nil {
+		log.Printf("Could not return root level templates")
+		return
+	}
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
 	check(err, "Created template object")
 
 	err = tmpl.ExecuteTemplate(out, "dash.html.tmpl", data)
