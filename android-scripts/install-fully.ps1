@@ -19,3 +19,5 @@ Write-Host "Emulator ready, installing Fully Kiosk..."
 $apk = "$env:TEMP\fully-kiosk.apk"
 Invoke-WebRequest -Uri "https://www.fully-kiosk.com/files/2026/02/Fully-Kiosk-Browser-v1.60.1.apk" -OutFile $apk
 & $adb install $apk
+Write-Host "Forwarding port 2323 for remote admin"
+$adb forward tcp:2323 tcp:2323
