@@ -6,6 +6,8 @@ This is very early alpha, looks fine IMO but possibly hard to setup. Is alpha ev
 
 # HoaryDash
 
+<img width="1796" height="1420" alt="image" src="https://github.com/user-attachments/assets/6581797c-0972-42ea-8497-6822ffd7d826" />
+
 ## What
 
 A lightweight Home Assistant dashboard for old Android tablets. It runs as an addon, and is configurable with yaml. It runs a server in go exposed on port 4567, which you simply point your kiosk browser to.
