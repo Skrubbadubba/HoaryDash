@@ -47,7 +47,12 @@
             console.log("Set screensaver timer to 0")
         }
         screenOnActive = currentTimer != 0;
-        screenOnBtn.className = screenOnActive ? 'active' : '';
+        if (screenOnActive) {
+            screenOnBtn.classList.add('active')
+        }
+        else {
+            screenOnBtn.classList.remove('active')
+        }
     });
 </script>
 {{end}}

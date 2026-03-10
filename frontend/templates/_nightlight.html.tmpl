@@ -125,12 +125,12 @@
         nightlightActive = !nightlightActive;
         if (nightlightActive) {
             document.body.className = 'nightlight';
-            btn.className = 'active';
+            btn.classList.add('active');
             panel.className = 'visible';
             applyBrightness(currentBrightness);
         } else {
             document.body.className = '';
-            btn.className = '';
+            btn.classList.remove('active');
             panel.className = '';
             overlay.style.opacity = '0';
         }
