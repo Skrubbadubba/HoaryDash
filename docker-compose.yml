@@ -1,10 +1,10 @@
 services:
-  ha-tablet-dash:
+  hoarydash:
     build: .
     ports:
       - "4567:4567"
     volumes:
-      - ./config:/app/config
+      - ./config:/config
       - ./frontend:/app/frontend
     environment:
       - HA_URL=http://homeassistant.local:8123

@@ -1,0 +1,17 @@
+name: "HoaryDash"
+description: "A lightweight Home Assistant dashboard for old Android tablets running Chromium 44."
+version: "0.0.0"
+slug: "hoarydash"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: services
+ports:
+  4567/tcp: 4567
+map:
+  - addon_config:rw
+url: "https://github.com/Skrubbadubba/HoaryDash"

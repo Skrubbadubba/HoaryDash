@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -48,9 +47,6 @@ type TemplateData struct {
 	Config
 	IsDev bool
 }
-
-var yamlPath string = "/app/config/"
-var frontendPath string = "/app/frontend"
 
 func check(e error, message string, v ...any) {
 	if e != nil {
@@ -106,26 +102,23 @@ func loadConfig() (*Config, error) {
 
 var isDev bool
 
+var yamlPath string
+var frontendPath string
+
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Print("Error loading .env file")
-	}
+	godotenv.Load() // silently ignore missing .env
 
 	isDev = os.Getenv("IS_DEV") == "true"
-	yamlFilename := "config.yaml"
-	if isDev {
-		log.Print("is dev")
-		yamlPath = strings.ReplaceAll(yamlPath, "/app", "..")
-		yamlFilename = "dev.yaml"
 
-		frontendPath = strings.ReplaceAll(frontendPath, "/app", "..")
-		log.Printf("paths are now:\n%s\n%s", yamlPath, frontendPath)
+	if isDev {
+		yamlPath = "../dev.yaml"
+		frontendPath = "../frontend"
+	} else {
+		yamlPath = "/config/hoarydash.yaml"
+		frontendPath = "/app/frontend"
 	}
 
-	yamlPath += yamlFilename
-	pwd, _ := os.Getwd()
-	log.Printf("Paths are now %s and %s\n process running at: %s", yamlPath, frontendPath, pwd)
+	log.Printf("isDev=%v yamlPath=%s frontendPath=%s", isDev, yamlPath, frontendPath)
 }
 
 func main() {
