@@ -18,9 +18,6 @@
                 ]
         };
     </script>
-    {{if .IsDev }}
-        {{template "isdev"}}
-    {{end}}
     {{ if .Config.Dashboard.Sensors }}
         {{template "websocket"}}
     {{end}}
@@ -52,6 +49,7 @@
                 display: flex;
                 position: absolute;
                 bottom: 18%;
+                margin-inline: auto;
             }
         </style>
         {{template "sensor-styles"}}
@@ -60,6 +58,10 @@
             {{template "sensor" .}}
         {{end}}
         </div>
+    {{end}}
+
+    {{if .IsDev}}
+        {{template "isdev"}}
     {{end}}
 
     {{template "dateclock" .Config.Localization}}    
