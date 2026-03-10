@@ -1,11 +1,12 @@
 services:
   hoarydash:
-    build: .
+    build:
+      context: ./hoarydash
     ports:
       - "4567:4567"
     volumes:
-      - ./config:/config
-      - ./frontend:/app/frontend
+      - ./hoarydash/dev.yaml:/config/hoarydash.yaml
+      - ./hoarydash/frontend:/app/frontend
     environment:
       - HA_URL=http://homeassistant.local:8123
       - HA_TOKEN=your_long_lived_token_here

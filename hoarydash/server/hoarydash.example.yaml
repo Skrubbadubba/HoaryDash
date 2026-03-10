@@ -11,12 +11,12 @@ dashboard:
       label: label
       unit: unit
   theme:
-    body_background: "#80ceff"
-    font_color: "#ff0000"
+    # body_background: "#80ceff"
+    # font_color: "#ff0000"
 localization:
   capitalise_day: true
   locale: sv-SE
-  # timezone: Japan
+  timezone: Asia/Tokyo
   # hour12: true
 fully_kiosk:
   password: "hej54321"
