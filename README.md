@@ -1,6 +1,6 @@
 # ⚠🛠 Under heavy development 🛠⚠
 
-This is very early alpha, looks fine IMO but possible hard to setup. Is alpha even the right word? Not like its a product lol im just messing around.
+This is very early alpha, looks fine IMO but possibly hard to setup. Is alpha even the right word? Not like its a product lol im just messing around.
 
 ---
 
@@ -9,8 +9,6 @@ This is very early alpha, looks fine IMO but possible hard to setup. Is alpha ev
 ## What
 
 A lightweight Home Assistant dashboard for old Android tablets. It runs as an addon, and is configurable with yaml. It runs a server in go exposed on port 4567, which you simply point your kiosk browser to.
-
-
 
 ### Features
 
