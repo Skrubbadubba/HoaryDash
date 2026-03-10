@@ -43,28 +43,15 @@
 
     {{template "websocket" .}}
 
-    {{if .Config.Dashboard.Sensors}}
-        <style>
-            .sensors-container {
-                display: flex;
-                position: absolute;
-                bottom: 18%;
-                margin-inline: auto;
-            }
-        </style>
-        {{template "sensor-styles"}}
-       <div class="sensors-container">
-        {{range .Config.Dashboard.Sensors}}
-            {{template "sensor" .}}
-        {{end}}
-        </div>
-    {{end}}
-
+    
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
-
+    
     {{template "dateclock" .Config.Localization}}    
+    {{if .Config.Dashboard.Sensors}}
+        {{template "sensors" .Config.Dashboard}}
+    {{end}}
 
     {{template "screenonlock" .}}
 
