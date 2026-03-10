@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -25,6 +26,11 @@ func wsProxyHandler(haBaseURL, haToken string) http.HandlerFunc {
 		log.Printf("Client connected from %s", clientConn.RemoteAddr())
 		defer clientConn.Close()
 
+		if haBaseURL == "" {
+			log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
+			haBaseURL = "http://homeassistant.local:8123"
+		}
+
 		haURL, _ := url.Parse(haBaseURL)
 		haURL.Scheme = "ws"
 		haURL.Path = "/api/websocket"
@@ -38,6 +44,15 @@ func wsProxyHandler(haBaseURL, haToken string) http.HandlerFunc {
 		log.Printf("Connected to ha ws at %s", haURL.String())
 		defer haConn.Close()
 
+		if haToken == "" {
+			log.Print("Getting HA token fron environment")
+			envToken := os.Getenv("HA_TOKEN")
+			if envToken == "" {
+				log.Printf("No HA token could be read")
+				return
+			}
+			haToken = envToken
+		}
 		if err := haAuth(haConn, haToken); err != nil {
 			log.Println("ws HA auth error:", err)
 			return

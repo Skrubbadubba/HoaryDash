@@ -1,0 +1,8 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/server ."
+  entrypoint = "./tmp/server"
+  include_dir = [".", "../frontend"]
+  include_ext = ["go", "tmpl"]

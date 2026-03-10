@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/radovskyb/watcher"
 	"go.yaml.in/yaml/v4"
 )
@@ -53,7 +54,7 @@ type TemplateData struct {
 	IsDev bool
 }
 
-var yamlPath string = "/app/config/test.yaml"
+var yamlPath string = "/app/config/"
 var frontendPath string = "/app/frontend"
 
 func check(e error, message string, v ...any) {
@@ -111,6 +112,9 @@ func BuildDash() {
 func loadConfig() (*Config, error) {
 	config_file, err := os.ReadFile(yamlPath)
 	config := Config{}
+	if err != nil {
+		return &config, err
+	}
 	err = yaml.Unmarshal(config_file, &config)
 	return &config, err
 }
@@ -118,14 +122,25 @@ func loadConfig() (*Config, error) {
 var isDev bool
 
 func init() {
-	log.Printf("init ran")
+	err := godotenv.Load()
+	if err != nil {
+		log.Print("Error loading .env file")
+	}
+
 	isDev = os.Getenv("IS_DEV") == "true"
+	yamlFilename := "config.yaml"
 	if isDev {
 		log.Print("is dev")
 		yamlPath = strings.ReplaceAll(yamlPath, "/app", "..")
+		yamlFilename = "dev.yaml"
+
 		frontendPath = strings.ReplaceAll(frontendPath, "/app", "..")
 		log.Printf("paths are now:\n%s\n%s", yamlPath, frontendPath)
 	}
+
+	yamlPath += yamlFilename
+	pwd, _ := os.Getwd()
+	log.Printf("Paths are now %s and %s\n process running at: %s", yamlPath, frontendPath, pwd)
 }
 
 func main() {
@@ -146,7 +161,7 @@ func main() {
 		for {
 			select {
 			case event := <-yamlWatcher.Event:
-				fmt.Println(event) // Print the event's info.
+				fmt.Println(event)
 				BuildDash()
 			case err := <-yamlWatcher.Error:
 				log.Fatalln(err)
@@ -160,7 +175,7 @@ func main() {
 
 	cfg, err := loadConfig()
 	check(err, "Config loaded successfully")
-	log.Printf("Config is: %v", cfg)
+	// log.Printf("Config is: %v", cfg)
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
