@@ -3,10 +3,18 @@
 (function() {
   var RECONNECT_DELAY_MS = 5000;
   var entityIds = window.CONFIG.entity_ids;
-  var msgId = 1;
-  window.haSocket = null;
-  window.haSocketReady = false;
+  window.haMsgId = 0
+  window.haSubscribeId = null;
+  window.haSubscribeId = ++window.haMsgId;
+  var haSocket = null;
+  var haSocketReady = false;
   window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
+
+  window.haSend = function(msg) {
+      if (haSocketReady) return;
+      msg.id = ++window.haMsgId;
+      haSocket.send(JSON.stringify(msg));
+  };
 
   function updateEntities(entities) {
     var entityId, entity;
@@ -36,8 +44,9 @@
 
     ws.onopen = function() {
       window.haSocketReady = true;
+      haSocket = ws
       ws.send(JSON.stringify({
-        id: msgId,
+        id: window.haMsgId,
         type: 'subscribe_entities',
         entity_ids: entityIds
       }));
@@ -51,14 +60,12 @@
       }
       try { msg = JSON.parse(evt.data); } catch(e) { return; }
 
-      if (msg.type !== 'event' || msg.id !== msgId) { return; }
+      if (msg.type !== 'event' || msg.id !== window.haSubscribeId) { return; }
 
       var ev = msg.event;
 
       if (ev.a) { updateEntities(ev.a); }
       if (ev.c) { updateEntities(ev.c); }
-
-      
     };
 
     ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);window.haSocketReady = false; };

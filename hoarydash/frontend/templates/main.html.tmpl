@@ -15,6 +15,7 @@
             },
             entity_ids: [
                     {{range .Config.Dashboard.Sensors}}"{{.EntityID}}",{{end}}
+                    {{range .Config.Dashboard.Buttons}}"{{.EntityID}}",{{end}}
                 ]
         };
     </script>
@@ -46,6 +47,9 @@
     
     {{if .IsDev}}
         {{template "isdev"}}
+    {{end}}
+    {{if .Config.Dashboard.Buttons}}
+        {{template "buttons" .Config.Dashboard}}
     {{end}}
     
     {{template "dateclock" .Config.Localization}}    

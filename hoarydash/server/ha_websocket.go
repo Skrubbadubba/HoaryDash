@@ -72,7 +72,7 @@ func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http
 			for {
 				select {
 				case msg := <-send:
-					if err := clientConn.WriteMessage(websocket.TextMessage, msg); err != nil {
+					if err := clientConn.WriteMessage(websocket.TextMessage, msg.data); err != nil {
 						errc <- err
 						return
 					}

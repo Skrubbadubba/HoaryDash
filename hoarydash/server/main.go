@@ -24,6 +24,11 @@ type Config struct {
 			Label    string
 			Unit     string
 		}
+		Buttons []struct {
+			EntityID string `yaml:"entity_id"`
+			Label    string
+			Icon     string
+		}
 		Theme struct {
 			BodyBackground     template.CSS `yaml:"body_background"`
 			BackgroundGradient template.CSS `yaml:"background_gradient"`
@@ -112,7 +117,7 @@ var yamlPath string
 var frontendPath string
 
 func init() {
-	godotenv.Load() // silently ignore missing .env
+	godotenv.Load()
 
 	isDev = os.Getenv("IS_DEV") == "true"
 
