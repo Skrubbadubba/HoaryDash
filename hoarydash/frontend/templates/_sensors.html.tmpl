@@ -67,19 +67,11 @@
       var entityId = '{{.EntityID}}';
       var el = document.getElementById('sensor-value-' + entityId);
     
-      function update(state) {
-        el.textContent = state.state;
+      function update(state, attrs) {
+        el.textContent = state;
       }
     
-      if (window.entityState && window.entityState[entityId]) {
-        update(window.entityState[entityId]);
-      }
-    
-      document.addEventListener('ha-state-change', function(e) {
-            if (e.detail.entity_id === entityId) {
-                el.textContent = e.detail.state;
-            }
-        });
+      window.entityListeners[entityId] = update
     })();
     </script>
   {{end}}

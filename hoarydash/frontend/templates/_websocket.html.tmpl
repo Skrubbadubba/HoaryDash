@@ -4,35 +4,28 @@
   var RECONNECT_DELAY_MS = 5000;
   var entityIds = window.CONFIG.entity_ids;
   var msgId = 1;
+  window.haSocket = null;
+  window.haSocketReady = false;
+  window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
 
-  window.entityState = {};
-
-  function processEntities(entities) {
+  function updateEntities(entities) {
     var entityId, entity;
     for (entityId in entities) {
         if (!entities.hasOwnProperty(entityId)) { continue; }
         entity = entities[entityId];
 
-        if (!window.entityState[entityId]) {
-            window.entityState[entityId] = {};
-        }
-
         fields = entity['+'] !== undefined ? entity['+'] : entity;
 
+        var state, attributes
         if (fields.s !== undefined) {
-            window.entityState[entityId].s = fields.s;
+            state = fields.s;
         }
         if (fields.a !== undefined) {
-            window.entityState[entityId].a = fields.a;
-    }
-
-      document.dispatchEvent(new CustomEvent('ha-state-change', {
-        detail: {
-          entity_id: entityId,
-          state: window.entityState[entityId].s,
-          attributes: window.entityState[entityId].a
+            attributes = fields.a;
         }
-      }));
+
+        var listener = window.entityListeners[entityId];
+        if (listener) listener(state, attributes);
     }
   }
 
@@ -42,6 +35,7 @@
     );
 
     ws.onopen = function() {
+      window.haSocketReady = true;
       ws.send(JSON.stringify({
         id: msgId,
         type: 'subscribe_entities',
@@ -61,12 +55,13 @@
 
       var ev = msg.event;
 
-      if (ev.a) { processEntities(ev.a); }
+      if (ev.a) { updateEntities(ev.a); }
+      if (ev.c) { updateEntities(ev.c); }
 
-      if (ev.c) { processEntities(ev.c); }
+      
     };
 
-    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS); };
+    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);window.haSocketReady = false; };
     ws.onerror = function() { ws.close(); };
   }
 
