@@ -8,7 +8,8 @@
     -webkit-justify-content: center;
     justify-content: center;
     margin: 6px;
-    margin-top: 24px;
+    margin-bottom: 24px;
+    margin-top: -100px;
   }
 
   .ha-button {
@@ -20,7 +21,7 @@
     align-items: center;
     -webkit-justify-content: center;
     justify-content: center;
-    gap: 8px;
+    margin: 30px;
     padding: 1rem 1.4rem;
     min-width: 80px;
     border-radius: 12px;
@@ -66,14 +67,22 @@
     var domain = entityId.split('.')[0];
     var btn = document.getElementById('ha-btn-' + entityId);
 
+    var toggleOrPressMap = {
+        'input_button': 'press',
+        'switch': 'toggle',
+        'light': 'toggle',
+        'input_boolean': 'toggle',
+        'button': 'press'
+    }
+
     btn.addEventListener('click', function() {
       btn.classList.add('pressed');
       setTimeout(function() { btn.classList.remove('pressed'); }, 300);
-
+    
       window.haSend({
         type: 'call_service',
         domain: domain,
-        service: 'press',
+        service: toggleOrPressMap[domain],
         target: { entity_id: entityId }
       });
     });
