@@ -63,6 +63,7 @@ type TemplateData struct {
 func check(e error, message string, v ...any) {
 	if e != nil {
 		log.Print(e)
+		return
 	}
 	log.Printf(message, v...)
 }
@@ -75,6 +76,11 @@ func BuildDash() {
 	}
 
 	data := TemplateData{*cfg, isDev}
+
+	if _, err := os.Stat(frontendPath + "/static"); err != nil {
+		err = os.MkdirAll(frontendPath+"/static", 0755)
+		check(err, "Created static dir")
+	}
 
 	out, err := os.Create(frontendPath + "/static/dash.html")
 	check(err, "Created/opened output file")

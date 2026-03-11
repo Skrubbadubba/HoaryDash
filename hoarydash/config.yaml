@@ -1,6 +1,6 @@
 name: "HoaryDash"
 description: "A lightweight Home Assistant dashboard for old Android tablets running Chromium 44."
-version: "0.3.1"
+version: "0.3.2"
 slug: "hoarydash"
 init: false
 arch:

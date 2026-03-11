@@ -5,7 +5,7 @@ services:
     ports:
       - "4567:4567"
     volumes:
-      - ./hoarydash/dev.yaml:/config/hoarydash.yaml
+      - ./hoarydash/hoarydash.dev.yaml:/config/hoarydash.yaml
       - ./hoarydash/frontend:/app/frontend
     environment:
       - HA_URL=http://homeassistant.local:8123
