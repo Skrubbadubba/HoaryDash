@@ -16,7 +16,12 @@ var clientUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-func wsProxyHandler(haBaseURL, haToken string) http.HandlerFunc {
+type wsMsg struct {
+	mt   int
+	data []byte
+}
+
+func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientConn, err := clientUpgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -58,33 +63,49 @@ func wsProxyHandler(haBaseURL, haToken string) http.HandlerFunc {
 			return
 		}
 
-		errc := make(chan error, 2)
+		errc := make(chan error, 2) // To signal ws disconnect
+		send := make(chan wsMsg, 8) // For single write since conn.WriteMessage is not thread safe
+		done := make(chan struct{}) // For signaling all goroutines to exit
 
+		// single writer
 		go func() {
-			// from HA → send to client
+			for {
+				select {
+				case msg := <-send:
+					if err := clientConn.WriteMessage(websocket.TextMessage, msg); err != nil {
+						errc <- err
+						return
+					}
+				case <-done:
+					return
+				}
+			}
+		}()
+
+		// HA → client
+		go func() {
 			for {
 				mt, msg, err := haConn.ReadMessage()
 				if err != nil {
 					errc <- err
 					return
 				}
-				log.Printf("Recieved ws message from HA: \n%s", msg)
-				if err := clientConn.WriteMessage(mt, msg); err != nil {
-					errc <- err
+				select {
+				case send <- wsMsg{mt, msg}:
+				case <-done:
 					return
 				}
 			}
 		}()
 
+		// client → HA
 		go func() {
-			// from client → send to HA
 			for {
 				mt, msg, err := clientConn.ReadMessage()
 				if err != nil {
 					errc <- err
 					return
 				}
-				log.Printf("Recieved ws message from client: \n%s", msg)
 				if err := haConn.WriteMessage(mt, msg); err != nil {
 					errc <- err
 					return
@@ -92,7 +113,20 @@ func wsProxyHandler(haBaseURL, haToken string) http.HandlerFunc {
 			}
 		}()
 
-		<-errc // block until one side closes
+		// rebuild → client
+		go func() {
+			for range rebuildChan {
+				select {
+				case send <- wsMsg{websocket.TextMessage, []byte("reload")}:
+					log.Print("Sent reload message to client")
+				case <-done:
+					return
+				}
+			}
+		}()
+
+		<-errc
+		close(done)
 	}
 }
 

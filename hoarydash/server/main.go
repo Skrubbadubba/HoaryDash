@@ -117,7 +117,7 @@ func init() {
 	isDev = os.Getenv("IS_DEV") == "true"
 
 	if isDev {
-		yamlPath = "../dev.yaml"
+		yamlPath = "../hoarydash.dev.yaml"
 		frontendPath = "../frontend"
 	} else {
 		yamlPath = "/config/hoarydash.yaml"
@@ -141,12 +141,15 @@ func main() {
 	yamlWatcher.AddRecursive(yamlPath)
 	defer yamlWatcher.Close()
 
+	rebuildChan := make(chan struct{})
+
 	go func() {
 		for {
 			select {
 			case event := <-yamlWatcher.Event:
 				fmt.Println(event)
 				BuildDash()
+				rebuildChan <- struct{}{}
 			case err := <-yamlWatcher.Error:
 				log.Fatalln(err)
 			case <-yamlWatcher.Closed:
@@ -164,7 +167,7 @@ func main() {
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
 	http.Handle("/", fs)
-	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN))
+	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN, rebuildChan))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }

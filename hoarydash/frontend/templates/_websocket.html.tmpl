@@ -50,9 +50,12 @@
     };
 
     ws.onmessage = function(evt) {
+      console.log("Raw message from server ", evt.data);
       var msg;
+      if (evt.data == "reload") {
+        location.reload()
+      }
       try { msg = JSON.parse(evt.data); } catch(e) { return; }
-      console.log("Message from server ", msg);
 
       if (msg.type !== 'event' || msg.id !== msgId) { return; }
 
