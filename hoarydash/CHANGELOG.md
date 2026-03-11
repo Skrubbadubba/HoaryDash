@@ -1,6 +1,8 @@
-# v0.3.0
+# v0.3.1
 
 ## Featues
 
-- The server now tells clients to reload when it detects a yaml change
-- Basic support for button entities
+- Allow button cards on entities from other domains
+    - Other domains like lights will send a toggle command instead of press
+    - No additional UI for it though
+- Fixes some margins with the buttons
