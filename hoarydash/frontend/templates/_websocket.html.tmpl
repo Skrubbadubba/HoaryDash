@@ -68,7 +68,7 @@
       if (ev.c) { updateEntities(ev.c); }
     };
 
-    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);window.haSocketReady = false; };
+    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);haSocketReady = false; };
     ws.onerror = function() { ws.close(); };
   }
 
