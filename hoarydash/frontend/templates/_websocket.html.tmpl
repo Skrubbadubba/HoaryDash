@@ -11,7 +11,7 @@
   window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
 
   window.haSend = function(msg) {
-      if (haSocketReady) return;
+      if (!haSocketReady) return;
       msg.id = ++window.haMsgId;
       haSocket.send(JSON.stringify(msg));
   };
@@ -43,7 +43,7 @@
     );
 
     ws.onopen = function() {
-      window.haSocketReady = true;
+      haSocketReady = true;
       haSocket = ws
       ws.send(JSON.stringify({
         id: window.haMsgId,
