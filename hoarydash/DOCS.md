@@ -32,6 +32,15 @@ dashboard:
     - entity_id: sensor.living_room_temperature # Or whatever you have
       label: Temperature
       unit: °C
+  # Example of light theme
+  # theme:
+  #   body_background: "#f5f5f0"
+  #   button_background: "#e0e0d8"
+  #   card_background: "#ffffff"
+  #   font_color: "#1a1a2e"
+  #   secondary_font_color: "#666677"
+  #   icon_color: "#4444aa"
+
 
 localization:
   locale: "en-US"
@@ -45,6 +54,8 @@ home_assistant:
   HA_URL: "http://homeassistant.local:8123"
   HA_TOKEN: "your_long_lived_token_here"
 ```
+
+Find more example [themes](./themes.example.yaml)
 
 Save the file. The dashboard will regenerate automatically — no restart needed. Restart the addon if it doesn't work
 

@@ -99,10 +99,13 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.7s ease;
+        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.7s ease;
     }
     body {
-        background-color: #000000;
-        color: #ffffff;
+        background-color: #282828;
+        background: ;
+        color: #ebdbb2;
         font-family: "Outfit", sans-serif;
         display: -webkit-flex;
         display: flex;
@@ -118,6 +121,10 @@
         -webkit-transition: background-color 0.8s ease;
         transition: background-color 0.8s ease;
     }
+
+    .card {
+        background: #32302f;
+    }
 </style>
 
     
@@ -125,7 +132,7 @@
         .btn {
             width: 52px;
             height: 52px;
-            background-color: #1a1a1a;
+            background-color: #3c3836;
             border: none;
             border-radius: 14px;
             cursor: pointer;
@@ -142,7 +149,7 @@
         .btn svg {
             width: 26px;
             height: 26px;
-            fill: rgba(255,255,255,0.4);
+            fill: #d79921;
             -webkit-transition: fill 0.3s ease;
             transition: fill 0.3s ease;
         }
@@ -245,6 +252,23 @@
 
     
     
+        
+
+<style>
+            #dev {
+                position: absolute;
+                top: 0px;
+                font-size: 5vw;
+                font-weight: 600;
+                margin-bottom: 0rem;
+                -webkit-transition: color 0.8s ease, margin-bottom 0.5s ease;
+                transition: color 0.8s ease, margin-bottom 0.5s ease;
+                letter-spacing: -0.02em; 
+            }
+        </style>
+        <div id="dev">DEV</div>
+
+    
     
     
 <style>
@@ -252,23 +276,19 @@
         font-size: 15vw;
         font-weight: 600;
         margin-bottom: 0rem;
-        -webkit-transition: color 0.8s ease, margin-bottom 0.5s ease;
-        transition: color 0.8s ease, margin-bottom 0.5s ease;
         letter-spacing: -0.02em;
     }
 
     .date {
         font-size: 4vw;
         font-weight: 600;
-        -webkit-transition: color 0.8s ease;
-        transition: color 0.8s ease;
     }
 </style>
 <div class="clock" id="clock"></div>
 <div class="date" id="date"></div>
 <script>
     var locale = 'sv-SE' || navigator.language || 'en-US';
-    var timezone = 'Asia\/Tokyo' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var timezone = '' || Intl.DateTimeFormat().resolvedOptions().timeZone;
     var hour12 = false;
     function updateTime() {
         var now = new Date();
@@ -327,28 +347,30 @@
     -webkit-justify-content: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(255,255,255,0.07);
     border-radius: 12px;
     margin-left: 100px;
   }
 
   .sensor-label {
-    font-size: 0.70rem;
+    color: #a89984;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    opacity: 0.6;
+    
     margin-bottom: 0.35rem;
   }
 
   .sensor-value {
-    font-size: 1.5rem;
+    color: #ebdbb2;
+    font-size: 1.9rem;
     font-weight: 600;
     line-height: 1;
   }
 
   .sensor-unit {
-    font-size: 0.80rem;
-    opacity: 0.5;
+    color: #a89984;
+    font-size: 0.85rem;
+    
     margin-top: 0.25rem;
   }
 
@@ -363,7 +385,7 @@
 
 <div id="sensors-container">
   
-    <div class="sensor-widget" id="sensor-sensor.temperaturdisplay_temperature">
+    <div class="sensor-widget card" id="sensor-sensor.temperaturdisplay_temperature">
       <div class="sensor-label">Temperatur</div>
       <div class="sensor-value" id="sensor-value-sensor.temperaturdisplay_temperature">—</div>
       <div class="sensor-unit">C</div>
@@ -389,7 +411,7 @@
     })();
     </script>
   
-    <div class="sensor-widget" id="sensor-sensor.starkvind_luftrenare_pm25">
+    <div class="sensor-widget card" id="sensor-sensor.starkvind_luftrenare_pm25">
       <div class="sensor-label">PM2.5</div>
       <div class="sensor-value" id="sensor-value-sensor.starkvind_luftrenare_pm25">—</div>
       <div class="sensor-unit">idk</div>
@@ -415,7 +437,7 @@
     })();
     </script>
   
-    <div class="sensor-widget" id="sensor-input_boolean.for_tests">
+    <div class="sensor-widget card" id="sensor-input_boolean.for_tests">
       <div class="sensor-label">label</div>
       <div class="sensor-value" id="sensor-value-input_boolean.for_tests">—</div>
       <div class="sensor-unit">unit</div>
@@ -458,7 +480,7 @@
     }
   }
   for (var i = 0; i < sensors.length; i+=2)  {
-    sensors[i].style.minWidth = (widest + 10).toString() + "px"
+    sensors[i].style.minWidth = (widest + 2).toString() + "px"
   }
 </script>
 
@@ -532,29 +554,36 @@
         
 <style>
     body.nightlight {
-        background-color: hsl(22, 100%, 50%);
+        background: hsl(22, 100%, 50%);
     }
-    body.nightlight .clock,
-    body.nightlight .date {
-        color: hsla(22, 100%, 35%, 0.5);
-    }
+    body.nightlight,
+    body.nightlight .sensor-label,
+    body.nightlight .sensor-value,
+    body.nightlight .sensor-unit {
+    color: hsla(22, 100%, 35%, 0.5) !important;
+}
     body.nightlight .sensors-container {
         opacity: 0;
+    }
+    body.nightlight .card {
+        background: hsla(22, 100%, 10%, 0.05);
     }
     #nightlight-btn {
         position: fixed;
         bottom: 24px;
         right: 24px;
-        background-color: #cc2200;
+        
     }
     #nightlight-btn svg {
         width: 26px;
         height: 26px;
-        fill: rgba(255,255,255,0.85);
+        
     }
     #nightlight-btn.active {
+        box-shadow: 0 0 24px rgba(255, 100, 0, 0.2);
+    }
+    body.nightlight .btn {
         background-color: #333;
-        box-shadow: 0 0 24px rgba(255, 100, 0, 0.5);
     }
     #nightlight-btn.active svg { fill: #ff9944; }
     #brightness-panel {
@@ -562,7 +591,9 @@
         bottom: 90px;
         right: 24px;
         width: 52px;
-        background-color: rgba(30,30,30,0.9);
+        
+            background-color: #3c3836;
+        
         border-radius: 26px;
         padding: 16px 0;
         display: -webkit-flex;
@@ -577,6 +608,9 @@
         transform: translateY(12px);
         -webkit-transition: opacity 0.4s ease, -webkit-transform 0.4s ease;
         transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    body.nightlight #brightness-panel {
+        background-color: #333;
     }
     #brightness-panel.visible {
         opacity: 1;

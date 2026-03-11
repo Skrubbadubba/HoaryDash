@@ -15,16 +15,23 @@ import (
 
 type Config struct {
 	Dashboard struct {
-		Nightlight bool
-		Sensors    []struct {
+		Nightlight struct {
+			Enabled        bool
+			OverrideColors bool `yaml:"override_colors"`
+		}
+		Sensors []struct {
 			EntityID string `yaml:"entity_id"`
 			Label    string
 			Unit     string
 		}
 		Theme struct {
-			BodyBackground   string `yaml:"body_background"`
-			ButtonBackground string `yaml:"button_background"`
-			FontColor        string `yaml:"font_color"`
+			BodyBackground     template.CSS `yaml:"body_background"`
+			BackgroundGradient template.CSS `yaml:"background_gradient"`
+			ButtonBackground   template.CSS `yaml:"button_background"`
+			CardBackground     template.CSS `yaml:"card_background"`
+			FontColor          template.CSS `yaml:"font_color"`
+			SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+			IconColor          template.CSS `yaml:"icon_color"`
 		}
 	}
 	Localization struct {
@@ -69,12 +76,11 @@ func BuildDash() {
 	defer out.Close()
 
 	funcMap := template.FuncMap{
-		"default": func(def string, val interface{}) template.CSS {
-			s, ok := val.(string)
-			if !ok || s == "" {
-				return template.CSS(def)
+		"default": func(def template.CSS, val template.CSS) template.CSS {
+			if val == "" {
+				return def
 			}
-			return template.CSS(s)
+			return val
 		},
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
