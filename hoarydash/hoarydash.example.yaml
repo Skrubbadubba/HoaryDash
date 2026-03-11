@@ -6,6 +6,10 @@ dashboard:
     - entity_id: sensor.living_room_temperature # Or whatever you have
       label: Temperature
       unit: °C
+  buttons:
+    - entity_id: button.doorbell
+      label: Ring doorbell
+      icon: 🔔
   theme:
     body_background: "#282828"
     button_background: "#3c3836"

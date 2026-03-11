@@ -1,11 +1,6 @@
-# v0.2.0
+# v0.3.0
 
-## Whats new
+## Featues
 
-- Way more theming options
-  - BackgroundGradient `yaml:"background_gradient"`
-  - CardBackground `yaml:"card_background"`
-  - SecondaryFontColor `yaml:"secondary_font_color"`
-  - IconColor `yaml:"icon_color"`
-
-- There is also a bunch of examples
+- The server now tells clients to reload when it detects a yaml change
+- Basic support for button entities

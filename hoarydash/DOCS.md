@@ -34,6 +34,10 @@ dashboard:
     - entity_id: sensor.living_room_temperature # Or whatever you have
       label: Temperature
       unit: °C
+  buttons:
+    - entity_id: button.doorbell
+      label: Ring doorbell
+      icon: 🔔
   # Example of light theme
   # theme:
   #   body_background: "#f5f5f0"
@@ -83,18 +87,7 @@ Enable the javascript interface:
 
 ## Config Reference
 
-| Key | Description | Default |
-|-----|-------------|---------|
-| `dashboard.nightlight` | Show nightlight button | `true` |
-| `dashboard.sensors` | List of HA entities to display | `[]` |
-| `localization.locale` | BCP 47 locale tag (e.g. `sv-SE`) | Device locale |
-| `localization.timezone` | IANA timezone in `Area/Location` format | Device timezone |
-| `localization.hour12` | 12-hour clock | `false` |
-| `localization.capitalise_day` | Capitalise day name | `false` |
-| `fully_kiosk.password` | Fully Kiosk REST API password | — |
-| `fully_kiosk.screensaver_timeout` | Fallback screensaver timeout (seconds) | `60` |
-| `home_assistant.HA_URL` | Your HA instance URL | — |
-| `home_assistant.HA_TOKEN` | Long-lived access token | — |
+See [go struct](./server/main.go#L16). The yaml annotation to the right of fields dictate the field name in yaml. The ones that dont have an annotation are just lowercased in yaml.
 
 > **Timezone note:** Chromium 44 requires strict `Area/Location` IANA format.
 > `Asia/Tokyo` works. Bare aliases like `Japan` do not.
