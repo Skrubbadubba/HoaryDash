@@ -1,7 +1,7 @@
 build/
 node_modules/
-frontend/node_modules/
-frontend/static
+hoarydash/frontend/node_modules/
+hoarydash/frontend/static
 .env
 *.dev.*
 *.compiled.js
