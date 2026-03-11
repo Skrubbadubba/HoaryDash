@@ -1,5 +1,7 @@
 dashboard:
-  nightlight: true
+  nightlight:
+    enabled: true
+    override_colors: true
   sensors:
     - entity_id: sensor.living_room_temperature # Or whatever you have
       label: Temperature
@@ -11,7 +13,7 @@ dashboard:
     font_color: "#ebdbb2"
     secondary_font_color: "#a89984"
     icon_color: "#d79921"
-    
+
 localization:
   locale: "en-US"
   timezone: "America/New_York"

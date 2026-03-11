@@ -27,7 +27,9 @@ These are addons you may or may not have. If you do not now how to access your h
 Create a file called `hoarydash.yaml` in that folder with the following content:
 ```yaml
 dashboard:
-  nightlight: true
+  nightlight:
+    enabled: true
+    override_colors: true
   sensors:
     - entity_id: sensor.living_room_temperature # Or whatever you have
       label: Temperature
