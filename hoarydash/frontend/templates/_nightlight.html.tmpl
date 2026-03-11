@@ -1,29 +1,40 @@
 {{define "nightlight"}}
 <style>
     body.nightlight {
-        background-color: hsl(22, 100%, 50%);
+        background: hsl(22, 100%, 50%);
     }
-    body.nightlight .clock,
-    body.nightlight .date {
-        color: hsla(22, 100%, 35%, 0.5);
-    }
+    body.nightlight,
+    body.nightlight .sensor-label,
+    body.nightlight .sensor-value,
+    body.nightlight .sensor-unit {
+    color: hsla(22, 100%, 35%, 0.5) !important;
+}
     body.nightlight .sensors-container {
         opacity: 0;
+    }
+    body.nightlight .card {
+        background: hsla(22, 100%, 10%, 0.05);
     }
     #nightlight-btn {
         position: fixed;
         bottom: 24px;
         right: 24px;
+        {{if not .Nightlight.OverrideColors}}
         background-color: #cc2200;
+        {{end}}
     }
     #nightlight-btn svg {
         width: 26px;
         height: 26px;
+        {{if not .Nightlight.OverrideColors}}
         fill: rgba(255,255,255,0.85);
+        {{end}}
     }
     #nightlight-btn.active {
+        box-shadow: 0 0 24px rgba(255, 100, 0, 0.2);
+    }
+    body.nightlight .btn {
         background-color: #333;
-        box-shadow: 0 0 24px rgba(255, 100, 0, 0.5);
     }
     #nightlight-btn.active svg { fill: #ff9944; }
     #brightness-panel {
@@ -31,7 +42,11 @@
         bottom: 90px;
         right: 24px;
         width: 52px;
-        background-color: rgba(30,30,30,0.9);
+        {{if .Nightlight.OverrideColors}}
+            background-color: {{.Theme.ButtonBackground | default "#333"}};
+        {{else}}
+            background-color: #333;
+        {{end}}
         border-radius: 26px;
         padding: 16px 0;
         display: -webkit-flex;
@@ -46,6 +61,9 @@
         transform: translateY(12px);
         -webkit-transition: opacity 0.4s ease, -webkit-transform 0.4s ease;
         transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    body.nightlight #brightness-panel {
+        background-color: #333;
     }
     #brightness-panel.visible {
         opacity: 1;

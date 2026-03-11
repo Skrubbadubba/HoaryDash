@@ -55,8 +55,8 @@
 
     {{template "screenonlock" .}}
 
-    {{if .Config.Dashboard.Nightlight }}
-        {{template "nightlight" .}}
+    {{if .Config.Dashboard.Nightlight.Enabled }}
+        {{template "nightlight" .Config.Dashboard}}
     {{end}}
 
 </body>

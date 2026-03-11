@@ -15,28 +15,34 @@
     -webkit-justify-content: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(255,255,255,0.07);
     border-radius: 12px;
     margin-left: 100px;
   }
 
   .sensor-label {
-    font-size: 0.70rem;
+    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    {{if not .Theme.SecondaryFontColor}}
     opacity: 0.6;
+    {{end}}
     margin-bottom: 0.35rem;
   }
 
   .sensor-value {
-    font-size: 1.5rem;
+    color: {{.Theme.FontColor | default "#ffffff"}};
+    font-size: 1.9rem;
     font-weight: 600;
     line-height: 1;
   }
 
   .sensor-unit {
-    font-size: 0.80rem;
+    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
+    font-size: 0.85rem;
+    {{if not .Theme.SecondaryFontColor}}
     opacity: 0.5;
+    {{end}}
     margin-top: 0.25rem;
   }
 
@@ -51,7 +57,7 @@
 
 <div id="sensors-container">
   {{range .Sensors}}
-    <div class="sensor-widget" id="sensor-{{.EntityID}}">
+    <div class="sensor-widget card" id="sensor-{{.EntityID}}">
       <div class="sensor-label">{{.Label}}</div>
       <div class="sensor-value" id="sensor-value-{{.EntityID}}">—</div>
       <div class="sensor-unit">{{.Unit}}</div>
@@ -94,7 +100,7 @@
     }
   }
   for (var i = 0; i < sensors.length; i+=2)  {
-    sensors[i].style.minWidth = (widest + 10).toString() + "px"
+    sensors[i].style.minWidth = (widest + 2).toString() + "px"
   }
 </script>
 

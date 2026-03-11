@@ -1,0 +1,25 @@
+dashboard:
+  nightlight: true
+  sensors:
+    - entity_id: sensor.living_room_temperature # Or whatever you have
+      label: Temperature
+      unit: °C
+  theme:
+    body_background: "#282828"
+    button_background: "#3c3836"
+    card_background: "#32302f"
+    font_color: "#ebdbb2"
+    secondary_font_color: "#a89984"
+    icon_color: "#d79921"
+    
+localization:
+  locale: "en-US"
+  timezone: "America/New_York"
+  hour12: false # Or true I guess if your weird
+
+fully_kiosk:
+  screensaver_timeout: 60
+
+home_assistant:
+  HA_URL: "http://homeassistant.local:8123"
+  HA_TOKEN: "your_long_lived_token_here"
