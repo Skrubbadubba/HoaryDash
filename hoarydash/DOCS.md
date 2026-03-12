@@ -26,26 +26,27 @@ These are addons you may or may not have. If you do not now how to access your h
 
 Create a file called `hoarydash.yaml` in that folder with the following content:
 ```yaml
-dashboard:
-  nightlight:
-    enabled: true
-    override_colors: true
-  sensors:
-    - entity_id: sensor.living_room_temperature # Or whatever you have
-      label: Temperature
-      unit: °C
-  buttons:
-    - entity_id: button.doorbell
-      label: Ring doorbell
-      icon: 🔔
-  # Example of light theme
-  # theme:
-  #   body_background: "#f5f5f0"
-  #   button_background: "#e0e0d8"
-  #   card_background: "#ffffff"
-  #   font_color: "#1a1a2e"
-  #   secondary_font_color: "#666677"
-  #   icon_color: "#4444aa"
+dashboards:
+  dash:
+    nightlight:
+      enabled: true
+      override_colors: true
+    sensors:
+      - entity_id: sensor.living_room_temperature # Or whatever you have
+        label: Temperature
+        unit: °C
+    buttons:
+      - entity_id: button.doorbell
+        label: Ring doorbell
+        icon: 🔔
+    # Example of light theme
+    # theme:
+    #   body_background: "#f5f5f0"
+    #   button_background: "#e0e0d8"
+    #   card_background: "#ffffff"
+    #   font_color: "#1a1a2e"
+    #   secondary_font_color: "#666677"
+    #   icon_color: "#4444aa"
 
 
 localization:
@@ -57,13 +58,17 @@ fully_kiosk:
   screensaver_timeout: 60
 
 home_assistant:
-  HA_URL: "http://homeassistant.local:8123"
-  HA_TOKEN: "your_long_lived_token_here"
+  url: "http://homeassistant.local:8123"
+  token: "your_long_lived_token_here"
 ```
 
 Find more example [themes](./themes.example.yaml)
 
 Save the file. The dashboard will regenerate automatically — no restart needed. Restart the addon if it doesn't work
+
+### Separate dashboards
+
+Each entry under `dashboards` will become its own dashboard with its own endpoint, reachable on \<HoaryDash-url\>/\<dashboard-name\>. So from the example above one dashboard would be created at <a href="">http://homeassistant.local:4567/dash</a>
 
 ## Getting a Long-Lived Access Token
 

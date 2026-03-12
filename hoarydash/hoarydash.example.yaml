@@ -1,22 +1,30 @@
-dashboard:
-  nightlight:
-    enabled: true
-    override_colors: true
-  sensors:
-    - entity_id: sensor.living_room_temperature # Or whatever you have
-      label: Temperature
-      unit: °C
-  buttons:
-    - entity_id: button.doorbell
-      label: Ring doorbell
-      icon: 🔔
-  theme:
-    body_background: "#282828"
-    button_background: "#3c3836"
-    card_background: "#32302f"
-    font_color: "#ebdbb2"
-    secondary_font_color: "#a89984"
-    icon_color: "#d79921"
+dashboards:
+  dash:
+    nightlight:
+      enabled: true
+      override_colors: true
+    sensors:
+      - entity_id: sensor.living_room_temperature # Or whatever you have
+        label: Temperature
+        unit: °C
+    buttons:
+      - entity_id: button.doorbell
+        label: Ring doorbell
+        icon: 🔔
+    theme:
+      body_background: "#282828"
+      button_background: "#3c3836"
+      card_background: "#32302f"
+      font_color: "#ebdbb2"
+      secondary_font_color: "#a89984"
+      icon_color: "#d79921"
+  screensaver:
+    nightlight:
+      enabled: false
+    sensors:
+      - entity_id: sensor.living_room_temperature
+        label: Temperature
+        unit: °C
 
 localization:
   locale: "en-US"
@@ -27,5 +35,5 @@ fully_kiosk:
   screensaver_timeout: 60
 
 home_assistant:
-  HA_URL: "http://homeassistant.local:8123"
-  HA_TOKEN: "your_long_lived_token_here"
+  url: "http://homeassistant.local:8123"
+  token: "your_long_lived_token_here"
