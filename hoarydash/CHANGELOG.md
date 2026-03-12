@@ -1,5 +1,7 @@
-# v0.3.2
+# v0.3.3
 
-## Fixes
+## Features
 
-- Creates an output folder for the html, was causing a 404 previously
+- Allow scripts and scenes on buttons
+
+    > Note that you wont be able to pass in data to the scripts.
