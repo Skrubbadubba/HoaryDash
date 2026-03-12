@@ -18,6 +18,12 @@ type Dashboard struct {
 		Enabled        bool
 		OverrideColors bool `yaml:"override_colors"`
 	}
+	Dateclock struct {
+		Enabled       *bool
+		Hour12        bool
+		CapitaliseDay bool `yaml:"capitalise_day"`
+		ShowSeconds   bool `yaml:"show_seconds"`
+	}
 	Sensors []struct {
 		EntityID string `yaml:"entity_id"`
 		Label    string
@@ -40,10 +46,8 @@ type Dashboard struct {
 }
 type Config struct {
 	Localization struct {
-		Locale        string
-		Timezone      string
-		Hour12        bool
-		CapitaliseDay bool `yaml:"capitalise_day"`
+		Locale   string
+		Timezone string
 	}
 	FullyKiosk struct {
 		Password           string `yaml:"password"`
@@ -89,6 +93,20 @@ func BuildDash() {
 			}
 			return val
 		},
+		"enabledByDefault": func(v *bool) bool {
+			if v == nil {
+				return true
+			}
+			return *v
+		},
+		"dict": func(values ...any) map[string]any {
+			m := map[string]any{}
+			for i := 0; i < len(values); i += 2 {
+				key := values[i].(string)
+				m[key] = values[i+1]
+			}
+			return m
+		},
 	}
 
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
@@ -107,9 +125,9 @@ func BuildDash() {
 		out, err := os.Create(outputDir + "/index.html")
 		check(err, "Created/opened output file")
 		defer out.Close()
-
+		fmt.Printf("Parsed yaml:\n%+v\n", cfg)
 		data := TemplateData{dash, cfg.Config, isDev}
-
+		fmt.Printf("Template data:\n%+v\n", data)
 		err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 		out.Sync()
 		check(err, "Template executed")

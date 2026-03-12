@@ -15,15 +15,18 @@
 <div class="clock" id="clock"></div>
 <div class="date" id="date"></div>
 <script>
-    var locale = '{{.Locale}}' || navigator.language || 'en-US';
-    var timezone = '{{.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    var hour12 = {{if .Hour12}}true{{else}}false{{end}};
+    var locale = '{{.Localization.Locale}}' || navigator.language || 'en-US';
+    var timezone = '{{.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var hour12 = {{if .Dateclock.Hour12}}true{{else}}false{{end}};
     function updateTime() {
         var now = new Date();
 
         var time = now.toLocaleTimeString(locale, {
             hour: '2-digit',
             minute: '2-digit',
+            {{if .Dateclock.ShowSeconds}}
+                second: '2-digit',
+            {{end}}
             hour12: hour12,
             timeZone: timezone
         });
@@ -37,7 +40,7 @@
             dateStyle: 'short',
             timeZone: timezone
         });
-        {{if .CapitaliseDay}}
+        {{if .Dateclock.CapitaliseDay}}
         day = day.charAt(0).toUpperCase() + day.slice(1);
         {{end}}
         var date = now.toLocaleDateString(locale);

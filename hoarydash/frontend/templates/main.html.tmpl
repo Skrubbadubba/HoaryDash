@@ -51,8 +51,12 @@
     {{if .Dashboard.Buttons}}
         {{template "buttons" .Dashboard}}
     {{end}}
-    
-    {{template "dateclock" .Config.Localization}}    
+    {{ if enabledByDefault .Dashboard.Dateclock.Enabled}}
+    {{template "dateclock" (dict
+        "Localization" .Config.Localization
+        "Dateclock" .Dashboard.Dateclock
+    )}}  
+    {{end}}
     {{if .Dashboard.Sensors}}
         {{template "sensors" .Dashboard}}
     {{end}}
