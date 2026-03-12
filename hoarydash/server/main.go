@@ -13,32 +13,32 @@ import (
 	"go.yaml.in/yaml/v4"
 )
 
-type Config struct {
-	Dashboard struct {
-		Nightlight struct {
-			Enabled        bool
-			OverrideColors bool `yaml:"override_colors"`
-		}
-		Sensors []struct {
-			EntityID string `yaml:"entity_id"`
-			Label    string
-			Unit     string
-		}
-		Buttons []struct {
-			EntityID string `yaml:"entity_id"`
-			Label    string
-			Icon     string
-		}
-		Theme struct {
-			BodyBackground     template.CSS `yaml:"body_background"`
-			BackgroundGradient template.CSS `yaml:"background_gradient"`
-			ButtonBackground   template.CSS `yaml:"button_background"`
-			CardBackground     template.CSS `yaml:"card_background"`
-			FontColor          template.CSS `yaml:"font_color"`
-			SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-			IconColor          template.CSS `yaml:"icon_color"`
-		}
+type Dashboard struct {
+	Nightlight struct {
+		Enabled        bool
+		OverrideColors bool `yaml:"override_colors"`
 	}
+	Sensors []struct {
+		EntityID string `yaml:"entity_id"`
+		Label    string
+		Unit     string
+	}
+	Buttons []struct {
+		EntityID string `yaml:"entity_id"`
+		Label    string
+		Icon     string
+	}
+	Theme struct {
+		BodyBackground     template.CSS `yaml:"body_background"`
+		BackgroundGradient template.CSS `yaml:"background_gradient"`
+		ButtonBackground   template.CSS `yaml:"button_background"`
+		CardBackground     template.CSS `yaml:"card_background"`
+		FontColor          template.CSS `yaml:"font_color"`
+		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+		IconColor          template.CSS `yaml:"icon_color"`
+	}
+}
+type Config struct {
 	Localization struct {
 		Locale        string
 		Timezone      string
@@ -55,7 +55,14 @@ type Config struct {
 	} `yaml:"home_assistant"`
 }
 
+type Yaml struct {
+	Dashboards map[string]Dashboard
+	Config
+	IsDev bool
+}
+
 type TemplateData struct {
+	Dashboard
 	Config
 	IsDev bool
 }
@@ -69,22 +76,11 @@ func check(e error, message string, v ...any) {
 }
 
 func BuildDash() {
-	cfg, err := loadConfig()
+	cfg, err := parseYaml()
 	if err != nil {
 		log.Printf("Could not load config when building dashboard")
 		return
 	}
-
-	data := TemplateData{*cfg, isDev}
-
-	if _, err := os.Stat(frontendPath + "/static"); err != nil {
-		err = os.MkdirAll(frontendPath+"/static", 0755)
-		check(err, "Created static dir")
-	}
-
-	out, err := os.Create(frontendPath + "/static/dash.html")
-	check(err, "Created/opened output file")
-	defer out.Close()
 
 	funcMap := template.FuncMap{
 		"default": func(def template.CSS, val template.CSS) template.CSS {
@@ -94,27 +90,40 @@ func BuildDash() {
 			return val
 		},
 	}
+
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	if err != nil {
 		log.Printf("Could not return root level templates %v", err)
 		return
 	}
+
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
 	check(err, "Created template object")
 
-	err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
-	out.Sync()
-	check(err, "Template executed")
+	for name, dash := range cfg.Dashboards {
+		outputDir := frontendPath + "/static/" + name
+		err = os.MkdirAll(outputDir, 0755)
+		check(err, "Created %s", outputDir)
+		out, err := os.Create(outputDir + "/index.html")
+		check(err, "Created/opened output file")
+		defer out.Close()
+
+		data := TemplateData{dash, cfg.Config, isDev}
+
+		err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
+		out.Sync()
+		check(err, "Template executed")
+	}
 }
 
-func loadConfig() (*Config, error) {
-	config_file, err := os.ReadFile(yamlPath)
-	config := Config{}
+func parseYaml() (*Yaml, error) {
+	yaml_file, err := os.ReadFile(yamlPath)
+	parsed := Yaml{}
 	if err != nil {
-		return &config, err
+		return &parsed, err
 	}
-	err = yaml.Unmarshal(config_file, &config)
-	return &config, err
+	err = yaml.Unmarshal(yaml_file, &parsed)
+	return &parsed, err
 }
 
 var isDev bool
@@ -171,7 +180,7 @@ func main() {
 
 	BuildDash()
 
-	cfg, err := loadConfig()
+	cfg, err := parseYaml()
 	check(err, "Config loaded successfully")
 	// log.Printf("Config is: %v", cfg)
 	go yamlWatcher.Start(1 * time.Second)

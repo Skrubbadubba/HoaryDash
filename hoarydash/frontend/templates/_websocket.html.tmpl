@@ -46,7 +46,7 @@
       haSocketReady = true;
       haSocket = ws
       ws.send(JSON.stringify({
-        id: window.haMsgId,
+        id: window.haSubscribeId,
         type: 'subscribe_entities',
         entity_ids: entityIds
       }));

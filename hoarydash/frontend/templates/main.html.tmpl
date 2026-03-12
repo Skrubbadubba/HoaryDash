@@ -14,16 +14,16 @@
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
             entity_ids: [
-                    {{range .Config.Dashboard.Sensors}}"{{.EntityID}}",{{end}}
-                    {{range .Config.Dashboard.Buttons}}"{{.EntityID}}",{{end}}
+                    {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
+                    {{range .Dashboard.Buttons}}"{{.EntityID}}",{{end}}
                 ]
         };
     </script>
-    {{ if .Config.Dashboard.Sensors }}
+    {{ if .Dashboard.Sensors }}
         {{template "websocket"}}
     {{end}}
-    {{template "base-style" .Config.Dashboard.Theme}}
-    {{template "btn-style" .Config.Dashboard.Theme}}
+    {{template "base-style" .Dashboard.Theme}}
+    {{template "btn-style" .Dashboard.Theme}}
     <style>
         
         /* ─── Weather widget (top-right, from original) ─── */
@@ -48,19 +48,19 @@
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
-    {{if .Config.Dashboard.Buttons}}
-        {{template "buttons" .Config.Dashboard}}
+    {{if .Dashboard.Buttons}}
+        {{template "buttons" .Dashboard}}
     {{end}}
     
     {{template "dateclock" .Config.Localization}}    
-    {{if .Config.Dashboard.Sensors}}
-        {{template "sensors" .Config.Dashboard}}
+    {{if .Dashboard.Sensors}}
+        {{template "sensors" .Dashboard}}
     {{end}}
 
     {{template "screenonlock" .}}
 
-    {{if .Config.Dashboard.Nightlight.Enabled }}
-        {{template "nightlight" .Config.Dashboard}}
+    {{if .Dashboard.Nightlight.Enabled }}
+        {{template "nightlight" .Dashboard}}
     {{end}}
 
 </body>
