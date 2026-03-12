@@ -1,7 +1,27 @@
-# v0.3.3
+# v0.4.0
 
-## Features
+## Multiple dashboards 🎉
 
-- Allow scripts and scenes on buttons
+You can now expose multiple endpoints with their own dashboards like so:
+```yaml
+dashboards:
+    dash:
+        nightlight:
+            enabled: true
+        theme:
+            ...
+    screensaver:
+        nightlight:
+            enabled: false
+        sensors:
+            ...
+        theme:
+            ...
+    ...
+home_assistant:
+    ...
+localization:
+    ...
+```
 
-    > Note that you wont be able to pass in data to the scripts.
+These would be available on \<url\>/dash and \<url\>/screensaver respectively.
