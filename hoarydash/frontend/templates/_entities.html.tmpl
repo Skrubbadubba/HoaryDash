@@ -1,0 +1,29 @@
+{{define "entities"}}
+<style>
+    #entities-container {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-justify-content: center;
+    justify-content: center;
+    margin: 6px;
+    margin-bottom: 24px;
+    margin-top: -100px;
+}
+</style>
+<div id="entities-container">
+{{$theme := .Theme}}
+{{range .Entities}}
+    {{if domainIn .EntityID "switch" "input_boolean"}}
+        {{template "toggle" (dict "Entity" . "Theme" $theme)}}
+    {{else if domainIn .EntityID "light"}}
+        {{template "light" (dict "Entity" . "Theme" $theme)}}
+    {{else if domainIn .EntityID "button" "input_button" "scene" "script"}}
+        {{template "button" (dict "Entity" . "Theme" $theme)}}
+    {{else}}
+        {{template "button" (dict "Entity" . "Theme" $theme)}}
+    {{end}}
+{{end}}
+</div>
+{{end}}

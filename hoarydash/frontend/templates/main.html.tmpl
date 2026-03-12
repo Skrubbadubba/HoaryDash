@@ -15,7 +15,7 @@
             },
             entity_ids: [
                     {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
-                    {{range .Dashboard.Buttons}}"{{.EntityID}}",{{end}}
+                    {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
                 ]
         };
     </script>
@@ -48,8 +48,8 @@
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
-    {{if .Dashboard.Buttons}}
-        {{template "buttons" .Dashboard}}
+    {{if .Dashboard.Entities}}
+        {{template "entities" .Dashboard}}
     {{end}}
     {{ if enabledByDefault .Dashboard.Dateclock.Enabled}}
     {{template "dateclock" (dict

@@ -1,0 +1,149 @@
+{{define "toggle"}}
+<style>
+  .ha-toggle {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    margin: 6px;
+    min-width: 80px;
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: visible;
+  }
+
+  .ha-toggle-body {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    gap: 10px;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .ha-toggle-body:active {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+
+  .ha-toggle-left {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ha-toggle-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    -webkit-transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease;
+  }
+  .ha-toggle.off .ha-toggle-icon {
+    opacity: 0.38;
+  }
+
+  .ha-toggle-label {
+    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
+    {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .ha-toggle-pill {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.14);
+    position: relative;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    pointer-events: none;
+    -webkit-transition: background 0.2s ease, border-color 0.2s ease, -webkit-box-shadow 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ha-toggle-pill::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(200,220,240,0.38);
+    -webkit-transition: left 0.18s ease, background 0.18s ease;
+    transition: left 0.18s ease, background 0.18s ease;
+  }
+  .ha-toggle.on .ha-toggle-pill {
+    background: rgba(90,210,120,0.3);
+    border-color: rgba(90,220,120,0.52);
+    -webkit-box-shadow: 0 0 8px rgba(70,200,100,0.22);
+    box-shadow: 0 0 8px rgba(70,200,100,0.22);
+  }
+  .ha-toggle.on .ha-toggle-pill::after {
+    left: 19px;
+    background: #7ae894;
+  }
+</style>
+
+<div class="ha-toggle card off" id="ha-toggle-{{.Entity.EntityID}}">
+  <button class="ha-toggle-body" id="ha-toggle-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+    <div class="ha-toggle-left">
+      {{if .Entity.Icon}}<span class="ha-toggle-icon">{{.Entity.Icon}}</span>{{end}}
+      <span class="ha-toggle-label">{{.Entity.Label}}</span>
+    </div>
+    <div class="ha-toggle-pill"></div>
+  </button>
+</div>
+
+<script>
+(function() {
+  var entityId = '{{.Entity.EntityID}}';
+  var domain = entityId.split('.')[0];
+  var wrapper = document.getElementById('ha-toggle-' + entityId);
+  var btn = document.getElementById('ha-toggle-btn-' + entityId);
+
+  function setState(state) {
+    if (state === 'on') {
+      wrapper.classList.remove('off');
+      wrapper.classList.add('on');
+    } else {
+      wrapper.classList.remove('on');
+      wrapper.classList.add('off');
+    }
+  }
+
+  window.entityListeners[entityId] = function(state, attributes) {
+    setState(state);
+  };
+
+  btn.addEventListener('click', function() {
+    window.haSend({
+      type: 'call_service',
+      domain: domain,
+      service: 'toggle',
+      target: { entity_id: entityId }
+    });
+  });
+})();
+</script>
+{{end}}

@@ -1,4 +1,4 @@
-{{define "buttons"}}
+{{define "button"}}
 <style>
   #buttons-container {
     display: -webkit-flex;
@@ -54,16 +54,13 @@
     opacity: 0.5;
   }
 </style>
-
-<div id="buttons-container">
-  {{range .Buttons}}
-  <button class="ha-button card" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
-    {{if .Icon}}<span class="ha-button-icon">{{.Icon}}</span>{{end}}
-    <span class="ha-button-label">{{.Label}}</span>
+  <button class="ha-button card" id="ha-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+    {{if .Entity.Icon}}<span class="ha-button-icon">{{.Entity.Icon}}</span>{{end}}
+    <span class="ha-button-label">{{.Entity.Label}}</span>
   </button>
   <script>
   (function() {
-    var entityId = '{{.EntityID}}';
+    var entityId = '{{.Entity.EntityID}}';
     var domain = entityId.split('.')[0];
     var btn = document.getElementById('ha-btn-' + entityId);
 
@@ -90,6 +87,4 @@
     });
   })();
   </script>
-  {{end}}
-</div>
 {{end}}

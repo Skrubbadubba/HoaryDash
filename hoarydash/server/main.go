@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -29,7 +30,7 @@ type Dashboard struct {
 		Label    string
 		Unit     string
 	}
-	Buttons []struct {
+	Entities []struct {
 		EntityID string `yaml:"entity_id"`
 		Label    string
 		Icon     string
@@ -107,6 +108,19 @@ func BuildDash() {
 			}
 			return m
 		},
+		"domainIn": func(entityID string, domains ...string) bool {
+			parts := strings.SplitN(entityID, ".", 2)
+			if len(parts) < 2 {
+				return false
+			}
+			domain := parts[0]
+			for _, d := range domains {
+				if domain == d {
+					return true
+				}
+			}
+			return false
+		},
 	}
 
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
@@ -116,6 +130,7 @@ func BuildDash() {
 	}
 
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {
@@ -125,9 +140,9 @@ func BuildDash() {
 		out, err := os.Create(outputDir + "/index.html")
 		check(err, "Created/opened output file")
 		defer out.Close()
-		fmt.Printf("Parsed yaml:\n%+v\n", cfg)
+		// fmt.Printf("Parsed yaml:\n%+v\n", cfg)
 		data := TemplateData{dash, cfg.Config, isDev}
-		fmt.Printf("Template data:\n%+v\n", data)
+		// fmt.Printf("Template data:\n%+v\n", data)
 		err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 		out.Sync()
 		check(err, "Template executed")
