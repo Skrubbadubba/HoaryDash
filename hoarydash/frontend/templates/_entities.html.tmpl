@@ -1,24 +1,30 @@
 {{define "entities"}}
 <style>
     #entities-container {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -webkit-justify-content: center;
-    justify-content: center;
-    margin: 6px;
-    margin-bottom: 24px;
-    margin-top: -100px;
-}
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        align-items: center;
+        margin: 6px;
+        margin-bottom: 75px;
+        margin-top: -100px;
+    }
+    #entities-container > div,
+    #entities-container > button {
+        margin: 10px;
+    }
 </style>
 <div id="entities-container">
 {{$theme := .Theme}}
 {{range .Entities}}
     {{if domainIn .EntityID "switch" "input_boolean"}}
         {{template "toggle" (dict "Entity" . "Theme" $theme)}}
-    {{else if domainIn .EntityID "light"}}
-        {{template "light" (dict "Entity" . "Theme" $theme)}}
+    {{else if domainIn .EntityID "light" "fan"}}
+        {{template "adjustable" (dict "Entity" . "Theme" $theme)}}
     {{else if domainIn .EntityID "button" "input_button" "scene" "script"}}
         {{template "button" (dict "Entity" . "Theme" $theme)}}
     {{else}}

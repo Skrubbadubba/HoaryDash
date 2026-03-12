@@ -1,34 +1,23 @@
 {{define "button"}}
 <style>
-  #buttons-container {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -webkit-justify-content: center;
-    justify-content: center;
-    margin: 6px;
-    margin-bottom: 24px;
-    margin-top: -100px;
-  }
-
   .ha-button {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    margin: 30px;
-    padding: 1rem 1.4rem;
-    min-width: 80px;
-    border-radius: 12px;
-    cursor: pointer;
-    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-  }
+        border: none;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        min-width: 80px;
+        height: min-content;
+        border-radius: 12px;
+        cursor: pointer;
+        -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
 
   .ha-button:active {
     -webkit-transform: scale(0.88);

@@ -121,6 +121,13 @@ func BuildDash() {
 			}
 			return false
 		},
+		"domain": func(entityID string) string {
+			parts := strings.SplitN(entityID, ".", 2)
+			if len(parts) < 2 {
+				return ""
+			}
+			return parts[0]
+		},
 	}
 
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")

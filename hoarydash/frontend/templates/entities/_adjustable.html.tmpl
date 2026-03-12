@@ -1,0 +1,386 @@
+{{define "adjustable"}}
+<style>
+  .ha-adjustable {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    min-width: 80px;
+    border-radius: 12px;
+    overflow: visible;
+    position: relative;
+    height: min-content;
+  }
+
+  .ha-adjustable-body {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    gap: 10px;
+    background: none;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .ha-adjustable-body:active {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+
+  .ha-adjustable-left {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ha-adjustable-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    -webkit-transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease;
+  }
+  .ha-adjustable.off .ha-adjustable-icon {
+    opacity: 0.38;
+  }
+
+  .ha-adjustable-label {
+    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
+    {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .ha-adjustable-pill {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.14);
+    position: relative;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    pointer-events: none;
+    -webkit-transition: background 0.2s ease, border-color 0.2s ease, -webkit-box-shadow 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ha-adjustable-pill::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(200,220,240,0.38);
+    -webkit-transition: left 0.18s ease, background 0.18s ease;
+    transition: left 0.18s ease, background 0.18s ease;
+  }
+  .ha-adjustable.on .ha-adjustable-pill {
+    background: rgba(90,210,120,0.3);
+    border-color: rgba(90,220,120,0.52);
+    -webkit-box-shadow: 0 0 8px rgba(70,200,100,0.22);
+    box-shadow: 0 0 8px rgba(70,200,100,0.22);
+  }
+  .ha-adjustable.on .ha-adjustable-pill::after {
+    left: 19px;
+    background: #7ae894;
+  }
+
+  /* Chevron strip */
+  .ha-adjustable-chevron {
+    display: block;
+    width: 100%;
+    padding: 3px 0 4px;
+    background: none;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0 0 12px 12px;
+    cursor: pointer;
+    color: rgba(160,200,240,0.28);
+    font-size: 11px;
+    text-align: center;
+    line-height: 1;
+    -webkit-transition: color 0.12s ease, background 0.12s ease;
+    transition: color 0.12s ease, background 0.12s ease;
+  }
+  .ha-adjustable-chevron:hover {
+    color: rgba(160,200,240,0.65);
+    background: rgba(255,255,255,0.04);
+  }
+  .ha-adjustable-chevron-icon {
+    display: inline-block;
+    font-style: normal;
+    -webkit-transition: -webkit-transform 0.18s ease;
+    transition: transform 0.18s ease;
+  }
+  .ha-adjustable.expanded .ha-adjustable-chevron-icon {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+  }
+
+  /* Overlay */
+  .ha-adjustable-overlay {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    background: rgba(7,16,34,0.96);
+    border: 1px solid rgba(130,185,255,0.15);
+    border-radius: 10px;
+    padding: 13px 15px 11px;
+    z-index: 200;
+    -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+  }
+  .ha-adjustable.expanded .ha-adjustable-overlay {
+    display: block;
+  }
+  .ha-adjustable-overlay::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    width: 9px;
+    height: 9px;
+    background: rgba(7,16,34,0.96);
+    border-left: 1px solid rgba(130,185,255,0.15);
+    border-top: 1px solid rgba(130,185,255,0.15);
+    -webkit-transform: translateX(-50%) rotate(45deg);
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .ha-adjustable-overlay-title {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(130,180,230,0.38);
+    margin-bottom: 10px;
+  }
+
+  .ha-slider-row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .ha-slider-row:last-child {
+    margin-bottom: 0;
+  }
+  .ha-slider-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(130,180,230,0.38);
+    width: 30px;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+  .ha-slider-row input[type=range] {
+    -webkit-appearance: none;
+    -webkit-flex: 1;
+    flex: 1;
+    height: 6px;
+    border-radius: 2px;
+    background: rgba(100,160,255,0.2);
+    outline: none;
+    border: none;
+    cursor: pointer;
+  }
+  .ha-slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #78b4f0;
+    -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
+    box-shadow: 0 0 8px rgba(90,175,255,0.44);
+    cursor: pointer;
+  }
+  .ha-slider-val {
+    font-size: 10px;
+    color: #78b4f0;
+    width: 38px;
+    text-align: right;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  /* Hidden until JS confirms the attribute exists */
+  .ha-slider-row.hidden {
+    display: none;
+  }
+</style>
+
+<div class="ha-adjustable card off" id="ha-adj-{{.Entity.EntityID}}">
+
+  <button class="ha-adjustable-body" id="ha-adj-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+    <div class="ha-adjustable-left">
+      {{if .Entity.Icon}}<span class="ha-adjustable-icon">{{.Entity.Icon}}</span>{{end}}
+      <span class="ha-adjustable-label">{{.Entity.Label}}</span>
+    </div>
+    <div class="ha-adjustable-pill"></div>
+  </button>
+
+  <button class="ha-adjustable-chevron" id="ha-adj-chv-{{.Entity.EntityID}}">
+    <i class="ha-adjustable-chevron-icon">&#9660;</i>
+  </button>
+
+  <div class="ha-adjustable-overlay">
+    <div class="ha-adjustable-overlay-title">{{.Entity.Label}}</div>
+
+    {{$domain := domain .Entity.EntityID}}
+
+    {{if eq $domain "light"}}
+    <div class="ha-slider-row" id="ha-adj-dim-{{.Entity.EntityID}}">
+      <span class="ha-slider-label">Dim</span>
+      <input type="range" min="0" max="255" value="255" id="ha-adj-dim-input-{{.Entity.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-dim-val-{{.Entity.EntityID}}">100%</span>
+    </div>
+    <div class="ha-slider-row hidden" id="ha-adj-cct-{{.Entity.EntityID}}">
+      <span class="ha-slider-label">Temp</span>
+      <input type="range" min="2700" max="6500" value="4000" id="ha-adj-cct-input-{{.Entity.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-cct-val-{{.Entity.EntityID}}">4000K</span>
+    </div>
+    {{end}}
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var entityId = '{{.Entity.EntityID}}';
+  var domain = '{{domain .Entity.EntityID}}';
+  var wrapper  = document.getElementById('ha-adj-'         + entityId);
+  var btn      = document.getElementById('ha-adj-btn-'     + entityId);
+  var chevron  = document.getElementById('ha-adj-chv-'     + entityId);
+
+  {{if eq $domain "light"}}
+  var dimRow   = document.getElementById('ha-adj-dim-'     + entityId);
+  var dimInput = document.getElementById('ha-adj-dim-input-' + entityId);
+  var dimVal   = document.getElementById('ha-adj-dim-val-' + entityId);
+  var cctRow   = document.getElementById('ha-adj-cct-'     + entityId);
+  var cctInput = document.getElementById('ha-adj-cct-input-' + entityId);
+  var cctVal   = document.getElementById('ha-adj-cct-val-' + entityId);
+  {{end}}
+
+  /* ── State updates from HA ── */
+  window.entityListeners[entityId] = function(state, attributes) {
+    /* Toggle pill */
+    if (state === 'on') {
+      wrapper.classList.remove('off');
+      wrapper.classList.add('on');
+    } else {
+      wrapper.classList.remove('on');
+      wrapper.classList.add('off');
+    }
+
+    {{if eq $domain "light"}}
+    /* Brightness — HA sends 0-255, display as 0-100% */
+    if (attributes.brightness !== undefined && attributes.brightness !== null) {
+      var pct = Math.round(attributes.brightness / 255 * 100);
+      dimInput.value = attributes.brightness;
+      dimVal.textContent = pct + '%';
+    }
+
+    /* CCT — only show row if attribute is present */
+    if (attributes.color_temp !== undefined && attributes.color_temp !== null) {
+      cctRow.classList.remove('hidden');
+      /* HA sends mireds, convert to Kelvin for display */
+      var kelvin = Math.round(1000000 / attributes.color_temp);
+      cctInput.min   = attributes.min_color_temp_kelvin || 2700;
+      cctInput.max   = attributes.max_color_temp_kelvin || 6500;
+      cctInput.value = kelvin;
+      cctVal.textContent = kelvin + 'K';
+    }
+    {{end}}
+  };
+
+  /* ── Toggle tap ── */
+  btn.addEventListener('click', function() {
+    window.haSend({
+      type: 'call_service',
+      domain: domain,
+      service: 'toggle',
+      target: { entity_id: entityId }
+    });
+  });
+
+  /* ── Chevron tap ── */
+  chevron.addEventListener('click', function(e) {
+    e.stopPropagation();
+    wrapper.classList.toggle('expanded');
+  });
+
+  /* ── Close overlay when clicking outside ── */
+  document.addEventListener('click', function(e) {
+    if (!wrapper.classList.contains('expanded')) return;
+    var el = e.target;
+    while (el) {
+      if (el === wrapper) return;
+      el = el.parentNode;
+    }
+    wrapper.classList.remove('expanded');
+  });
+
+  {{if eq $domain "light"}}
+  /* ── Dim slider → HA ── */
+  dimInput.addEventListener('change', function() {
+    var pct = Math.round(dimInput.value / 255 * 100);
+    dimVal.textContent = pct + '%';
+    window.haSend({
+      type: 'call_service',
+      domain: 'light',
+      service: 'turn_on',
+      target: { entity_id: entityId },
+      service_data: { brightness: parseInt(dimInput.value, 10) }
+    });
+  });
+  /* Live display while dragging, send only on release (change) */
+  dimInput.addEventListener('input', function() {
+    var pct = Math.round(dimInput.value / 255 * 100);
+    dimVal.textContent = pct + '%';
+  });
+
+  /* ── CCT slider → HA ── */
+  cctInput.addEventListener('change', function() {
+    var kelvin = parseInt(cctInput.value, 10);
+    cctVal.textContent = kelvin + 'K';
+    window.haSend({
+      type: 'call_service',
+      domain: 'light',
+      service: 'turn_on',
+      target: { entity_id: entityId },
+      service_data: { color_temp_kelvin: kelvin }
+    });
+  });
+  cctInput.addEventListener('input', function() {
+    cctVal.textContent = parseInt(cctInput.value, 10) + 'K';
+  });
+  {{end}}
+
+})();
+</script>
+{{end}}
