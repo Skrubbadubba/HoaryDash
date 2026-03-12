@@ -34,6 +34,25 @@ Home Assistant's own dashboard is too modern for decade-old hardware. Fully kios
 
 You can get firefox, which has modern version compatible with even android 4 I think, and it uses its own javascript engine which has modern feature parity. You could configure fully kiosk to open firefox in app mode, and put the tab in fullscreen or something. Even so, HAs interface is very heavy. Old tablets struggle to run it. In fact on my tablet it was barely usable. It even crashed when I opened the color wheel for a lamp, not firefox mind you, but the entire tablet, it restarted...
 
- But I wanted to make use of my tablet. It was cheap and I dont want it to become e-waste. HoaryDash is a purpose-built alternative: a Go server that generates a static, minimal dashboard from a simple YAML config and proxies live entity state from HA's WebSocket API. It doesn't use any javascript framework or bundles anything.
+But I wanted to make use of my tablet. It was cheap and I dont want it to become e-waste. HoaryDash is a purpose-built alternative: a Go server that generates a static, minimal dashboard from a simple YAML config and proxies live entity state from HA's WebSocket API. It doesn't use any javascript framework or bundles anything.
 
 
+## How
+
+HoaryDash runs as a Home Assistant addon (or just a docker container anywhere you'd like). When it starts, a Go server reads your `hoarydash.yaml` and generates a completely static `dash.html` using templates — no framework, no client-side rendering.Its all plain HTML with a small amount of hand-written ES5 JavaScript that Chromium 44 can handle.
+
+Live entity state comes through a single WebSocket connection from the tablet to the Go server, which proxies it to HA's WebSocket API. Your HA token never leaves the server. When you edit the YAML, the server detects the change, regenerates the HTML, and tells the tablet to reload through the existing websocket.
+
+In the future, I have plans for CSS and JS to get run through Babel and PostCSS at startup to make sure nothing modern sneaks in. The output would be guaranteed ES5 and prefixed CSS, so it stays compatible even as I add things.
+
+### Why this stack
+
+The other option were to have it be a custom integration. That would allow for a pretty straight forward way of adding entities to control the config, such as toggling or even scheduling the nightlight. Even more ambititous would be to make an android app and have the integration just be a thin controller instead of an entire server.
+
+The current stack was chosen mostly because adding PostCSS and such requires node. Docker allows that easily and then we just control it from go. I dont know if thats even possibly in HAs python environment. The other reason is I like go and docker. I think python is and should stay a scripting language. The friction of adding features in python when you also need to follow HAs requirments is much higher than in just go + html.
+
+## Security
+
+### There are no regards to security yet!
+
+If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something.

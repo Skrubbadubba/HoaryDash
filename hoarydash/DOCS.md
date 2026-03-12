@@ -72,6 +72,14 @@ Save the file. The dashboard will regenerate automatically — no restart needed
 3. Click **Create Token**, give it a name (e.g. `hoarydash`)
 4. Copy the token and paste it into `HA_TOKEN` in your config
 
+## Security
+
+### There are no regards to security yet!
+
+If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something.
+
+
+
 ## Fully Kiosk Setup
 
 In Fully Kiosk Browser settings, set:
