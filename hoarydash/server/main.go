@@ -57,8 +57,8 @@ type Config struct {
 
 type Yaml struct {
 	Dashboards map[string]Dashboard
-	Config
-	IsDev bool
+	Config     `yaml:",inline"`
+	IsDev      bool
 }
 
 type TemplateData struct {
