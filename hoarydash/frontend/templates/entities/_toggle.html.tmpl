@@ -21,7 +21,7 @@
     align-items: center;
     -webkit-justify-content: space-between;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.4rem;
     gap: 10px;
     background: none;
     border: none;
@@ -42,11 +42,10 @@
   .ha-toggle-left {
     display: -webkit-flex;
     display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
+    -webkit-flex-direction: row;
+    flex-direction: row;
     -webkit-align-items: center;
     align-items: center;
-    gap: 4px;
   }
 
   .ha-toggle-icon {
@@ -54,6 +53,7 @@
     line-height: 1;
     -webkit-transition: opacity 0.2s ease;
     transition: opacity 0.2s ease;
+    margin-right: 4px;
   }
   .ha-toggle.off .ha-toggle-icon {
     opacity: 0.38;
@@ -69,8 +69,8 @@
   }
 
   .ha-toggle-pill {
-    width: 36px;
-    height: 20px;
+    width: 20px;
+    height: 36px;
     border-radius: 10px;
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.14);
@@ -84,14 +84,14 @@
   .ha-toggle-pill::after {
     content: '';
     position: absolute;
-    top: 3px;
+    top: 19px;
     left: 3px;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background: rgba(200,220,240,0.38);
-    -webkit-transition: left 0.18s ease, background 0.18s ease;
-    transition: left 0.18s ease, background 0.18s ease;
+    -webkit-transition: top 0.18s ease, background 0.18s ease;
+    transition: top 0.18s ease, background 0.18s ease;
   }
   .ha-toggle.on .ha-toggle-pill {
     background: rgba(90,210,120,0.3);
@@ -100,7 +100,7 @@
     box-shadow: 0 0 8px rgba(70,200,100,0.22);
   }
   .ha-toggle.on .ha-toggle-pill::after {
-    left: 19px;
+    top: 3px;
     background: #7ae894;
   }
 </style>

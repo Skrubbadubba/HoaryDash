@@ -5,17 +5,18 @@
         display: flex;
         -webkit-flex-wrap: wrap;
         flex-wrap: wrap;
-        -webkit-justify-content: center;
-        justify-content: center;
-        -webkit-align-items: center;
-        align-items: center;
-        margin: 6px;
+        -webkit-justify-content: start;
+        justify-content: start;
+        -webkit-align-items: stretch;
+        align-items: stretch;
         margin-bottom: 75px;
         margin-top: -100px;
+        max-width: 75vw;
     }
     #entities-container > div,
     #entities-container > button {
-        margin: 10px;
+        margin: 5px;
+        border: 2px solid rgba(130,185,255,0.15);
     }
 </style>
 <div id="entities-container">
@@ -32,4 +33,21 @@
     {{end}}
 {{end}}
 </div>
+<script>
+    (function() {
+    var container = document.getElementById('entities-container');
+    var cards = container.querySelectorAll('.card');
+    var maxW = 0;
+    var maxH = 0;
+    var i;
+    for (i = 0; i < cards.length; i++) {
+        if (cards[i].offsetWidth  > maxW) maxW = cards[i].offsetWidth;
+        if (cards[i].offsetHeight > maxH) maxH = cards[i].offsetHeight;
+    }
+    for (i = 0; i < cards.length; i++) {
+        cards[i].style.width  = maxW + 'px';
+        cards[i].style.height = maxH + 'px';
+    }
+})();
+</script>
 {{end}}

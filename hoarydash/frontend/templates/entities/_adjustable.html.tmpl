@@ -21,7 +21,7 @@
     align-items: center;
     -webkit-justify-content: space-between;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.4rem 0.75rem 0.3rem 0.75rem;
     gap: 10px;
     background: none;
     border: none;
@@ -42,11 +42,10 @@
   .ha-adjustable-left {
     display: -webkit-flex;
     display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
+    -webkit-flex-direction: row;
+    flex-direction: row;
     -webkit-align-items: center;
     align-items: center;
-    gap: 4px;
   }
 
   .ha-adjustable-icon {
@@ -69,8 +68,8 @@
   }
 
   .ha-adjustable-pill {
-    width: 36px;
-    height: 20px;
+    width: 20px;
+    height: 36px;
     border-radius: 10px;
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.14);
@@ -84,14 +83,14 @@
   .ha-adjustable-pill::after {
     content: '';
     position: absolute;
-    top: 3px;
+    top: 19px;
     left: 3px;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background: rgba(200,220,240,0.38);
-    -webkit-transition: left 0.18s ease, background 0.18s ease;
-    transition: left 0.18s ease, background 0.18s ease;
+    -webkit-transition: top 0.18s ease, background 0.18s ease;
+    transition: top 0.18s ease, background 0.18s ease;
   }
   .ha-adjustable.on .ha-adjustable-pill {
     background: rgba(90,210,120,0.3);
@@ -100,7 +99,7 @@
     box-shadow: 0 0 8px rgba(70,200,100,0.22);
   }
   .ha-adjustable.on .ha-adjustable-pill::after {
-    left: 19px;
+    top: 3px;
     background: #7ae894;
   }
 
@@ -173,7 +172,7 @@
     font-size: 9px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(130,180,230,0.38);
+    color: rgb(130,180,230);
     margin-bottom: 10px;
   }
 
@@ -192,7 +191,7 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(130,180,230,0.38);
+    color: rgba(130,180,230,1);
     width: 30px;
     -webkit-flex-shrink: 0;
     flex-shrink: 0;
@@ -273,21 +272,22 @@
 (function() {
   var entityId = '{{.Entity.EntityID}}';
   var domain = '{{domain .Entity.EntityID}}';
-  var wrapper  = document.getElementById('ha-adj-'         + entityId);
-  var btn      = document.getElementById('ha-adj-btn-'     + entityId);
-  var chevron  = document.getElementById('ha-adj-chv-'     + entityId);
+  var wrapper  = document.getElementById('ha-adj-'     + entityId);
+  var btn      = document.getElementById('ha-adj-btn-' + entityId);
+  var chevron  = document.getElementById('ha-adj-chv-' + entityId);
 
   {{if eq $domain "light"}}
-  var dimRow   = document.getElementById('ha-adj-dim-'     + entityId);
+  var dimRow   = document.getElementById('ha-adj-dim-'       + entityId);
   var dimInput = document.getElementById('ha-adj-dim-input-' + entityId);
-  var dimVal   = document.getElementById('ha-adj-dim-val-' + entityId);
-  var cctRow   = document.getElementById('ha-adj-cct-'     + entityId);
+  var dimVal   = document.getElementById('ha-adj-dim-val-'   + entityId);
+  var cctRow   = document.getElementById('ha-adj-cct-'       + entityId);
   var cctInput = document.getElementById('ha-adj-cct-input-' + entityId);
-  var cctVal   = document.getElementById('ha-adj-cct-val-' + entityId);
+  var cctVal   = document.getElementById('ha-adj-cct-val-'   + entityId);
   {{end}}
 
   /* ── State updates from HA ── */
   window.entityListeners[entityId] = function(state, attributes) {
+    console.log("HA update for light: ", attributes, state)
     /* Toggle pill */
     if (state === 'on') {
       wrapper.classList.remove('off');
@@ -304,12 +304,34 @@
       dimInput.value = attributes.brightness;
       dimVal.textContent = pct + '%';
     }
-
+    
     /* CCT — only show row if attribute is present */
-    if (attributes.color_temp !== undefined && attributes.color_temp !== null) {
-      cctRow.classList.remove('hidden');
-      /* HA sends mireds, convert to Kelvin for display */
-      var kelvin = Math.round(1000000 / attributes.color_temp);
+    if (attributes.hasOwnProperty("supported_color_modes")) {
+      if (attributes.supported_color_modes.includes("color_temp")) {
+        cctRow.classList.remove('hidden');
+      }
+
+    }
+    var kelvin = null;
+    if (attributes.hasOwnProperty("color_temp_kelvin")) {
+       kelvin = attributes.color_temp_kelvin;
+    }
+    if (kelvin !== undefined && kelvin !== null) {
+      console.log("kelvin is: ", kelvin)
+      cctInput.min   = attributes.min_color_temp_kelvin || 2700;
+      cctInput.max   = attributes.max_color_temp_kelvin || 6500;
+      cctInput.value = kelvin;
+      cctVal.textContent = kelvin + 'K';
+      return;
+    }
+
+    var mireds = null;
+    if (attributes.hasOwnProperty("color_temp_mireds")) {
+      mireds = attributes.color_temp_mireds
+    }
+
+    if (mireds !== undefined && mireds !== null) {
+      kelvin = Math.round(1000000 / attributes.color_temp);
       cctInput.min   = attributes.min_color_temp_kelvin || 2700;
       cctInput.max   = attributes.max_color_temp_kelvin || 6500;
       cctInput.value = kelvin;
