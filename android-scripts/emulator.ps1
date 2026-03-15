@@ -1,10 +1,13 @@
-# android-emulator.ps1
 . "$PSScriptRoot\fix-android-home.ps1"
-$sdk = $env:ANDROID_SDK_ROOT
-if (-not $sdk) { $sdk = "F:\android" }
+. "$PSScriptRoot\shared-vars.ps1"
 
-if (-not (Test-Path "$sdk\emulators")) {
-    New-Item -ItemType Directory -Path "$sdk\emulators" | Out-Null
+# ANDROID_AVD_HOME is the most specific override for AVD file location
+if (-not $env:ANDROID_AVD_HOME) {
+    $env:ANDROID_AVD_HOME = Join-Path $androidUserHome "avd"
+}
+
+if (-not (Test-Path $env:ANDROID_AVD_HOME)) {
+    New-Item -ItemType Directory -Path $env:ANDROID_AVD_HOME | Out-Null
 }
 
 & "$sdk\emulator\emulator.exe" -avd chromium44 -no-snapshot-load

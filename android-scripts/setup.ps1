@@ -1,6 +1,6 @@
-# android-setup.ps1
-$sdk = $env:ANDROID_SDK_ROOT
-if (-not $sdk) { $sdk = "F:\android" }
+. "$PSScriptRoot\fix-android-home.ps1"
+. "$PSScriptRoot\shared-vars.ps1"
 
-& "$sdk\cmdline-tools\latest\bin\sdkmanager.bat" "platform-tools" "emulator" "system-images;android-23;google_apis;x86"
-& "$sdk\cmdline-tools\latest\bin\sdkmanager.bat" --licenses
+$sdkmanager = "$sdk\cmdline-tools\latest\bin\sdkmanager.bat"
+
+& $sdkmanager "platform-tools" "emulator" "system-images;android-23;google_apis;x86"
