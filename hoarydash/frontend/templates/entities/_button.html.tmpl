@@ -1,22 +1,40 @@
 {{define "button"}}
 <style>
   .ha-button {
-        border: none;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    min-width: 80px;
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: visible;
+    height: min-content;
+  }
+  .ha-button-body {
         display: -webkit-flex;
-        display: flex;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-align-items: center;
-        align-items: center;
-        -webkit-justify-content: start;
-        justify-content: start;
-        padding: 0.75rem 0.4rem;
-        min-width: 80px;
-        height: min-content;
-        border-radius: 12px;
-        cursor: pointer;
-        -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
-        transition: opacity 0.15s ease, transform 0.15s ease;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
+    gap: 10px;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .ha-button-content {
+      display: flex;
+      align-items: center;
     }
 
   .ha-button:active {
@@ -34,7 +52,7 @@
   .ha-button-label {
     color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
     {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
-    font-size: 0.85rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -44,10 +62,15 @@
     opacity: 0.5;
   }
 </style>
-  <button class="ha-button card" id="ha-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+<div class="ha-button card">
+  <button class="ha-button-body" id="ha-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+    <div class="ha-button-content">
     {{if .Entity.Icon}}<span class="ha-button-icon">{{.Entity.Icon}}</span>{{end}}
-    <span class="ha-button-label">{{.Entity.Label}}</span>
+      <span class="ha-button-label">{{.Entity.Label}}</span>
+    </div>
+    <div style="height: 36px;"></div>
   </button>
+</div>
   <script>
   (function() {
     var entityId = '{{.Entity.EntityID}}';
