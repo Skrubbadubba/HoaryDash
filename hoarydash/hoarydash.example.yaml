@@ -12,12 +12,18 @@ dashboards:
         label: Ring doorbell
         icon: 🔔
     theme:
-      body_background: "#282828"
-      button_background: "#3c3836"
-      card_background: "#32302f"
-      font_color: "#ebdbb2"
-      secondary_font_color: "#a89984"
-      icon_color: "#d79921"
+      background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+      font_color: "#e0f7fa"
+      secondary_font_color: "#80cbc4"
+      icon_color: "#4dd0e1"
+      entities:
+        borders: true
+        border_color: "rgba(255, 255, 255, 0.12)"
+        background: "rgba(255, 255, 255, 0.08)"
+      sensors:
+        borders: true
+        border_color: "rgba(255, 255, 255, 0.12)"
+        background: "rgba(255, 255, 255, 0.05)"
   screensaver:
     nightlight:
       enabled: false

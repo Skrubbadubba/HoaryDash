@@ -12,10 +12,12 @@
         max-width: 75vw;
         margin-top: 40px;
     }
-    #entities-container > div,
-    #entities-container > button {
+    #entities-container > .card {
         margin: 5px;
-        border: 2px solid rgba(130,185,255,0.15);
+        {{if enabledByDefault .Theme.Entities.Borders}}
+        border: 2px solid {{.Theme.Entities.BorderColor | default "rgba(130,185,255,0.10)"}};
+        {{end}}
+        background-color: {{.Theme.Entities.Background | default "rgba(20, 20, 20, 0.75)"}}
     }
 </style>
 <div id="entities-container">

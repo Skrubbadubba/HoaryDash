@@ -1,84 +1,141 @@
 # ─── LIGHT ───────────────────────────────────────────────────────────────────
 theme:
-  body_background: "#f5f5f0"
-  button_background: "#e0e0d8"
-  card_background: "#ffffff"
-  font_color: "#1a1a2e"
-  secondary_font_color: "#666677"
-  icon_color: "#4444aa"
+  body_background: "#f9f5d7"
+  font_color: "#3c3836"
+  secondary_font_color: "#7c6f64"
+  icon_color: "#458588"
+  entities:
+    borders: true
+    border_color: "#d5c4a1"
+    background: "#fbf1c7"
+  sensors:
+    borders: true
+    border_color: "#d5c4a1"
+    background: "#fbf1c7"
 
 # ─── GRUVBOX DARK ────────────────────────────────────────────────────────────
-# Canonical colors from github.com/morhetz/gruvbox
+# dark0=#282828  dark1=#3c3836  dark2=#504945
+# bright_yellow=#fabd2f  neutral_yellow=#d79921  bright_aqua=#8ec07c
 theme:
   body_background: "#282828"
-  button_background: "#3c3836"
-  card_background: "#32302f"
   font_color: "#ebdbb2"
   secondary_font_color: "#a89984"
   icon_color: "#d79921"
+  entities:
+    borders: true
+    border_color: "#504945"
+    background: "#3c3836"
+  sensors:
+    borders: true
+    border_color: "#504945"
+    background: "#3c3836"
 
 # ─── GRUVBOX LIGHT ───────────────────────────────────────────────────────────
-# bg0=#fbf1c7  bg1=#ebdbb2  bg2=#d5c4a1
-# fg0=#282828  fg1=#3c3836
+# light0=#fbf1c7  light1=#ebdbb2  light2=#d5c4a1
+# fg0=#282828  fg1=#3c3836  neutral_orange=#d65d0e
 theme:
   body_background: "#fbf1c7"
-  button_background: "#ebdbb2"
-  card_background: "#f2e5bc"
-  font_color: "#3c3836"
-  secondary_font_color: "#7c6f64"
+  font_color: "#282828"
+  secondary_font_color: "#665c54"
   icon_color: "#d65d0e"
+  entities:
+    borders: true
+    border_color: "#bdae93"
+    background: "#ebdbb2"
+  sensors:
+    borders: true
+    border_color: "#bdae93"
+    background: "#ebdbb2"
 
 # ─── SEPIA ───────────────────────────────────────────────────────────────────
 theme:
   body_background: "#f4ecd8"
-  button_background: "#e8d5b0"
-  card_background: "#fdf6e3"
   font_color: "#433422"
   secondary_font_color: "#8b6f47"
   icon_color: "#a0522d"
+  entities:
+    borders: true
+    border_color: "#d4b896"
+    background: "#fdf6e3"
+  sensors:
+    borders: true
+    border_color: "#d4b896"
+    background: "#fdf6e3"
 
 # ─── NORD ────────────────────────────────────────────────────────────────────
-# Polar night + frost + aurora
+# Polar night: #2e3440 #3b4252 #434c5e #4c566a
+# Snow storm:  #d8dee9 #e5e9f0 #eceff4
+# Frost:       #8fbcbb #88c0d0 #81a1c1 #5e81ac
 theme:
   body_background: "#2e3440"
-  button_background: "#3b4252"
-  card_background: "#373e4d"
   font_color: "#eceff4"
   secondary_font_color: "#9099aa"
   icon_color: "#88c0d0"
+  entities:
+    borders: true
+    border_color: "#434c5e"
+    background: "#3b4252"
+  sensors:
+    borders: true
+    border_color: "#434c5e"
+    background: "#3b4252"
 
 # ─── AURORA GRADIENT ─────────────────────────────────────────────────────────
 theme:
   background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
-  button_background: "rgba(255, 255, 255, 0.08)"
-  card_background: "rgba(255, 255, 255, 0.05)"
   font_color: "#e0f7fa"
   secondary_font_color: "#80cbc4"
   icon_color: "#4dd0e1"
+  entities:
+    borders: true
+    border_color: "rgba(255, 255, 255, 0.12)"
+    background: "rgba(255, 255, 255, 0.08)"
+  sensors:
+    borders: true
+    border_color: "rgba(255, 255, 255, 0.12)"
+    background: "rgba(255, 255, 255, 0.05)"
 
 # ─── SUNSET GRADIENT ─────────────────────────────────────────────────────────
 theme:
   background_gradient: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
-  button_background: "rgba(255, 100, 30, 0.15)"
-  card_background: "rgba(255, 80, 20, 0.08)"
   font_color: "#fff3e0"
   secondary_font_color: "#ffab76"
   icon_color: "#ff7043"
+  entities:
+    borders: true
+    border_color: "rgba(255, 100, 30, 0.25)"
+    background: "rgba(255, 100, 30, 0.15)"
+  sensors:
+    borders: true
+    border_color: "rgba(255, 100, 30, 0.2)"
+    background: "rgba(255, 80, 20, 0.08)"
 
 # ─── FOREST GRADIENT ─────────────────────────────────────────────────────────
 theme:
   background_gradient: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
-  button_background: "rgba(100, 200, 100, 0.10)"
-  card_background: "rgba(80, 160, 80, 0.07)"
   font_color: "#e8f5e9"
   secondary_font_color: "#81c784"
   icon_color: "#66bb6a"
+  entities:
+    borders: true
+    border_color: "rgba(100, 200, 100, 0.18)"
+    background: "rgba(100, 200, 100, 0.10)"
+  sensors:
+    borders: true
+    border_color: "rgba(80, 160, 80, 0.15)"
+    background: "rgba(80, 160, 80, 0.07)"
 
 # ─── SYNTHWAVE ───────────────────────────────────────────────────────────────
 theme:
   background_gradient: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
-  button_background: "rgba(255, 0, 255, 0.12)"
-  card_background: "rgba(180, 0, 255, 0.08)"
   font_color: "#f8f0ff"
   secondary_font_color: "#cc88ff"
   icon_color: "#ff44cc"
+  entities:
+    borders: true
+    border_color: "rgba(255, 0, 255, 0.2)"
+    background: "rgba(255, 0, 255, 0.12)"
+  sensors:
+    borders: true
+    border_color: "rgba(180, 0, 255, 0.15)"
+    background: "rgba(180, 0, 255, 0.08)"

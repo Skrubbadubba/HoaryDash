@@ -41,12 +41,18 @@ dashboards:
         icon: 🔔
     # Example of light theme
     # theme:
-    #   body_background: "#f5f5f0"
-    #   button_background: "#e0e0d8"
-    #   card_background: "#ffffff"
-    #   font_color: "#1a1a2e"
-    #   secondary_font_color: "#666677"
-    #   icon_color: "#4444aa"
+    #   background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+    #   font_color: "#e0f7fa"
+    #   secondary_font_color: "#80cbc4"
+    #   icon_color: "#4dd0e1"
+    #   entities:
+    #     borders: true
+    #     border_color: "rgba(255, 255, 255, 0.12)"
+    #     background: "rgba(255, 255, 255, 0.08)"
+    #   sensors:
+    #     borders: true
+    #     border_color: "rgba(255, 255, 255, 0.12)"
+    #     background: "rgba(255, 255, 255, 0.05)"
 
 
 localization:

@@ -1,7 +1,8 @@
 {{define "nightlight"}}
 <style>
     body.nightlight {
-        background: hsl(22, 100%, 50%);
+        background: hsl(22, 100%, 50%) !important;
+        background-color: hsl(22, 100%, 50%) !important;
     }
     body.nightlight,
     body.nightlight .sensor-label,
@@ -13,7 +14,9 @@
     body.nightlight .sensors-container {
         opacity: 0;
     }
-    body.nightlight .card {
+    body.nightlight .card,
+    body.nightlight #entities-container .card {
+        border-color: rgba(0,0,0,0);
         background: hsla(22, 100%, 10%, 0.05);
     }
     #nightlight-btn {

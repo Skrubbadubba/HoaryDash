@@ -38,8 +38,17 @@ type Dashboard struct {
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
+		Entities struct {
+			Borders *bool
+			BorderColor template.CSS `yaml:"border_color"`
+			Background template.CSS
+		}
+		Sensors struct {
+			Borders bool
+			BorderColor template.CSS `yaml:"border_color"`
+			Background template.CSS
+		}
 		ButtonBackground   template.CSS `yaml:"button_background"`
-		CardBackground     template.CSS `yaml:"card_background"`
 		FontColor          template.CSS `yaml:"font_color"`
 		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
 		IconColor          template.CSS `yaml:"icon_color"`
@@ -222,7 +231,7 @@ func main() {
 
 	cfg, err := parseYaml()
 	check(err, "Config loaded successfully")
-	// log.Printf("Config is: %v", cfg)
+	log.Printf("Config is: %v", cfg)
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))

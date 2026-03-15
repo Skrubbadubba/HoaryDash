@@ -14,6 +14,10 @@
     padding: 1rem;
     margin: 5px;
     border-radius: 12px;
+    {{if .Theme.Sensors.Borders}}
+        border: 2px solid {{.Theme.Sensors.BorderColor | default "rgba(130,185,255,0.15)"}};
+        {{end}}
+      background-color: {{.Theme.Sensors.Background | default "rgba(18, 18, 18, 0.75)"}}
   }
 
   .sensor-label {
@@ -25,6 +29,7 @@
     opacity: 0.6;
     {{end}}
     margin-bottom: 0.35rem;
+    
   }
 
   .sensor-value {
@@ -53,6 +58,7 @@
       justify-content: space-around;;
       flex-wrap: wrap;
       align-items: center;
+      
   }
 </style>
 
