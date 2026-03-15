@@ -26,13 +26,13 @@
     {{template "btn-style" .Dashboard.Theme}}
     <style>
         
-        /* ─── Weather widget (top-right, from original) ─── */
-        .wlr {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-family: "Outfit", sans-serif;
-            font-weight: 600;
+        .main-container {
+            display: flex;
+            -webkit-display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
         }
     </style>
 </head>
@@ -48,6 +48,7 @@
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
+    <div class="main-container">
     {{if .Dashboard.Entities}}
         {{template "entities" .Dashboard}}
     {{end}}
@@ -60,6 +61,7 @@
     {{if .Dashboard.Sensors}}
         {{template "sensors" .Dashboard}}
     {{end}}
+    </div>
 
     {{template "screenonlock" .}}
 

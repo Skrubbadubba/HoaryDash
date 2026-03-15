@@ -1,19 +1,34 @@
 {{define "dateclock"}}
 <style>
+    .dateclock-container {
+        position: absolute;
+        top: 33vh;
+        left: 0;
+        right: 0;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-align-items: center;
+        align-items: center;
+        pointer-events: none;
+    }
     .clock {
-        font-size: 15vw;
+        font-size: calc(8vw + 1em);
         font-weight: 600;
         margin-bottom: 0rem;
         letter-spacing: -0.02em;
     }
 
     .date {
-        font-size: 4vw;
+        font-size: calc(2vw + 1em);
         font-weight: 600;
     }
 </style>
-<div class="clock" id="clock"></div>
-<div class="date" id="date"></div>
+<div class="dateclock-container">
+    <div class="clock" id="clock"></div>
+    <div class="date" id="date"></div>
+</div>
 <script>
     var locale = '{{.Localization.Locale}}' || navigator.language || 'en-US';
     var timezone = '{{.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;

@@ -1,11 +1,8 @@
 {{define "sensors"}}
 <style>
   .sensor-widget {
-    display: -webkit-box;
     display: -webkit-flex;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
     -webkit-flex-direction: column;
     flex-direction: column;
     -webkit-box-align: center;
@@ -15,8 +12,8 @@
     -webkit-justify-content: center;
     justify-content: center;
     padding: 1rem;
+    margin: 5px;
     border-radius: 12px;
-    margin-left: 100px;
   }
 
   .sensor-label {
@@ -47,12 +44,16 @@
   }
 
   #sensors-container {
-                display: flex;
-                -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
-                transition: opacity 0.8s ease, margin-bottom 0.5s ease;
-                bottom: 18%;
-                margin-top: 50px;
-            }
+      display: flex;
+      -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+      transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+      margin-bottom: 75px;
+      width: 75vw;
+      max-width: 900px;
+      justify-content: space-around;;
+      flex-wrap: wrap;
+      align-items: center;
+  }
 </style>
 
 <div id="sensors-container">
