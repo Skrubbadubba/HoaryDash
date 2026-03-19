@@ -7,10 +7,13 @@ dashboards:
       - entity_id: sensor.living_room_temperature # Or whatever you have
         label: Temperature
         unit: °C
-    buttons:
+    entities:
       - entity_id: button.doorbell
         label: Ring doorbell
         icon: 🔔
+      - entity_id: light.ceiling
+        label: Ceiling light
+        icon: 💡
     theme:
       background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
       font_color: "#e0f7fa"
@@ -24,6 +27,7 @@ dashboards:
         borders: true
         border_color: "rgba(255, 255, 255, 0.12)"
         background: "rgba(255, 255, 255, 0.05)"
+      base_font_size: 20
   screensaver:
     nightlight:
       enabled: false
