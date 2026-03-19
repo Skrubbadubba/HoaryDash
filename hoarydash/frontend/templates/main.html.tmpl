@@ -51,6 +51,9 @@
     <div class="main-container">
     {{if .Dashboard.Entities}}
         {{template "entities" .Dashboard}}
+    {{else}}
+        {{/* Take up space inside flexbos so as to always push down sensors */}}
+        <div style="display: hidden;"></div>
     {{end}}
     {{ if enabledByDefault .Dashboard.Dateclock.Enabled}}
     {{template "dateclock" (dict
