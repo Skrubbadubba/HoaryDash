@@ -1,8 +1,26 @@
-# v0.5.1
+# v0.5.3
 
 ## Features
 
-- fans are now fully supported and gets a speed slider
+- Allow styling font sizes
+    - base font size
+    - font size for sensors and entities separately
+The entire components are now based on the font size, so the font size scales their size.
+Example:
+```yaml
+theme:
+    entities:
+        font_size: 18
+        ...
+    sensors:
+        font_size: 25
+        ...
+    base_font_size: 20
+```
+
+- Removed orange focus outline on tap
+- Removed blue background highlight on tap
+
 
 ---
 ### Previous minor release:
