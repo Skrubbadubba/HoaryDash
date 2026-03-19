@@ -64,14 +64,7 @@
         document.getElementById('date').textContent = day + ', ' + date;
     }
 
-    // Margin toggle (screensaver burn-in prevention)
-    function toggleClockMargin() {
-        var el = document.getElementById('clock');
-        el.style.marginBottom = (el.style.marginBottom === '4rem') ? '0rem' : '4rem';
-    }
-
     setInterval(updateTime, 1000);
-    setInterval(toggleClockMargin, 5 * 60 * 1000);
     updateTime();
 </script>
 {{end}}

@@ -11,13 +11,15 @@
         align-items: stretch;
         max-width: 75vw;
         margin-top: 40px;
+        font-size: {{.Theme.Entities.FontSize | default "inherit"}}px;
     }
     #entities-container > .card {
         margin: 5px;
         {{if enabledByDefault .Theme.Entities.Borders}}
-        border: 2px solid {{.Theme.Entities.BorderColor | default "rgba(130,185,255,0.10)"}};
+        border: 0.125em solid {{.Theme.Entities.BorderColor | default "rgba(130,185,255,0.10)"}};
+        border-radius: 0.75em;
         {{end}}
-        background-color: {{.Theme.Entities.Background | default "rgba(20, 20, 20, 0.75)"}}
+        background-color: {{.Theme.Entities.Background | default "rgba(20, 20, 20, 0.75)"}};
     }
 </style>
 <div id="entities-container">

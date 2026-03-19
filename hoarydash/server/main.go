@@ -38,20 +38,23 @@ type Dashboard struct {
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Entities struct {
-			Borders *bool
+		Entities           struct {
+			Borders     *bool
 			BorderColor template.CSS `yaml:"border_color"`
-			Background template.CSS
+			Background  template.CSS
+			FontSize    template.CSS `yaml:"font_size"`
 		}
 		Sensors struct {
-			Borders bool
+			Borders     bool
 			BorderColor template.CSS `yaml:"border_color"`
-			Background template.CSS
+			Background  template.CSS
+			FontSize    template.CSS `yaml:"font_size"`
 		}
 		ButtonBackground   template.CSS `yaml:"button_background"`
 		FontColor          template.CSS `yaml:"font_color"`
 		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
 		IconColor          template.CSS `yaml:"icon_color"`
+		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
 }
 type Config struct {
