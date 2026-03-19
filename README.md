@@ -6,7 +6,9 @@ This is very early alpha, looks fine IMO but possibly hard to setup. Is alpha ev
 
 # HoaryDash
 
-<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/602f0ab3-8624-4a03-b6b2-8e7691092b69" />
+<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/b35e3998-f761-43a1-8738-caa63ee76f68" />
+
+<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/fae82044-86a4-4aec-9b61-1eb8df014a49" />
 
 
 ## What
