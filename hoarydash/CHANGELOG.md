@@ -1,25 +1,8 @@
-# v0.5.3
+# v0.5.4
 
-## Features
+## Hotfix
 
-- Allow styling font sizes
-    - base font size
-    - font size for sensors and entities separately
-The entire components are now based on the font size, so the font size scales their size.
-Example:
-```yaml
-theme:
-    entities:
-        font_size: 18
-        ...
-    sensors:
-        font_size: 25
-        ...
-    base_font_size: 20
-```
-
-- Removed orange focus outline on tap
-- Removed blue background highlight on tap
+Fix toggle pills not showing on fans and lights
 
 
 ---
