@@ -1,10 +1,19 @@
-# v0.5.0 🎉
-
-This release brings a bunch of polish, and more controls. Might be actually useful now :D
+# v0.5.1
 
 ## Features
 
-#### Support and controls for more entities:
+- fans are now fully supported and gets a speed slider
+
+---
+### Previous minor release:
+
+## v0.5.0 🎉
+
+This release brings a bunch of polish, and more controls. Might be actually useful now :D
+
+### Features
+
+##### Support and controls for more entities:
 
 There is now cards for a bunch of simple entities. Toggleable entities now get a pill automatically, and lights gets a expandable popup with sliders for brightness and cct (if available)
 
@@ -19,11 +28,11 @@ Supported entities:
 
 Fan speed controls will hopefully be patched in soon
 
-#### Theming
+##### Theming
 
 - Margins and alignment is slightly polished
 
-##### New options
+###### New options
 
 For sensors and entities under
 ```yaml

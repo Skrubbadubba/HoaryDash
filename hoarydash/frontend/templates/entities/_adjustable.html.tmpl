@@ -264,6 +264,13 @@
     </div>
     {{end}}
 
+    {{if eq $domain "fan"}}
+    <div class="ha-slider-row" id="ha-adj-speed-{{.Entity.EntityID}}">
+      <span class="ha-slider-label">Speed</span>
+      <input type="range" min="0" max="100" value="0" id="ha-adj-speed-input-{{.Entity.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-speed-val-{{.Entity.EntityID}}">100%</span>
+    </div>
+  {{end}}
   </div>
 
 </div>
@@ -285,6 +292,13 @@
   var cctVal   = document.getElementById('ha-adj-cct-val-'   + entityId);
   {{end}}
 
+  {{if eq $domain "fan"}}
+  var speedRow   = document.getElementById('ha-adj-speed-'       + entityId);
+  var speedInput   = document.getElementById('ha-adj-speed-input-' + entityId);
+  var speedVal   = document.getElementById('ha-adj-speed-val-'   + entityId);
+  {{end}}
+
+  var first = true;
   /* ── State updates from HA ── */
   window.entityListeners[entityId] = function(state, attributes) {
     console.log("HA update for light: ", attributes, state)
@@ -292,7 +306,8 @@
     if (state === 'on') {
       wrapper.classList.remove('off');
       wrapper.classList.add('on');
-    } else {
+    } 
+    else if (state === 'off') {
       wrapper.classList.remove('on');
       wrapper.classList.add('off');
     }
@@ -337,6 +352,17 @@
       cctInput.value = kelvin;
       cctVal.textContent = kelvin + 'K';
     }
+    {{end}}
+
+    {{if eq $domain "fan"}}
+      if (attributes.percentage !== undefined && attributes.percentage !== null) {
+        var percentage = attributes.percentage
+        speedInput.value = percentage
+        speedVal.textContent = percentage + '%';
+      }
+      if (attributes.percentage_step !== undefined && attributes.percentage_tep !== null) {
+        speedInput.step = attributes.percentage_step
+      }
     {{end}}
   };
 
@@ -401,6 +427,23 @@
   cctInput.addEventListener('input', function() {
     cctVal.textContent = parseInt(cctInput.value, 10) + 'K';
   });
+  {{end}}
+
+  {{if eq $domain "fan"}}
+  speedInput.addEventListener('change', function() {
+    var speed = speedInput.value
+      speedVal.textContent = speed + '%';
+      window.haSend({
+        type: 'call_service',
+        domain: 'fan',
+        service: 'set_percentage',
+        target: { entity_id: entityId },
+        service_data: { percentage: parseInt(speed, 10) }
+      });
+    });
+    speedInput.addEventListener('input', function() {
+      speedVal.textContent = speedInput.value + '%';
+    });
   {{end}}
 
 })();
