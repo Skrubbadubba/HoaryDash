@@ -11,9 +11,9 @@
     -webkit-box-pack: center;
     -webkit-justify-content: center;
     justify-content: center;
-    padding: 1rem;
-    margin: 5px;
-    border-radius: 12px;
+    padding: 1em;
+    margin: 0.3125em;
+    border-radius: 0.75em;
     {{if .Theme.Sensors.Borders}}
         border: 2px solid {{.Theme.Sensors.BorderColor | default "rgba(130,185,255,0.15)"}};
         {{end}}
@@ -22,26 +22,26 @@
 
   .sensor-label {
     color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
-    font-size: 1rem;
+    font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     {{if not .Theme.SecondaryFontColor}}
     opacity: 0.6;
     {{end}}
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.35em;
     
   }
 
   .sensor-value {
     color: {{.Theme.FontColor | default "#ffffff"}};
-    font-size: 1.9rem;
+    font-size: 1.9em;
     font-weight: 600;
     line-height: 1;
   }
 
   .sensor-unit {
     color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
-    font-size: 0.85rem;
+    font-size: 0.85em;
     {{if not .Theme.SecondaryFontColor}}
     opacity: 0.5;
     {{end}}
@@ -54,11 +54,10 @@
       transition: opacity 0.8s ease, margin-bottom 0.5s ease;
       margin-bottom: 75px;
       width: 75vw;
-      max-width: 900px;
       justify-content: space-around;;
       flex-wrap: wrap;
       align-items: center;
-      
+      font-size: {{.Theme.Sensors.FontSize | default "inherit"}}px;
   }
 </style>
 
