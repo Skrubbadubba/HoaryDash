@@ -35,6 +35,9 @@ type Dashboard struct {
 		Label    string
 		Icon     string
 	}
+	Cards []struct {
+		EntityID string `yaml:"entity_id"`
+	}
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
@@ -150,6 +153,7 @@ func BuildDash() {
 
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/cards/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {

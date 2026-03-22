@@ -16,7 +16,7 @@
             entity_ids: [
                     {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
                     {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
-                ]
+                ],
         };
     </script>
     {{ if .Dashboard.Sensors }}
@@ -33,6 +33,7 @@
             justify-content: space-between;
             align-items: center;
             height: 100%;
+            width: 100%
         }
     </style>
 </head>
@@ -52,15 +53,43 @@
     {{if .Dashboard.Entities}}
         {{template "entities" .Dashboard}}
     {{else}}
-        {{/* Take up space inside flexbos so as to always push down sensors */}}
+        {{/* Take up space inside flexbox so as to always push down sensors */}}
         <div style="display: hidden;"></div>
     {{end}}
-    {{ if enabledByDefault .Dashboard.Dateclock.Enabled}}
-    {{template "dateclock" (dict
-        "Localization" .Config.Localization
-        "Dateclock" .Dashboard.Dateclock
-    )}}  
-    {{end}}
+    <style>
+        .center-container {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            justify-content: space-between;
+            width: 80%
+        }
+        .center-container > div {
+            margin: 0 2rem 0 2rem;
+        }
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    <div class="center-container">
+        {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
+            {{template "dateclock" (dict
+                "Localization" .Config.Localization
+                "Dateclock" .Dashboard.Dateclock
+            )}}
+        {{end}}
+        <div class="cards-container">
+        {{range .Dashboard.Cards}}
+            {{if eq (domain .EntityID) "weather"}}
+                {{template "_weather" .}}
+            {{end}}
+        {{end}}
+    </div>
+    </div>
     {{if .Dashboard.Sensors}}
         {{template "sensors" .Dashboard}}
     {{end}}

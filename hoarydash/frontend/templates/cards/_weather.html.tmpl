@@ -1,0 +1,318 @@
+{{define "_weather"}}
+<style>
+  .weather-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 0.5px solid rgba(120, 180, 255, 0.18);
+    border-radius: 0.5em;
+    overflow: hidden;
+    font-family: inherit;
+  }
+
+  .weather-main {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    align-items: stretch;
+    padding: 0.6em 0.7em;
+    gap: 0.6em;
+  }
+
+  .weather-current {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 0.4em;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    flex: 0 0 auto;
+  }
+
+  .weather-icon {
+    font-size: 1.8em;
+    line-height: 1;
+  }
+
+  .weather-temp {
+    font-size: 1.9em;
+    font-weight: 700;
+    color: #f0e0c0;
+    line-height: 1;
+  }
+
+  .weather-temp-unit {
+    font-size: 0.9em;
+    font-weight: 400;
+    color: #a08060;
+  }
+
+  .weather-divider {
+    width: 0.05em;
+    background: rgba(120, 180, 255, 0.15);
+    -webkit-align-self: stretch;
+    align-self: stretch;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  .weather-details {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    gap: 0.2em;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+  }
+
+  .weather-condition {
+    font-size: 0.65em;
+    font-weight: 600;
+    color: #d0c8b8;
+    text-transform: capitalize;
+  }
+
+  .weather-meta {
+    font-size: 0.55em;
+    color: #8899aa;
+  }
+
+  .weather-meta span {
+    margin-right: 0.5em;
+  }
+
+  .weather-forecast {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    border-top: 0.05em solid rgba(120, 180, 255, 0.12);
+  }
+
+  .forecast-day {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: 0.4em 0.2em;
+    border-right: 0.05em solid rgba(120, 180, 255, 0.1);
+  }
+
+  .forecast-day:last-child {
+    border-right: none;
+  }
+
+  .forecast-day-name {
+    font-size: 0.45em;
+    color: #8899aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2em;
+  }
+
+  .forecast-day-icon {
+    font-size: 0.8em;
+    line-height: 1.2;
+    margin-bottom: 0.2em;
+  }
+
+  .forecast-day-temps {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 0.2em;
+    -webkit-box-align: baseline;
+    -webkit-align-items: baseline;
+    align-items: baseline;
+  }
+
+  .forecast-temp-high {
+    font-size: 0.55em;
+    font-weight: 600;
+    color: #d0c0a0;
+  }
+
+  .forecast-temp-low {
+    font-size: 0.5em;
+    color: #6a7a8a;
+  }
+</style>
+
+<div class="weather-card">
+  <div class="weather-main">
+    <div class="weather-current">
+      <div class="weather-icon" id="weather-icon">🌡️</div>
+      <div>
+        <span class="weather-temp" id="weather-temp">--</span><span class="weather-temp-unit">°C</span>
+      </div>
+    </div>
+    <div class="weather-divider"></div>
+    <div class="weather-details">
+      <div class="weather-condition" id="weather-condition">Loading...</div>
+      <div class="weather-meta">
+        <span id="weather-wind"></span>
+        <span id="weather-humidity"></span>
+        <span id="weather-feels"></span>
+      </div>
+    </div>
+  </div>
+  <div class="weather-forecast" id="weather-forecast"></div>
+</div>
+
+<script>
+(function () {
+  var POLL_INTERVAL = 10 * 60 * 1000;
+  var entityId = {{.EntityID}};
+  console.log("weather entity id is: ", entityId)
+  if (!entityId) { return; }
+
+  var locale   = window.CONFIG.locale   || navigator.language || 'en-US';
+  var timezone = window.CONFIG.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  var conditionIcons = {
+    'clear-night':     '🌙',
+    'cloudy':          '☁️',
+    'exceptional':     '⚠️',
+    'fog':             '🌫️',
+    'hail':            '🌨️',
+    'lightning':       '⚡',
+    'lightning-rainy': '⛈️',
+    'partlycloudy':    '⛅',
+    'pouring':         '🌧️',
+    'rainy':           '🌦️',
+    'snowy':           '❄️',
+    'snowy-rainy':     '🌨️',
+    'sunny':           '☀️',
+    'windy':           '🌬️',
+    'windy-variant':   '🌬️'
+  };
+
+  function iconForCondition(condition) {
+    return conditionIcons[condition] || '🌡️';
+  }
+
+  function round1(n) {
+    return Math.round(parseFloat(n) * 10) / 10;
+  }
+
+  function dayNameFromDatetime(datetimeStr) {
+    var date = new Date(datetimeStr);
+    return date.toLocaleDateString(locale, {
+      weekday: 'short',
+      timeZone: timezone
+    });
+  }
+
+  function renderCurrent(state, attributes) {
+    document.getElementById('weather-icon').textContent      = iconForCondition(state);
+    document.getElementById('weather-temp').textContent      = round1(attributes.temperature || 0);
+    document.getElementById('weather-condition').textContent = (state || '').replace(/-/g, ' ');
+    document.getElementById('weather-wind').textContent      = attributes.wind_speed
+      ? '💨 ' + attributes.wind_speed + ' ' + (attributes.wind_speed_unit || 'm/s')
+      : '';
+    document.getElementById('weather-humidity').textContent  = attributes.humidity
+      ? '💧 ' + attributes.humidity + '%'
+      : '';
+    document.getElementById('weather-feels').textContent     = attributes.apparent_temperature
+      ? 'Feels ' + round1(attributes.apparent_temperature) + '°'
+      : '';
+  }
+
+  function renderForecast(forecast) {
+    var container = document.getElementById('weather-forecast');
+    if (!forecast || !forecast.length) {
+      container.style.display = 'none';
+      return;
+    }
+    var html = '';
+    var days = forecast.slice(0, 5);
+    for (var i = 0; i < days.length; i++) {
+      var day     = days[i];
+      var dayName = dayNameFromDatetime(day.datetime);
+      var icon    = iconForCondition(day.condition);
+      var high    = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
+      var low     = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
+      html += '<div class="forecast-day">'
+        + '<div class="forecast-day-name">'  + dayName + '</div>'
+        + '<div class="forecast-day-icon">'  + icon    + '</div>'
+        + '<div class="forecast-day-temps">'
+        +   '<span class="forecast-temp-high">' + high + '</span>'
+        +   (low ? '<span class="forecast-temp-low">' + low + '</span>' : '')
+        + '</div>'
+        + '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  function fetchForecast() {
+    return window.haSend({
+      type: 'call_service',
+      domain: 'weather',
+      service: 'get_forecasts',
+      service_data: { type: 'twice_daily' },
+      target: { entity_id: entityId },
+      return_response: true
+    }).then(function(result) {
+      var forecasts = result.response
+        && result.response[entityId]
+        && result.response[entityId].forecast;
+      renderForecast(forecasts || []);
+    });
+  }
+
+  function fetchCurrent() {
+    return window.haSend({ type: 'get_states' }).then(function(result) {
+      for (var i = 0; i < result.length; i++) {
+        if (result[i].entity_id === entityId) {
+          renderCurrent(result[i].state, result[i].attributes);
+          return;
+        }
+      }
+    });
+  }
+
+  function fetchWeather() {
+    fetchCurrent().catch(function(err) { console.error('weather current failed:', err); ++tries; });
+    fetchForecast().catch(function(err) { console.error('weather forecast failed:', err); ++tries;});
+  }
+
+  var MAX_TRIES = 15;
+  var tries = 0;
+  function tryFetch() {
+    {{/* console.log("ran tryFetch") */}}
+    if (tries >= MAX_TRIES) {
+        {{/* console.log("max tries reached, cooling down") */}}
+        setTimeout(function() {tries = 0; tryFetch()}, 3 * 60 * 1000)
+        return;
+    }
+    if (window.haSocketReady) {
+        fetchWeather();
+        {{/* console.log("tried running fetchWeather") */}}
+    } else {
+        ++tries;
+        setTimeout(tryFetch, 1000);
+    }
+  }
+
+  tryFetch();
+  setInterval(fetchWeather, POLL_INTERVAL);
+}());
+</script>
+{{end}}
