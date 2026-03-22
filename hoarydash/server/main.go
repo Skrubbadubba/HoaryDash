@@ -35,8 +35,9 @@ type Dashboard struct {
 		Label    string
 		Icon     string
 	}
-	Cards []struct {
+	Widgets []struct {
 		EntityID string `yaml:"entity_id"`
+		FontSize string `yaml:"font_size"` // Per widget override
 	}
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
@@ -47,18 +48,21 @@ type Dashboard struct {
 			Background  template.CSS
 			FontSize    template.CSS `yaml:"font_size"`
 		}
-		Sensors struct {
-			Borders     bool
-			BorderColor template.CSS `yaml:"border_color"`
-			Background  template.CSS
-			FontSize    template.CSS `yaml:"font_size"`
-		}
+		Sensors            CardTheme
+		Widgets            CardTheme
 		ButtonBackground   template.CSS `yaml:"button_background"`
 		FontColor          template.CSS `yaml:"font_color"`
 		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
 		IconColor          template.CSS `yaml:"icon_color"`
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
+}
+
+type CardTheme struct {
+	Borders     bool
+	BorderColor template.CSS `yaml:"border_color"`
+	Background  template.CSS
+	FontSize    template.CSS `yaml:"font_size"`
 }
 type Config struct {
 	Localization struct {
@@ -153,7 +157,7 @@ func BuildDash() {
 
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/cards/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {

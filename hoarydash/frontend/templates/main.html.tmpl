@@ -65,14 +65,17 @@
             -webkit-align-items: center;
             align-items: center;
             justify-content: space-between;
-            width: 80%
+            width: 90%
         }
         .center-container > div {
             margin: 0 2rem 0 2rem;
         }
-        .cards-container {
+        .widgets-container {
             display: flex;
             flex-direction: column;
+            {{if .Dashboard.Theme.Widgets.FontSize}}
+                font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
+            {{end}}
         }
     </style>
     <div class="center-container">
@@ -82,8 +85,8 @@
                 "Dateclock" .Dashboard.Dateclock
             )}}
         {{end}}
-        <div class="cards-container">
-        {{range .Dashboard.Cards}}
+        <div class="widgets-container">
+        {{range .Dashboard.Widgets}}
             {{if eq (domain .EntityID) "weather"}}
                 {{template "_weather" .}}
             {{end}}

@@ -7,7 +7,7 @@
   window.haSubscribeId = null;
   window.haSubscribeId = ++window.haMsgId;
   var haSocket = null;
-  window.window.haSocketReady = false;
+  window.haSocketReady = false;
   var pendingMap = {};
   window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
 
@@ -55,8 +55,8 @@
     );
 
     ws.onopen = function() {
-      window.haSocketReady = true;
       haSocket = ws
+      window.haSocketReady = true;
       ws.send(JSON.stringify({
         id: window.haSubscribeId,
         type: 'subscribe_entities',
