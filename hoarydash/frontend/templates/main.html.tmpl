@@ -74,47 +74,49 @@
         {{/* Take up space inside flexbox so as to always push down sensors */}}
         <div style="display: hidden;"></div>
     {{end}}
-    <style>
-        .center-container {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            align-items: center;
-            justify-content: space-between;
-            width: 90%;
-            margin-bottom: 1em;
-        }
-        .center-container > div {
-            margin: 0 2rem 0 2rem;
-        }
-        .widgets-container {
-            display: flex;
-            flex-direction: column;
-            {{if .Dashboard.Theme.Widgets.FontSize}}
-                font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
-            {{end}}
-            width: 17em;
-        }
-        .widgets-container > div {
-            margin: 5px 0;
-        }
-        .widgets-container > div {
-            {{template "create-card-theme" .Dashboard.Theme.Widgets}}
-        }
-    </style>
     <div class="center-container">
         {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
             {{template "dateclock" (dict
-                "Localization" .Config.Localization
-                "Dateclock" .Dashboard.Dateclock
+            "Localization" .Config.Localization
+            "Dateclock" .Dashboard.Dateclock
             )}}
         {{end}}
+        <style>
+            .center-container {
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: flex;
+                -webkit-box-align: center;
+                -webkit-align-items: center;
+                align-items: center;
+                justify-content: space-between;
+                width: 90%;
+                margin-bottom: 1em;
+            }
+            .center-container > div {
+                margin: 0 2rem 0 2rem;
+            }
+            .widgets-container {
+                display: flex;
+                flex-direction: column;
+                {{if .Dashboard.Theme.Widgets.FontSize}}
+                    font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
+                {{end}}
+                width: 17em;
+            }
+            .widgets-container > div {
+                margin: 5px 0;
+                {{template "create-card-theme" .Dashboard.Theme.Widgets}}
+            }
+        </style>
         <div class="widgets-container">
+        {{$theme := .Dashboard.Theme}}
         {{range .Dashboard.Widgets}}
             {{if eq (domain .EntityID) "weather"}}
-                {{template "_weather" .}}
+                {{template "_weather" (dict
+                "Theme" $theme
+                "Entity" .
+            )}}
             {{end}}
         {{end}}
     </div>

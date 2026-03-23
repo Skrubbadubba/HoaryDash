@@ -3,8 +3,8 @@
   .weather-container {
     overflow: hidden;
     font-family: inherit;
-    {{if .FontSize}}
-      font-size: {{.FontSize}}px;
+    {{if .Entity.FontSize}}
+      font-size: {{.Entity.FontSize}}px;
     {{end}}
   }
 
@@ -42,14 +42,14 @@
   .weather-temp {
     font-size: 1.9em;
     font-weight: 700;
-    color: #f0e0c0;
+    color: {{.Theme.FontColor | default "#f0e0c0"}};
     line-height: 1;
   }
 
   .weather-temp-unit {
     font-size: 0.9em;
     font-weight: 400;
-    color: #a08060;
+    color: {{.Theme.SecondaryFontColor | default "#a08060"}};
   }
 
   .weather-divider {
@@ -82,7 +82,7 @@
   .weather-condition {
     font-size: 0.65em;
     font-weight: 600;
-    color: #d0c8b8;
+    color: {{.Theme.SecondaryFontColor | default "#d0c8b8"}};
     text-transform: capitalize;
   }
 
@@ -153,7 +153,7 @@
   .forecast-temp-high {
     font-size: 0.55em;
     font-weight: 600;
-    color: #d0c0a0;
+    color: {{.Theme.FontColor | default "#d0c0a0"}};
   }
 
   .forecast-temp-low {
@@ -186,7 +186,7 @@
 <script>
 (function () {
   var POLL_INTERVAL = 10 * 60 * 1000;
-  var entityId = {{.EntityID}};
+  var entityId = {{.Entity.EntityID}};
   console.log("weather entity id is: ", entityId)
   if (!entityId) { return; }
 
