@@ -10,6 +10,7 @@
   window.haSocketReady = false;
   var pendingMap = {};
   window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
+  window.onHaReady = []; // Callback list for fetching initial state
 
   window.haSend = function(msg) {
     return new Promise(function(resolve, reject) {
@@ -54,6 +55,9 @@
         type: 'subscribe_entities',
         entity_ids: entityIds
       }));
+      for (cb in window.onHaReady) {
+        cb()
+      }
     };
 
     ws.onmessage = function(evt) {

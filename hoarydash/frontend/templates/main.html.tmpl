@@ -39,9 +39,7 @@
             xhr.send();
         };
     </script>
-    {{ if .Dashboard.Sensors }}
-        {{template "websocket"}}
-    {{end}}
+    {{template "websocket"}}
     {{template "base-style" .Dashboard.Theme}}
     {{template "btn-style" .Dashboard.Theme}}
     <style>

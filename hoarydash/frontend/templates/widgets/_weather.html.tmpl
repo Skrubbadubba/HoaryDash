@@ -320,22 +320,6 @@
     });
   }
 
-  function fetchCurrent() {
-    return window.haSend({ type: 'get_states' }).then(function(result) {
-      for (var i = 0; i < result.length; i++) {
-        if (result[i].entity_id === entityId) {
-          renderCurrent(result[i].state, result[i].attributes);
-          return;
-        }
-      }
-    });
-  }
-
-  function fetchWeather() {
-    fetchCurrent().catch(function(err) { console.error('weather current failed:', err); ++tries; });
-    fetchForecast().catch(function(err) { console.error('weather forecast failed:', err); ++tries;});
-  }
-
   var MAX_TRIES = 15;
   var tries = 0;
   function tryFetch() {
@@ -348,7 +332,7 @@
     if (window.haSocketReady) {
       fetchTranslations(function(translations) {
             window.weatherTranslations = translations;
-            fetchWeather();
+            fetchForecast();
         });
         {{/* console.log("tried running fetchWeather") */}}
     } else {
@@ -357,8 +341,18 @@
     }
   }
 
+  window.entityListeners[entityId] = function(state, attributes) {
+      if (state !== undefined) { renderCurrent(state, attributes); }
+  };
+
+  window.onHaReady.push(function() {
+      fetchTranslations(function() {
+          fetchForecast();
+          setInterval(fetchForecast, POLL_INTERVAL);
+      });
+  });
+
   tryFetch();
-  setInterval(fetchWeather, POLL_INTERVAL);
 }());
 </script>
 {{end}}
