@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"io"
+	"log"
 	"net/http"
+	"strings"
 )
 
 var weatherTranslations = map[string]map[string]string{
@@ -83,5 +86,47 @@ func translationsHandler() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "max-age=86400")
 		json.NewEncoder(w).Encode(translations)
+	}
+}
+
+func mediaCoverHandler(haBaseURL, haToken string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		haBaseURL, haToken = getHaDefaults(haBaseURL, haToken)
+		if haBaseURL == "" || haToken == "" {
+			http.Error(w, "HA credentials not configured", http.StatusInternalServerError)
+			return
+		}
+
+		picPath := r.URL.Query().Get("path")
+		if picPath == "" {
+			http.Error(w, "missing path", http.StatusBadRequest)
+			return
+		}
+
+		target := strings.TrimRight(haBaseURL, "/") + picPath
+
+		req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, target, nil)
+		if err != nil {
+			http.Error(w, "bad upstream URL", http.StatusBadRequest)
+			return
+		}
+		req.Header.Set("Authorization", "Bearer "+haToken)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Printf("media cover upstream error: %v", err)
+			http.Error(w, "upstream error", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			http.Error(w, "upstream returned "+resp.Status, resp.StatusCode)
+			return
+		}
+
+		w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+		w.Header().Set("Cache-Control", "max-age=300")
+		io.Copy(w, resp.Body)
 	}
 }

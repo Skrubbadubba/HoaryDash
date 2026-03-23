@@ -18,9 +18,11 @@
             entity_ids: [
                     {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
                     {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
+                    {{range .Dashboard.Widgets}}"{{.EntityID}}",{{end}}  
                 ],
             locale: locale,
-            timezone: timezone
+            timezone: timezone,
+            widgetPollInterval: 10 * 60 * 1000,
             };
         window.goFetch = function(path, callback) {
             var xhr = new XMLHttpRequest();
@@ -108,11 +110,14 @@
         <div class="widgets-container">
         {{$theme := .Dashboard.Theme}}
         {{range .Dashboard.Widgets}}
+            {{$widgetDict := (dict
+                    "Theme" $theme
+                    "Entity" .
+                )}}
             {{if eq (domain .EntityID) "weather"}}
-                {{template "_weather" (dict
-                "Theme" $theme
-                "Entity" .
-            )}}
+                {{template "_weather_widget" ($widgetDict)}}
+            {{else if eq (domain .EntityID) "media_player"}}
+                {{template "_media_widget" ($widgetDict)}}
             {{end}}
         {{end}}
         </div>

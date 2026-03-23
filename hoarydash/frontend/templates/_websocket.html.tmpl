@@ -30,24 +30,16 @@
 };
 
   function updateEntities(entities) {
-    var entityId, entity;
-    for (entityId in entities) {
-        if (!entities.hasOwnProperty(entityId)) { continue; }
-        entity = entities[entityId];
-
-        fields = entity['+'] !== undefined ? entity['+'] : entity;
-
-        var state, attributes
-        if (fields.s !== undefined) {
-            state = fields.s;
-        }
-        if (fields.a !== undefined) {
-            attributes = fields.a;
-        }
-
-        var listener = window.entityListeners[entityId];
-        if (listener) listener(state, attributes);
-    }
+      var entityId, entity, fields, state, attributes;
+      for (entityId in entities) {
+          if (!entities.hasOwnProperty(entityId)) { continue; }
+          entity = entities[entityId];
+          fields = entity['+'] !== undefined ? entity['+'] : entity;
+          state = fields.s !== undefined ? fields.s : undefined;
+          attributes = fields.a !== undefined ? fields.a : undefined;
+          var listener = window.entityListeners[entityId];
+          if (listener) { listener(state, attributes); }
+      }
   }
   function connect() {
     var ws = new WebSocket(

@@ -33,6 +33,9 @@ type Dashboard struct {
 		// Weather-specific
 		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 		ForecastDays     *int              `yaml:"forecast_days"`
+		// Media-specific
+		ShowVolume *bool
+		ShowAlbum  *bool
 	}
 	Sensors []struct {
 		EntityID string `yaml:"entity_id"`
@@ -319,6 +322,7 @@ func main() {
 	http.Handle("/", fs)
 	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN, rebuildChan))
 	http.HandleFunc("/api/translations/{widget}/{lang}", translationsHandler())
+	http.HandleFunc("/api/media_cover", mediaCoverHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
