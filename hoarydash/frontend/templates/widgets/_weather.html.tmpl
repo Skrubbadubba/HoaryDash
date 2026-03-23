@@ -230,9 +230,10 @@
   }
 
   function renderCurrent(state, attributes) {
+    var condLabel = translations[state] || (state || '').replace(/-/g, ' ');
     document.getElementById('weather-icon').textContent      = iconForCondition(state);
     document.getElementById('weather-temp').textContent      = round1(attributes.temperature || 0);
-    document.getElementById('weather-condition').textContent = (state || '').replace(/-/g, ' ');
+    document.getElementById('weather-condition').textContent = condLabel;
     document.getElementById('weather-wind').textContent      = attributes.wind_speed
       ? '💨 ' + attributes.wind_speed + ' ' + (attributes.wind_speed_unit || 'm/s')
       : '';
@@ -268,6 +269,15 @@
         + '</div>';
     }
     container.innerHTML = html;
+  }
+
+  var translations = {};
+
+  function fetchTranslations(callback) {
+      window.goFetch('/api/translations/weather/' + window.CONFIG.locale.split("-")[0], function(err, t) {
+          if (!err) { translations = t; }
+          callback();
+      });
   }
 
   function fetchForecast() {
@@ -312,7 +322,10 @@
         return;
     }
     if (window.haSocketReady) {
-        fetchWeather();
+      fetchTranslations(function(translations) {
+            window.weatherTranslations = translations;
+            fetchWeather();
+        });
         {{/* console.log("tried running fetchWeather") */}}
     } else {
         ++tries;

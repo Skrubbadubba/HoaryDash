@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <script>
+        var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
+        var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
             fullyKiosk: {
                 password: "{{.Config.FullyKiosk.Password}}",
@@ -17,6 +19,22 @@
                     {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
                     {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
                 ],
+            locale: locale,
+            timezone: timezone
+            };
+        window.goFetch = function(path, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', path, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) { return; }
+                if (xhr.status === 200) {
+                    try { callback(null, JSON.parse(xhr.responseText)); }
+                    catch(e) { callback(e, null); }
+                } else {
+                    callback(new Error('HTTP ' + xhr.status), null);
+                }
+            };
+            xhr.send();
         };
     </script>
     {{ if .Dashboard.Sensors }}

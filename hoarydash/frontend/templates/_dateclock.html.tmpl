@@ -30,8 +30,8 @@
     <div class="date" id="date"></div>
 </div>
 <script>
-    var locale = '{{.Localization.Locale}}' || navigator.language || 'en-US';
-    var timezone = '{{.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var locale = window.CONFIG.locale;
+    var timezone = window.CONFIG.timezone;
     var hour12 = {{if .Dateclock.Hour12}}true{{else}}false{{end}};
     function updateTime() {
         var now = new Date();
