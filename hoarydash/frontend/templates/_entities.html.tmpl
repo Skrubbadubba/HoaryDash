@@ -10,7 +10,6 @@
         -webkit-align-items: stretch;
         align-items: stretch;
         max-width: 75vw;
-        margin-top: 40px;
         font-size: {{if .Theme.Entities.FontSize}}{{.Theme.Entities.FontSize}}px{{else}}inherit{{end}};
     }
     #entities-container > .card {
@@ -18,7 +17,7 @@
         {{template "create-card-theme" .Theme.Entities}}
     }
 </style>
-<div id="entities-container">
+<div id="entities-container" style="order: {{.Order.Entities}}">
 {{$theme := .Theme}}
 {{range .Entities}}
     {{if domainIn .EntityID "switch" "input_boolean"}}

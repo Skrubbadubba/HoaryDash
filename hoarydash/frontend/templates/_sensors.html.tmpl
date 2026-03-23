@@ -48,7 +48,6 @@
       display: flex;
       -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
       transition: opacity 0.8s ease, margin-bottom 0.5s ease;
-      margin-bottom: 75px;
       width: 75vw;
       justify-content: space-around;;
       flex-wrap: wrap;
@@ -57,7 +56,7 @@
   }
 </style>
 
-<div id="sensors-container">
+<div id="sensors-container" style="order: {{.Order.Sensors}}">
   {{range .Sensors}}
     <div class="sensor-widget card" id="sensor-{{.EntityID}}">
       <div class="sensor-label">{{.Label}}</div>

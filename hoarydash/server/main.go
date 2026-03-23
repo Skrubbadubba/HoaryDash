@@ -26,6 +26,14 @@ type Dashboard struct {
 		CapitaliseDay bool `yaml:"capitalise_day"`
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
+	Widgets []struct {
+		EntityID        string `yaml:"entity_id"`
+		FontSize        string `yaml:"font_size"` // Per widget override
+		InternalBorders *bool  `yaml:"internal_borders"`
+		// Weather-specific
+		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+		ForecastDays     *int              `yaml:"forecast_days"`
+	}
 	Sensors []struct {
 		EntityID string `yaml:"entity_id"`
 		Label    string
@@ -36,13 +44,10 @@ type Dashboard struct {
 		Label    string
 		Icon     string
 	}
-	Widgets []struct {
-		EntityID        string `yaml:"entity_id"`
-		FontSize        string `yaml:"font_size"` // Per widget override
-		InternalBorders *bool  `yaml:"internal_borders"`
-		// Weather-specific
-		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-		ForecastDays     *int              `yaml:"forecast_days"`
+	Order struct {
+		Entities int
+		Widgets  int
+		Sensors  int
 	}
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`

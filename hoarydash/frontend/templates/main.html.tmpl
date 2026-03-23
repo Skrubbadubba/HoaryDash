@@ -43,7 +43,6 @@
     {{template "base-style" .Dashboard.Theme}}
     {{template "btn-style" .Dashboard.Theme}}
     <style>
-        
         .main-container {
             display: flex;
             -webkit-display: flex;
@@ -51,30 +50,27 @@
             justify-content: space-between;
             align-items: center;
             height: 100%;
-            width: 100%
+            width: 100%;
+            padding: 1.5em 0 3em 0;
         }
     </style>
 </head>
 <body>
-
-    <!-- Weather block -->
-    <!-- <div id="id1c055f8167e7f" a='{"t":"r","v":"1.2","lang":"sv","locs":[865],"ssot":"c","sics":"ms","cbkg":"#000000","cfnt":"#FFFFFF","codd":"#000000","cont":"#E0E0E0","stof":"3","sfnt":"a"}'>Weather Data Source: <a href="https://sharpweather.com/weather_linkoping/30_days/">weather forecast Linkoping 30 days</a></div>
-    <script async src="https://static1.sharpweather.com/widgetjs/?id=id1c055f8167e7f"></script> -->
-
     {{template "websocket" .}}
-
     
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
+
     <div class="main-container">
     {{if .Dashboard.Entities}}
         {{template "entities" .Dashboard}}
     {{else}}
-        {{/* Take up space inside flexbox so as to always push down sensors */}}
+        {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>
     {{end}}
-    <div class="center-container">
+    
+    <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
         {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
             {{template "dateclock" (dict
             "Localization" .Config.Localization
@@ -121,8 +117,12 @@
         {{end}}
         </div>
     </div>
+    
     {{if .Dashboard.Sensors}}
         {{template "sensors" .Dashboard}}
+    {{else}}
+        {{/* Take up space inside flexbox */}}
+        <div style="display: hidden;"></div>
     {{end}}
     </div>
 

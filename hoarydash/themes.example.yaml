@@ -70,6 +70,12 @@ theme:
     borders: true
     border_color: "rgba(255, 255, 255, 0.12)"
     background: "rgba(255, 255, 255, 0.08)"
+  widgets:
+        borders: false
+        background: "rgba(0, 0, 0, 0)"
+  sensors:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── SUNSET GRADIENT ─────────────────────────────────────────────────────────
 theme:
@@ -81,6 +87,12 @@ theme:
     borders: true
     border_color: "rgba(255, 100, 30, 0.25)"
     background: "rgba(255, 100, 30, 0.15)"
+  widgets:
+        borders: false
+        background: "rgba(0, 0, 0, 0)"
+  sensors:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── FOREST GRADIENT ─────────────────────────────────────────────────────────
 theme:
@@ -92,6 +104,12 @@ theme:
     borders: true
     border_color: "rgba(100, 200, 100, 0.18)"
     background: "rgba(100, 200, 100, 0.10)"
+  widgets:
+        borders: false
+        background: "rgba(0, 0, 0, 0)"
+  sensors:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── SYNTHWAVE ───────────────────────────────────────────────────────────────
 theme:
@@ -103,3 +121,9 @@ theme:
     borders: true
     border_color: "rgba(255, 0, 255, 0.2)"
     background: "rgba(255, 0, 255, 0.12)"
+  widgets:
+      borders: false
+      background: "rgba(0, 0, 0, 0)"
+  sensors:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
