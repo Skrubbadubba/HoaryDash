@@ -83,7 +83,8 @@
             -webkit-align-items: center;
             align-items: center;
             justify-content: space-between;
-            width: 90%
+            width: 90%;
+            margin-bottom: 1em;
         }
         .center-container > div {
             margin: 0 2rem 0 2rem;
@@ -94,14 +95,13 @@
             {{if .Dashboard.Theme.Widgets.FontSize}}
                 font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
             {{end}}
+            width: 17em;
         }
-        {{$theme := mergeTheme .Dashboard.Theme.Widgets .Dashboard.Theme.Cards}}
         .widgets-container > div {
-            {{if enabledByDefault $theme.Borders}}
-            border: 0.125em solid {{$theme.BorderColor | default "rgba(130,185,255,0.10)" | css}};
-            {{end}}
-            background-color: {{$theme.Background | default "rgba(18, 18, 18, 0.75)" | css}};
-            border-radius: 0.75em;
+            margin: 5px 0;
+        }
+        .widgets-container > div {
+            {{template "create-card-theme" .Dashboard.Theme.Widgets}}
         }
     </style>
     <div class="center-container">

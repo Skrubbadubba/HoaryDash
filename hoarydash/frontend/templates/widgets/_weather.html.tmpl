@@ -1,6 +1,6 @@
 {{define "_weather"}}
 <style>
-  .weather-card {
+  .weather-container {
     overflow: hidden;
     font-family: inherit;
     {{if .FontSize}}
@@ -15,10 +15,8 @@
     -webkit-box-align: stretch;
     -webkit-align-items: stretch;
     align-items: stretch;
-    padding: 0.6em 0.7em;
-  }
-  .weather-main > div {
-    margin: 0 0.3em 0 0.3em;
+    padding: 0.7em 0;
+    justify-content: center;
   }
 
   .weather-current {
@@ -61,6 +59,7 @@
     align-self: stretch;
     -webkit-flex-shrink: 0;
     flex-shrink: 0;
+    margin: 0 0.6em;
   }
 
   .weather-details {
@@ -74,8 +73,6 @@
     -webkit-justify-content: center;
     justify-content: center;
     -webkit-box-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;
   }
 
   .weather-details > div {
@@ -103,6 +100,7 @@
     display: -webkit-flex;
     display: flex;
     border-top: 0.05em solid rgba(120, 180, 255, 0.12);
+    overflow: scroll;
   }
 
   .forecast-day {
@@ -118,7 +116,7 @@
     -webkit-box-align: center;
     -webkit-align-items: center;
     align-items: center;
-    padding: 0.4em 0.2em;
+    padding: 0.4em;
     border-right: 0.05em solid rgba(120, 180, 255, 0.1);
   }
 
@@ -164,7 +162,7 @@
   }
 </style>
 
-<div class="weather-card">
+<div class="weather-container card">
   <div class="weather-main">
     <div class="weather-current">
       <div class="weather-icon" id="weather-icon">🌡️</div>
@@ -228,6 +226,29 @@
       timeZone: timezone
     });
   }
+  
+  function isHourlyForecast(forecasts) {
+      if (!forecasts || forecasts.length < 2) { return false; }
+      var a = new Date(forecasts[0].datetime);
+      var b = new Date(forecasts[1].datetime);
+      return a.toDateString() === b.toDateString();
+  }
+
+  function formatForecastTime(datetimeStr, hourly) {
+      var date = new Date(datetimeStr);
+      if (hourly) {
+          return date.toLocaleTimeString(locale, {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: timezone,
+              hour12: hour12
+          });
+      }
+      return date.toLocaleDateString(locale, {
+          weekday: 'short',
+          timeZone: timezone
+      });
+  }
 
   function renderCurrent(state, attributes) {
     var condLabel = translations[state] || (state || '').replace(/-/g, ' ');
@@ -253,14 +274,16 @@
     }
     var html = '';
     var days = forecast.slice(0, {{.ForecastDays | default 3}});
+    var hourly = isHourlyForecast(forecast);
     for (var i = 0; i < days.length; i++) {
-      var day     = days[i];
-      var dayName = dayNameFromDatetime(day.datetime);
-      var icon    = iconForCondition(day.condition);
-      var high    = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
-      var low     = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
+      var day       = days[i];
+      var dayName   = dayNameFromDatetime(day.datetime);
+      var timeLabel = formatForecastTime(day.datetime, hourly);
+      var icon      = iconForCondition(day.condition);
+      var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
+      var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
       html += '<div class="forecast-day">'
-        + '<div class="forecast-day-name">'  + dayName + '</div>'
+        + '<div class="forecast-day-name">'  + timeLabel + '</div>'
         + '<div class="forecast-day-icon">'  + icon    + '</div>'
         + '<div class="forecast-day-temps">'
         +   '<span class="forecast-temp-high">' + high + '</span>'

@@ -31,5 +31,12 @@
         -webkit-transition: background-color 0.8s ease;
         transition: background-color 0.8s ease;
     }
+    .card {
+        border-radius: {{.Cards.BorderRadius | default "0.5em"}};
+        {{if enabledByDefault .Cards.Borders}}
+        border: 0.125em solid {{.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
+        {{end}}
+        background-color: {{.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
+    }
 </style>
 {{end}}

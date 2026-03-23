@@ -1,0 +1,16 @@
+{{define "create-card-theme"}}
+
+{{if disabledByDefault .Borders}}
+border: 0.125em solid;
+{{end}}
+{{if .BorderColor}}
+border-color: {{.BorderColor | css}}
+{{end}}    
+{{if .Background}}
+background-color: {{.Background | css}};
+{{end}}
+{{if .BorderRadius}}
+border-radius: {{.BorderRadius | css}};
+{{end}}
+
+{{end}}

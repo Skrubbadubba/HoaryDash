@@ -87,10 +87,11 @@ func (f *ForecastInterval) UnmarshalYAML(value *yaml.Node) error {
 }
 
 type CardTheme struct {
-	Borders     *bool
-	BorderColor template.CSS `yaml:"border_color"`
-	Background  template.CSS
-	FontSize    template.CSS `yaml:"font_size"`
+	Borders      *bool
+	BorderColor  template.CSS `yaml:"border_color"`
+	BorderRadius template.CSS `yaml:"border_radius"`
+	Background   template.CSS
+	FontSize     template.CSS `yaml:"font_size"`
 }
 type Config struct {
 	Localization struct {
@@ -175,6 +176,12 @@ func BuildDash() {
 			}
 			return *v
 		},
+		"disabledByDefault": func(v *bool) bool {
+			if v == nil {
+				return false
+			}
+			return *v
+		},
 		"dict": func(values ...any) map[string]any {
 			m := map[string]any{}
 			for i := 0; i < len(values); i += 2 {
@@ -212,6 +219,7 @@ func BuildDash() {
 	}
 
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
 	check(err, "Created template object")

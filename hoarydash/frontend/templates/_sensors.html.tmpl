@@ -13,11 +13,7 @@
     justify-content: center;
     padding: 1em;
     margin: 0.3125em;
-    border-radius: 0.75em;
-    {{if .Theme.Sensors.Borders}}
-    border: 0.125em solid {{.Theme.Sensors.BorderColor | default "rgba(130,185,255,0.15)" | css}};
-    {{end}}
-    background-color: {{.Theme.Sensors.Background | default "rgba(18, 18, 18, 0.75)" | css}}
+    {{template "create-card-theme" .Theme.Sensors}}
   }
 
   .sensor-label {
@@ -57,7 +53,7 @@
       justify-content: space-around;;
       flex-wrap: wrap;
       align-items: center;
-      font-size: {{.Theme.Sensors.FontSize | default "inherit"}}px;
+      font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};;
   }
 </style>
 
