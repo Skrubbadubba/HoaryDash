@@ -37,8 +37,9 @@ type Dashboard struct {
 		Icon     string
 	}
 	Widgets []struct {
-		EntityID string `yaml:"entity_id"`
-		FontSize string `yaml:"font_size"` // Per widget override
+		EntityID        string `yaml:"entity_id"`
+		FontSize        string `yaml:"font_size"` // Per widget override
+		InternalBorders *bool  `yaml:"internal_borders"`
 		// Weather-specific
 		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 		ForecastDays     *int              `yaml:"forecast_days"`

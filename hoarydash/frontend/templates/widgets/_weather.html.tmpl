@@ -99,7 +99,9 @@
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
+    {{if enabledByDefault .Entity.InternalBorders}}
     border-top: 0.05em solid rgba(120, 180, 255, 0.12);
+    {{end}}
     overflow: scroll;
   }
 
@@ -117,12 +119,11 @@
     -webkit-align-items: center;
     align-items: center;
     padding: 0.4em;
+    {{if enabledByDefault .Entity.InternalBorders}}
     border-right: 0.05em solid rgba(120, 180, 255, 0.1);
+    {{end}}
   }
 
-  .forecast-day:last-child {
-    border-right: none;
-  }
 
   .forecast-day-name {
     font-size: 0.45em;
