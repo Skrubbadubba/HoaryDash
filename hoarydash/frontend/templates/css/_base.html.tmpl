@@ -13,9 +13,9 @@
         font-size: {{.BaseFontSize | default "18"}}px;
     }
     body {
-        background-color: {{.BodyBackground | default "#000000"}};
+        background-color: {{.BodyBackground | default "#000000" | css}};
         background: {{.BackgroundGradient}};
-        color: {{.FontColor | default "#ffffff"}};
+        color: {{.FontColor | default "#ffffff" | css}};
         font-family: "Outfit", sans-serif;
         display: -webkit-flex;
         display: flex;

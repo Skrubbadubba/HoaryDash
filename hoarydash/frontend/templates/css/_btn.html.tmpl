@@ -3,7 +3,7 @@
         .btn {
             width: 52px;
             height: 52px;
-            background-color: {{.ButtonBackground | default "#1a1a1a"}};
+            background-color: {{.ButtonBackground | default "#1a1a1a" | css}};
             border: none;
             border-radius: 14px;
             cursor: pointer;
@@ -20,7 +20,7 @@
         .btn svg {
             width: 26px;
             height: 26px;
-            fill: {{.IconColor | default "rgba(255,255,255,0.4)"}};
+            fill: {{.IconColor | default "rgba(255,255,255,0.4)" | css}};
             -webkit-transition: fill 0.3s ease;
             transition: fill 0.3s ease;
         }

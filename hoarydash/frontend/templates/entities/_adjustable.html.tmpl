@@ -57,7 +57,7 @@
   }
 
   .ha-adjustable-label {
-    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
+    color: {{.Theme.SecondaryFontColor | default "#ffffff" | css}};
     {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;

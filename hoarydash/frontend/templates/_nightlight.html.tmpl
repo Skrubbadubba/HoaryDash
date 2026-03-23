@@ -47,7 +47,7 @@
         right: 24px;
         width: 52px;
         {{if .Nightlight.OverrideColors}}
-            background-color: {{.Theme.ButtonBackground | default "#333"}};
+            background-color: {{.Theme.ButtonBackground | default "#333" | css}};
         {{else}}
             background-color: #333;
         {{end}}
