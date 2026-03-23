@@ -1,9 +1,6 @@
 {{define "_weather"}}
 <style>
   .weather-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 0.5px solid rgba(120, 180, 255, 0.18);
-    border-radius: 0.5em;
     overflow: hidden;
     font-family: inherit;
     {{if .FontSize}}
@@ -254,7 +251,7 @@
       return;
     }
     var html = '';
-    var days = forecast.slice(0, 5);
+    var days = forecast.slice(0, {{.ForecastDays | default 3}});
     for (var i = 0; i < days.length; i++) {
       var day     = days[i];
       var dayName = dayNameFromDatetime(day.datetime);
@@ -278,7 +275,7 @@
       type: 'call_service',
       domain: 'weather',
       service: 'get_forecasts',
-      service_data: { type: 'twice_daily' },
+      service_data: { type: {{.ForecastInterval | default "daily"}} },
       target: { entity_id: entityId },
       return_response: true
     }).then(function(result) {

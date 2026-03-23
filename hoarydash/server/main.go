@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -38,16 +39,15 @@ type Dashboard struct {
 	Widgets []struct {
 		EntityID string `yaml:"entity_id"`
 		FontSize string `yaml:"font_size"` // Per widget override
+		// Weather-specific
+		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+		ForecastDays     *int              `yaml:"forecast_days"`
 	}
 	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Entities           struct {
-			Borders     *bool
-			BorderColor template.CSS `yaml:"border_color"`
-			Background  template.CSS
-			FontSize    template.CSS `yaml:"font_size"`
-		}
+		Cards              CardTheme    // Default for widgets, entities and sensors
+		Entities           CardTheme
 		Sensors            CardTheme
 		Widgets            CardTheme
 		ButtonBackground   template.CSS `yaml:"button_background"`
@@ -58,8 +58,36 @@ type Dashboard struct {
 	}
 }
 
+type ForecastInterval string
+
+const (
+	ForecastIntervalDaily      ForecastInterval = "daily"
+	ForecastIntervalTwiceDaily ForecastInterval = "twice_daily"
+	ForecastIntervalHourly     ForecastInterval = "hourly"
+)
+
+func (f ForecastInterval) Valid() bool {
+	switch f {
+	case ForecastIntervalDaily, ForecastIntervalTwiceDaily, ForecastIntervalHourly:
+		return true
+	}
+	return false
+}
+
+func (f *ForecastInterval) UnmarshalYAML(value *yaml.Node) error {
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return err
+	}
+	*f = ForecastInterval(s)
+	if !f.Valid() {
+		return fmt.Errorf("invalid forecast_interval %q, must be daily, twice_daily or hourly", s)
+	}
+	return nil
+}
+
 type CardTheme struct {
-	Borders     bool
+	Borders     *bool
 	BorderColor template.CSS `yaml:"border_color"`
 	Background  template.CSS
 	FontSize    template.CSS `yaml:"font_size"`
@@ -107,11 +135,39 @@ func BuildDash() {
 	}
 
 	funcMap := template.FuncMap{
-		"default": func(def template.CSS, val template.CSS) template.CSS {
-			if val == "" {
+		"default": func(def any, val any) any {
+			if val == nil {
 				return def
 			}
+			v := reflect.ValueOf(val)
+
+			if v.Kind() == reflect.Ptr && v.IsNil() {
+				return def
+			}
+			if v.Kind() == reflect.String && v.String() == "" {
+				return def
+			}
+
 			return val
+		},
+		"css": func(val any) template.CSS {
+			return template.CSS(fmt.Sprintf("%v", val))
+		},
+		"mergeTheme": func(specific CardTheme, base CardTheme) CardTheme {
+			result := specific
+			if result.BorderColor == "" {
+				result.BorderColor = base.BorderColor
+			}
+			if result.Background == "" {
+				result.Background = base.Background
+			}
+			if result.FontSize == "" {
+				result.FontSize = base.FontSize
+			}
+			if result.Borders == nil {
+				result.Borders = base.Borders
+			}
+			return result
 		},
 		"enabledByDefault": func(v *bool) bool {
 			if v == nil {

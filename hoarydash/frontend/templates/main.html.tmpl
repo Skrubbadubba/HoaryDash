@@ -77,6 +77,14 @@
                 font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
             {{end}}
         }
+        {{$theme := mergeTheme .Dashboard.Theme.Widgets .Dashboard.Theme.Cards}}
+        .widgets-container > div {
+            {{if enabledByDefault $theme.Borders}}
+            border: 0.125em solid {{$theme.BorderColor | default "rgba(130,185,255,0.10)" | css}};
+            {{end}}
+            background-color: {{$theme.Background | default "rgba(18, 18, 18, 0.75)" | css}};
+            border-radius: 0.75em;
+        }
     </style>
     <div class="center-container">
         {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
