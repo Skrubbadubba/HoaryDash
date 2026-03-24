@@ -4,18 +4,23 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.7s ease;
-        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.7s ease;
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
         -webkit-tap-highlight-color: transparent;
         }
     button:focus { outline: none; }
     :root {
-        font-size: {{.BaseFontSize | default "18"}}px;
+        font-size: {{.Theme.BaseFontSize | default "18"}}px;
     }
     body {
-        background-color: {{.BodyBackground | default "#000000" | css}};
-        background: {{.BackgroundGradient}};
-        color: {{.FontColor | default "#ffffff" | css}};
+        background-color: {{.Theme.BodyBackground | default "#000000" | css}};
+        background: {{.Theme.BackgroundGradient}};
+        color: {{.Theme.FontColor | default "#ffffff" | css}};
         font-family: "Outfit", sans-serif;
         display: -webkit-flex;
         display: flex;
@@ -28,15 +33,13 @@
         align-items: center;
         height: 100vh;
         overflow: hidden;
-        -webkit-transition: background-color 0.8s ease;
-        transition: background-color 0.8s ease;
     }
     .card {
-        border-radius: {{.Cards.BorderRadius | default "0.5em"}};
-        {{if enabledByDefault .Cards.Borders}}
-        border: 0.125em solid {{.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
+        border-radius: {{.Theme.Cards.BorderRadius | default "0.5em"}};
+        {{if enabledByDefault .Theme.Cards.Borders}}
+        border: 0.125em solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
         {{end}}
-        background-color: {{.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
+        background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
     }
 </style>
 {{end}}

@@ -48,7 +48,8 @@ type Dashboard struct {
 		Widgets  int
 		Sensors  int
 	}
-	Theme struct {
+	Animations *bool
+	Theme      struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
 		Cards              CardTheme    // Default for widgets, entities and sensors
