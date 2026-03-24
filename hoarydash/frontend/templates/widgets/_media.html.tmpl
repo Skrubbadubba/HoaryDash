@@ -3,6 +3,9 @@
     .media-container {
         overflow: hidden;
         font-family: inherit;
+        {{if .Entity.FontSize}}
+            font-size: {{.Entity.FontSize}}px;
+        {{end}}
     }
 
     .media-top-row {
@@ -171,7 +174,9 @@
 
     .media-ctrl-btn.media-play-btn {
         font-size: 1.7em;
-        padding: 0 0.3em 0.2em 0.3em;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
+        margin-bottom: -0.2em;
         opacity: 1;
     }
 
@@ -207,23 +212,19 @@
 
     .media-vol-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        display: none;
-        width: 1.5em;
-        height: 1.5em;
+        width: 1.8em;
+        height: 1.8em;
         border-radius: 50%;
-
-        background: {{.Theme.FontColor | default "#0080ff"}};
+        background: {{.Theme.FontColor | default "#949494"}};
         cursor: pointer;
     }
 
     .media-vol-slider::-moz-range-thumb {
         -webkit-appearance: none;
-        display: none;
-        width: 1.5em;
-        height: 1.5em;
+        width: 1.8em;
+        height: 1.8em;
         border-radius: 50%;
-
-        background: {{.Theme.FontColor | default "#0080ff"}};
+        background: {{.Theme.FontColor | default "#949494"}};
         cursor: pointer;
     }
 </style>
