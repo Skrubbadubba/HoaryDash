@@ -18,6 +18,7 @@ import (
 type Dashboard struct {
 	Nightlight struct {
 		Enabled        bool
+		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
 	Dateclock struct {
