@@ -42,12 +42,8 @@ type Dashboard struct {
 		Label    string
 		Unit     string
 	}
-	Entities []struct {
-		EntityID string `yaml:"entity_id"`
-		Label    string
-		Icon     string
-	}
-	Order struct {
+	Entities []Entity
+	Order    struct {
 		Entities int
 		Widgets  int
 		Sensors  int
@@ -65,6 +61,12 @@ type Dashboard struct {
 		IconColor          template.CSS `yaml:"icon_color"`
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
+}
+
+type Entity struct {
+	EntityID string `yaml:"entity_id"`
+	Label    string
+	Icon     string
 }
 
 type ForecastInterval string
@@ -137,6 +139,14 @@ func check(e error, message string, v ...any) {
 	log.Printf(message, v...)
 }
 
+func domain(entityID string) string {
+	parts := strings.SplitN(entityID, ".", 2)
+	if len(parts) < 2 {
+		return ""
+	}
+	return parts[0]
+}
+
 func BuildDash() {
 	cfg, err := parseYaml()
 	if err != nil {
@@ -200,11 +210,7 @@ func BuildDash() {
 			return m
 		},
 		"domainIn": func(entityID string, domains ...string) bool {
-			parts := strings.SplitN(entityID, ".", 2)
-			if len(parts) < 2 {
-				return false
-			}
-			domain := parts[0]
+			domain := domain(entityID)
 			for _, d := range domains {
 				if domain == d {
 					return true
@@ -212,12 +218,30 @@ func BuildDash() {
 			}
 			return false
 		},
-		"domain": func(entityID string) string {
-			parts := strings.SplitN(entityID, ".", 2)
-			if len(parts) < 2 {
-				return ""
+		"anyOfIn": func(anyOf []string, in ...string) bool { // O(n) is n^2 but the lists are tiny so its fine
+			for _, is := range anyOf {
+				for _, of := range in {
+					if is == of {
+						return true
+					}
+				}
 			}
-			return parts[0]
+			return false
+		},
+		"domain": domain,
+		"domains": func(entityIDs []string) []string {
+			var out []string
+			for _, id := range entityIDs {
+				out = append(out, domain(id))
+			}
+			return out
+		},
+		"entityIDs": func(entities []Entity) []string {
+			out := make([]string, len(entities))
+			for i, e := range entities {
+				out[i] = e.EntityID
+			}
+			return out
 		},
 	}
 
