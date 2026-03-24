@@ -8,7 +8,7 @@ Big release 🎉! Lots more theming, and we now have some pretty cool widgets fo
 
 #### Configurable widgets
 
-These are a separate cards for entities that require a bit more space. They are configurable under `widgets` and sit alongside entities and sensors like so:
+These are a separate card type for entities that require a bit more space. They are configurable under `widgets` and are configured alongside entities and sensors in the yaml like so:
 ```yaml
 ...
     sensors:
@@ -29,7 +29,7 @@ These cards sit in the center, to the right of the dateclock
 #### Theming
 
 - `entities`, `sensors` and `widgets` are all now separate. They share the same schema
-- `card` shares the same schema as above, and serves as a default
+- `cards` shares the same schema as above, and serves as a default
 - Per widget fontsize override
 - Can configure border-radius of cards
 
@@ -42,6 +42,6 @@ These cards sit in the center, to the right of the dateclock
 ### ⚡️ Code changes & optimizations
 
 - All scripts now use IIFEs
-- Component style tags are nog duplicated
+- Component style tags are now duplicated
 - Addded a REST api to the go server
     - Used for translations and proxying media images for now
