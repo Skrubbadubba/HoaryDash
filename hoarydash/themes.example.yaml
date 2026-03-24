@@ -71,8 +71,8 @@ theme:
     border_color: "rgba(255, 255, 255, 0.12)"
     background: "rgba(255, 255, 255, 0.08)"
   widgets:
-        borders: false
-        background: "rgba(0, 0, 0, 0)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
     borders: false
     background: "rgba(0, 0, 0, 0)"
@@ -88,8 +88,8 @@ theme:
     border_color: "rgba(255, 100, 30, 0.25)"
     background: "rgba(255, 100, 30, 0.15)"
   widgets:
-        borders: false
-        background: "rgba(0, 0, 0, 0)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
     borders: false
     background: "rgba(0, 0, 0, 0)"
@@ -105,8 +105,8 @@ theme:
     border_color: "rgba(100, 200, 100, 0.18)"
     background: "rgba(100, 200, 100, 0.10)"
   widgets:
-        borders: false
-        background: "rgba(0, 0, 0, 0)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
     borders: false
     background: "rgba(0, 0, 0, 0)"
@@ -122,8 +122,8 @@ theme:
     border_color: "rgba(255, 0, 255, 0.2)"
     background: "rgba(255, 0, 255, 0.12)"
   widgets:
-      borders: false
-      background: "rgba(0, 0, 0, 0)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
     borders: false
     background: "rgba(0, 0, 0, 0)"

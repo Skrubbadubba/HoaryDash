@@ -1,48 +1,47 @@
-# v0.5.4
+# v0.6.0
 
-## Hotfix
+Big release 🎉! Lots more theming, and we now have some pretty cool widgets for weather and media players!
 
-Fix toggle pills not showing on fans and lights
+## Whats New
 
+### ✨ Features
 
----
-### Previous minor release:
+#### Configurable widgets
 
-## v0.5.0 🎉
-
-This release brings a bunch of polish, and more controls. Might be actually useful now :D
-
-### Features
-
-##### Support and controls for more entities:
-
-There is now cards for a bunch of simple entities. Toggleable entities now get a pill automatically, and lights gets a expandable popup with sliders for brightness and cct (if available)
-
-Supported entities:
-- light
-- switch
-- input_boolean
-- input_button
-- button
-- scene
-- script
-
-Fan speed controls will hopefully be patched in soon
-
-##### Theming
-
-- Margins and alignment is slightly polished
-
-###### New options
-
-For sensors and entities under
+These are a separate cards for entities that require a bit more space. They are configurable under `widgets` and sit alongside entities and sensors like so:
 ```yaml
-theme:
-    entities:
-        ...
+...
     sensors:
         ...
+    entities:
+        ...
+    widgets:
+        - entity_id: weather.home
+          forecast_times: 5
+          forecast_interval: daily
+        - entity_id: media_player.spotify
+          show_album: true
+          font_size: 30
 ```
-- borders: `true/false`
-- border_color: `css`
-- background: `css`
+
+These cards sit in the center, to the right of the dateclock
+
+#### Theming
+
+- `entities`, `sensors` and `widgets` are all now separate. They share the same schema
+- `card` shares the same schema as above, and serves as a default
+- Per widget fontsize override
+- Can configure border-radius of cards
+
+#### Other
+
+- Configurable nightlight color
+- Nightlight keeps screen on automatically
+- Animations can be toggled
+
+### ⚡️ Code changes & optimizations
+
+- All scripts now use IIFEs
+- Component style tags are nog duplicated
+- Addded a REST api to the go server
+    - Used for translations and proxying media images for now

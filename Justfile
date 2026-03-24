@@ -50,7 +50,7 @@ hotfix version:
     fi
     sed -i 's/^version: ".*"/version: "{{version}}"/' hoarydash/config.yaml
     git add hoarydash/config.yaml hoarydash/CHANGELOG.md
-    git commit -m "chore: release v{{version}}"
+    git commit -m "patch: v{{version}}"
     git tag v{{version}}
     echo "Done. Run 'git push && git push --tags' to publish."
 

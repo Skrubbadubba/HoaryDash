@@ -112,8 +112,7 @@ type Config struct {
 		Timezone string
 	}
 	FullyKiosk struct {
-		Password           string `yaml:"password"`
-		ScreensaverTimeout int    `yaml:"screensaver_timeout"`
+		ScreensaverTimeout int `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
 	HomeAssistant struct {
 		URL   string
