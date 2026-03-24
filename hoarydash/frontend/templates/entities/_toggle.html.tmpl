@@ -1,4 +1,4 @@
-{{define "toggle"}}
+{{define "toggle-style"}}
 <style>
   .ha-toggle {
     display: -webkit-flex;
@@ -58,8 +58,8 @@
   }
 
   .ha-toggle-label {
-    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
-    {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
+    color: {{.SecondaryFontColor | default "#ffffff" | css}};
+    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -102,12 +102,13 @@
     background: #7ae894;
   }
 </style>
-
-<div class="ha-toggle card off" id="ha-toggle-{{.Entity.EntityID}}">
-  <button class="ha-toggle-body" id="ha-toggle-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+{{end}}
+{{define "toggle"}}
+<div class="ha-toggle card off" id="ha-toggle-{{.EntityID}}">
+  <button class="ha-toggle-body" id="ha-toggle-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-toggle-left">
-      {{if .Entity.Icon}}<span class="ha-toggle-icon">{{.Entity.Icon}}</span>{{end}}
-      <span class="ha-toggle-label entity-label">{{.Entity.Label}}</span>
+      {{if .Icon}}<span class="ha-toggle-icon">{{.Icon}}</span>{{end}}
+      <span class="ha-toggle-label entity-label">{{.Label}}</span>
     </div>
     <div class="ha-toggle-pill"></div>
   </button>
@@ -115,7 +116,7 @@
 
 <script>
 (function() {
-  var entityId = '{{.Entity.EntityID}}';
+  var entityId = '{{.EntityID}}';
   var domain = entityId.split('.')[0];
   var wrapper = document.getElementById('ha-toggle-' + entityId);
   var btn = document.getElementById('ha-toggle-btn-' + entityId);
@@ -130,7 +131,7 @@
     }
   }
 
-  window.entityListeners[entityId] = function(state, attributes) {
+  windowListeners[entityId] = function(state, attributes) {
     setState(state);
   };
 

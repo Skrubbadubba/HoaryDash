@@ -1,4 +1,4 @@
-{{define "adjustable"}}
+{{define "adjustable-style"}}
 <style>
   .ha-adjustable {
     display: -webkit-flex;
@@ -57,8 +57,8 @@
   }
 
   .ha-adjustable-label {
-    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
-    {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
+    color: {{.SecondaryFontColor | default "#ffffff" | css}};
+    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -227,44 +227,45 @@
     display: none;
   }
 </style>
+{{end}}
+{{define "adjustable"}}
+<div class="ha-adjustable card off" id="ha-adj-{{.EntityID}}">
 
-<div class="ha-adjustable card off" id="ha-adj-{{.Entity.EntityID}}">
-
-  <button class="ha-adjustable-body" id="ha-adj-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+  <button class="ha-adjustable-body" id="ha-adj-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-adjustable-left">
-      {{if .Entity.Icon}}<span class="ha-adjustable-icon">{{.Entity.Icon}}</span>{{end}}
-      <span class="ha-adjustable-label entity-label">{{.Entity.Label}}</span>
+      {{if .Icon}}<span class="ha-adjustable-icon">{{.Icon}}</span>{{end}}
+      <span class="ha-adjustable-label entity-label">{{.Label}}</span>
     </div>
     <div class="ha-adjustable-pill"></div>
   </button>
 
-  <button class="ha-adjustable-chevron" id="ha-adj-chv-{{.Entity.EntityID}}">
+  <button class="ha-adjustable-chevron" id="ha-adj-chv-{{.EntityID}}">
     <i class="ha-adjustable-chevron-icon">&#9660;</i>
   </button>
 
   <div class="ha-adjustable-overlay">
-    <div class="ha-adjustable-overlay-title">{{.Entity.Label}}</div>
+    <div class="ha-adjustable-overlay-title">{{.Label}}</div>
 
-    {{$domain := domain .Entity.EntityID}}
+    {{$domain := domain .EntityID}}
 
     {{if eq $domain "light"}}
-    <div class="ha-slider-row" id="ha-adj-dim-{{.Entity.EntityID}}">
+    <div class="ha-slider-row" id="ha-adj-dim-{{.EntityID}}">
       <span class="ha-slider-label" style="width: 4em;">Dim</span>
-      <input type="range" min="0" max="255" value="255" id="ha-adj-dim-input-{{.Entity.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-dim-val-{{.Entity.EntityID}}" style="width: 3.375em;">100%</span>
+      <input type="range" min="0" max="255" value="255" id="ha-adj-dim-input-{{.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-dim-val-{{.EntityID}}" style="width: 3.375em;">100%</span>
     </div>
-    <div class="ha-slider-row hidden" id="ha-adj-cct-{{.Entity.EntityID}}">
+    <div class="ha-slider-row hidden" id="ha-adj-cct-{{.EntityID}}">
       <span class="ha-slider-label" style="width: 4em;">Temp</span>
-      <input type="range" min="2700" max="6500" value="4000" id="ha-adj-cct-input-{{.Entity.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-cct-val-{{.Entity.EntityID}}" style="width: 3.375em;">4000K</span>
+      <input type="range" min="2700" max="6500" value="4000" id="ha-adj-cct-input-{{.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-cct-val-{{.EntityID}}" style="width: 3.375em;">4000K</span>
     </div>
     {{end}}
 
     {{if eq $domain "fan"}}
-    <div class="ha-slider-row" id="ha-adj-speed-{{.Entity.EntityID}}" >
+    <div class="ha-slider-row" id="ha-adj-speed-{{.EntityID}}" >
       <span class="ha-slider-label" style="width: 4em;">Speed</span>
-      <input type="range" min="0" max="100" value="0" id="ha-adj-speed-input-{{.Entity.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-speed-val-{{.Entity.EntityID}}" style="width: 2.5em;">100%</span>
+      <input type="range" min="0" max="100" value="0" id="ha-adj-speed-input-{{.EntityID}}">
+      <span class="ha-slider-val" id="ha-adj-speed-val-{{.EntityID}}" style="width: 2.5em;">100%</span>
     </div>
   {{end}}
   </div>
@@ -273,8 +274,8 @@
 
 <script>
 (function() {
-  var entityId = '{{.Entity.EntityID}}';
-  var domain = '{{domain .Entity.EntityID}}';
+  var entityId = '{{.EntityID}}';
+  var domain = '{{domain .EntityID}}';
   var wrapper  = document.getElementById('ha-adj-'     + entityId);
   var btn      = document.getElementById('ha-adj-btn-' + entityId);
   var chevron  = document.getElementById('ha-adj-chv-' + entityId);

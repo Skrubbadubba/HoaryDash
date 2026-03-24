@@ -4,11 +4,7 @@ theme:
   font_color: "#3c3836"
   secondary_font_color: "#7c6f64"
   icon_color: "#458588"
-  entities:
-    borders: true
-    border_color: "#d5c4a1"
-    background: "#fbf1c7"
-  sensors:
+  cards:
     borders: true
     border_color: "#d5c4a1"
     background: "#fbf1c7"
@@ -21,11 +17,7 @@ theme:
   font_color: "#ebdbb2"
   secondary_font_color: "#a89984"
   icon_color: "#d79921"
-  entities:
-    borders: true
-    border_color: "#504945"
-    background: "#3c3836"
-  sensors:
+  cards:
     borders: true
     border_color: "#504945"
     background: "#3c3836"
@@ -38,11 +30,7 @@ theme:
   font_color: "#282828"
   secondary_font_color: "#665c54"
   icon_color: "#d65d0e"
-  entities:
-    borders: true
-    border_color: "#bdae93"
-    background: "#ebdbb2"
-  sensors:
+  cards:
     borders: true
     border_color: "#bdae93"
     background: "#ebdbb2"
@@ -53,11 +41,7 @@ theme:
   font_color: "#433422"
   secondary_font_color: "#8b6f47"
   icon_color: "#a0522d"
-  entities:
-    borders: true
-    border_color: "#d4b896"
-    background: "#fdf6e3"
-  sensors:
+  cards:
     borders: true
     border_color: "#d4b896"
     background: "#fdf6e3"
@@ -71,11 +55,7 @@ theme:
   font_color: "#eceff4"
   secondary_font_color: "#9099aa"
   icon_color: "#88c0d0"
-  entities:
-    borders: true
-    border_color: "#434c5e"
-    background: "#3b4252"
-  sensors:
+  cards:
     borders: true
     border_color: "#434c5e"
     background: "#3b4252"
@@ -86,14 +66,16 @@ theme:
   font_color: "#e0f7fa"
   secondary_font_color: "#80cbc4"
   icon_color: "#4dd0e1"
-  entities:
+  cards:
     borders: true
     border_color: "rgba(255, 255, 255, 0.12)"
     background: "rgba(255, 255, 255, 0.08)"
+  widgets:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
-    borders: true
-    border_color: "rgba(255, 255, 255, 0.12)"
-    background: "rgba(255, 255, 255, 0.05)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── SUNSET GRADIENT ─────────────────────────────────────────────────────────
 theme:
@@ -101,14 +83,16 @@ theme:
   font_color: "#fff3e0"
   secondary_font_color: "#ffab76"
   icon_color: "#ff7043"
-  entities:
+  cards:
     borders: true
     border_color: "rgba(255, 100, 30, 0.25)"
     background: "rgba(255, 100, 30, 0.15)"
+  widgets:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
-    borders: true
-    border_color: "rgba(255, 100, 30, 0.2)"
-    background: "rgba(255, 80, 20, 0.08)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── FOREST GRADIENT ─────────────────────────────────────────────────────────
 theme:
@@ -116,14 +100,16 @@ theme:
   font_color: "#e8f5e9"
   secondary_font_color: "#81c784"
   icon_color: "#66bb6a"
-  entities:
+  cards:
     borders: true
     border_color: "rgba(100, 200, 100, 0.18)"
     background: "rgba(100, 200, 100, 0.10)"
+  widgets:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
-    borders: true
-    border_color: "rgba(80, 160, 80, 0.15)"
-    background: "rgba(80, 160, 80, 0.07)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
 
 # ─── SYNTHWAVE ───────────────────────────────────────────────────────────────
 theme:
@@ -131,11 +117,13 @@ theme:
   font_color: "#f8f0ff"
   secondary_font_color: "#cc88ff"
   icon_color: "#ff44cc"
-  entities:
+  cards:
     borders: true
     border_color: "rgba(255, 0, 255, 0.2)"
     background: "rgba(255, 0, 255, 0.12)"
+  widgets:
+    borders: false
+    background: "rgba(0, 0, 0, 0)"
   sensors:
-    borders: true
-    border_color: "rgba(180, 0, 255, 0.15)"
-    background: "rgba(180, 0, 255, 0.08)"
+    borders: false
+    background: "rgba(0, 0, 0, 0)"

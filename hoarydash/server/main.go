@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 type Dashboard struct {
 	Nightlight struct {
 		Enabled        bool
+		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
 	Dateclock struct {
@@ -25,31 +27,36 @@ type Dashboard struct {
 		CapitaliseDay bool `yaml:"capitalise_day"`
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
+	Widgets []struct {
+		EntityID        string `yaml:"entity_id"`
+		FontSize        string `yaml:"font_size"` // Per widget override
+		InternalBorders *bool  `yaml:"internal_borders"`
+		// Weather-specific
+		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+		ForecastTimes    *int              `yaml:"forecast_times"`
+		// Media-specific
+		ShowVolume *bool
+		ShowAlbum  *bool
+	}
 	Sensors []struct {
 		EntityID string `yaml:"entity_id"`
 		Label    string
 		Unit     string
 	}
-	Entities []struct {
-		EntityID string `yaml:"entity_id"`
-		Label    string
-		Icon     string
+	Entities []Entity
+	Order    struct {
+		Entities int
+		Widgets  int
+		Sensors  int
 	}
-	Theme struct {
+	Animations *bool
+	Theme      struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Entities           struct {
-			Borders     *bool
-			BorderColor template.CSS `yaml:"border_color"`
-			Background  template.CSS
-			FontSize    template.CSS `yaml:"font_size"`
-		}
-		Sensors struct {
-			Borders     bool
-			BorderColor template.CSS `yaml:"border_color"`
-			Background  template.CSS
-			FontSize    template.CSS `yaml:"font_size"`
-		}
+		Cards              CardTheme    // Default for widgets, entities and sensors
+		Entities           CardTheme
+		Sensors            CardTheme
+		Widgets            CardTheme
 		ButtonBackground   template.CSS `yaml:"button_background"`
 		FontColor          template.CSS `yaml:"font_color"`
 		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
@@ -57,14 +64,55 @@ type Dashboard struct {
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
 }
+
+type Entity struct {
+	EntityID string `yaml:"entity_id"`
+	Label    string
+	Icon     string
+}
+
+type ForecastInterval string
+
+const (
+	ForecastIntervalDaily      ForecastInterval = "daily"
+	ForecastIntervalTwiceDaily ForecastInterval = "twice_daily"
+	ForecastIntervalHourly     ForecastInterval = "hourly"
+)
+
+func (f ForecastInterval) Valid() bool {
+	switch f {
+	case ForecastIntervalDaily, ForecastIntervalTwiceDaily, ForecastIntervalHourly:
+		return true
+	}
+	return false
+}
+
+func (f *ForecastInterval) UnmarshalYAML(value *yaml.Node) error {
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return err
+	}
+	*f = ForecastInterval(s)
+	if !f.Valid() {
+		return fmt.Errorf("invalid forecast_interval %q, must be daily, twice_daily or hourly", s)
+	}
+	return nil
+}
+
+type CardTheme struct {
+	Borders      *bool
+	BorderColor  template.CSS `yaml:"border_color"`
+	BorderRadius template.CSS `yaml:"border_radius"`
+	Background   template.CSS
+	FontSize     template.CSS `yaml:"font_size"`
+}
 type Config struct {
 	Localization struct {
 		Locale   string
 		Timezone string
 	}
 	FullyKiosk struct {
-		Password           string `yaml:"password"`
-		ScreensaverTimeout int    `yaml:"screensaver_timeout"`
+		ScreensaverTimeout int `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
 	HomeAssistant struct {
 		URL   string
@@ -92,6 +140,14 @@ func check(e error, message string, v ...any) {
 	log.Printf(message, v...)
 }
 
+func domain(entityID string) string {
+	parts := strings.SplitN(entityID, ".", 2)
+	if len(parts) < 2 {
+		return ""
+	}
+	return parts[0]
+}
+
 func BuildDash() {
 	cfg, err := parseYaml()
 	if err != nil {
@@ -100,15 +156,52 @@ func BuildDash() {
 	}
 
 	funcMap := template.FuncMap{
-		"default": func(def template.CSS, val template.CSS) template.CSS {
-			if val == "" {
+		"default": func(def any, val any) any {
+			if val == nil {
 				return def
 			}
+			v := reflect.ValueOf(val)
+
+			if v.Kind() == reflect.Ptr && v.IsNil() {
+				return def
+			}
+			if v.Kind() == reflect.String && v.String() == "" {
+				return def
+			}
+			if v.Kind() == reflect.Int && v.Int() == 0 {
+				return def
+			}
+
 			return val
+		},
+		"css": func(val any) template.CSS {
+			return template.CSS(fmt.Sprintf("%v", val))
+		},
+		"mergeTheme": func(specific CardTheme, base CardTheme) CardTheme {
+			result := specific
+			if result.BorderColor == "" {
+				result.BorderColor = base.BorderColor
+			}
+			if result.Background == "" {
+				result.Background = base.Background
+			}
+			if result.FontSize == "" {
+				result.FontSize = base.FontSize
+			}
+			if result.Borders == nil {
+				result.Borders = base.Borders
+			}
+			return result
 		},
 		"enabledByDefault": func(v *bool) bool {
 			if v == nil {
 				return true
+			}
+			return *v
+		},
+		"disabledByDefault": func(v *bool) bool {
+			if v == nil {
+				return false
 			}
 			return *v
 		},
@@ -121,11 +214,7 @@ func BuildDash() {
 			return m
 		},
 		"domainIn": func(entityID string, domains ...string) bool {
-			parts := strings.SplitN(entityID, ".", 2)
-			if len(parts) < 2 {
-				return false
-			}
-			domain := parts[0]
+			domain := domain(entityID)
 			for _, d := range domains {
 				if domain == d {
 					return true
@@ -133,12 +222,30 @@ func BuildDash() {
 			}
 			return false
 		},
-		"domain": func(entityID string) string {
-			parts := strings.SplitN(entityID, ".", 2)
-			if len(parts) < 2 {
-				return ""
+		"anyOfIn": func(anyOf []string, in ...string) bool { // O(n) is n^2 but the lists are tiny so its fine
+			for _, is := range anyOf {
+				for _, of := range in {
+					if is == of {
+						return true
+					}
+				}
 			}
-			return parts[0]
+			return false
+		},
+		"domain": domain,
+		"domains": func(entityIDs []string) []string {
+			var out []string
+			for _, id := range entityIDs {
+				out = append(out, domain(id))
+			}
+			return out
+		},
+		"entityIDs": func(entities []Entity) []string {
+			out := make([]string, len(entities))
+			for i, e := range entities {
+				out[i] = e.EntityID
+			}
+			return out
 		},
 	}
 
@@ -149,7 +256,9 @@ func BuildDash() {
 	}
 
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {
@@ -240,6 +349,26 @@ func main() {
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
 	http.Handle("/", fs)
 	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN, rebuildChan))
+	http.HandleFunc("/api/translations/{widget}/{lang}", translationsHandler())
+	http.HandleFunc("/api/media_cover", mediaCoverHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
+}
+
+func getHaDefaults(baseUrl string, token string) (string, string) {
+	if baseUrl == "" {
+		log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
+		baseUrl = "http://homeassistant.local:8123"
+	}
+
+	if token == "" {
+		log.Print("Getting HA token fron environment")
+		envToken := os.Getenv("HA_TOKEN")
+		if envToken == "" {
+			log.Printf("No HA token could be read")
+			return baseUrl, ""
+		}
+		token = envToken
+	}
+	return baseUrl, token
 }

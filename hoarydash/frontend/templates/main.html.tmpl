@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <script>
+        var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
+        var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
             fullyKiosk: {
                 password: "{{.Config.FullyKiosk.Password}}",
@@ -16,16 +18,31 @@
             entity_ids: [
                     {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
                     {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
-                ]
+                    {{range .Dashboard.Widgets}}"{{.EntityID}}",{{end}}  
+                ],
+            locale: locale,
+            timezone: timezone,
+            widgetPollInterval: 10 * 60 * 1000,
+            };
+        window.goFetch = function(path, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', path, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) { return; }
+                if (xhr.status === 200) {
+                    try { callback(null, JSON.parse(xhr.responseText)); }
+                    catch(e) { callback(e, null); }
+                } else {
+                    callback(new Error('HTTP ' + xhr.status), null);
+                }
+            };
+            xhr.send();
         };
     </script>
-    {{ if .Dashboard.Sensors }}
-        {{template "websocket"}}
-    {{end}}
-    {{template "base-style" .Dashboard.Theme}}
+    {{template "websocket"}}
+    {{template "base-style" .Dashboard}}
     {{template "btn-style" .Dashboard.Theme}}
     <style>
-        
         .main-container {
             display: flex;
             -webkit-display: flex;
@@ -33,36 +50,82 @@
             justify-content: space-between;
             align-items: center;
             height: 100%;
+            width: 100%;
+            padding: 1.5em 0 3em 0;
         }
     </style>
 </head>
 <body>
-
-    <!-- Weather block -->
-    <!-- <div id="id1c055f8167e7f" a='{"t":"r","v":"1.2","lang":"sv","locs":[865],"ssot":"c","sics":"ms","cbkg":"#000000","cfnt":"#FFFFFF","codd":"#000000","cont":"#E0E0E0","stof":"3","sfnt":"a"}'>Weather Data Source: <a href="https://sharpweather.com/weather_linkoping/30_days/">weather forecast Linkoping 30 days</a></div>
-    <script async src="https://static1.sharpweather.com/widgetjs/?id=id1c055f8167e7f"></script> -->
-
     {{template "websocket" .}}
-
     
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
+
     <div class="main-container">
     {{if .Dashboard.Entities}}
         {{template "entities" .Dashboard}}
     {{else}}
-        {{/* Take up space inside flexbos so as to always push down sensors */}}
+        {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>
     {{end}}
-    {{ if enabledByDefault .Dashboard.Dateclock.Enabled}}
-    {{template "dateclock" (dict
-        "Localization" .Config.Localization
-        "Dateclock" .Dashboard.Dateclock
-    )}}  
-    {{end}}
+    
+    <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
+        {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
+            {{template "dateclock" (dict
+            "Localization" .Config.Localization
+            "Dateclock" .Dashboard.Dateclock
+            )}}
+        {{end}}
+        <style>
+            .center-container {
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: flex;
+                -webkit-box-align: center;
+                -webkit-align-items: center;
+                align-items: center;
+                justify-content: space-between;
+                width: 90%;
+                margin-bottom: 1em;
+            }
+            .center-container > div {
+                margin: 0 2rem 0 2rem;
+            }
+            .widgets-container {
+                display: flex;
+                flex-direction: column;
+                {{if .Dashboard.Theme.Widgets.FontSize}}
+                    font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
+                {{end}}
+                min-width: 18em;
+            }
+            .widgets-container > div {
+                margin: 5px 0;
+                {{template "create-card-theme" .Dashboard.Theme.Widgets}}
+            }
+        </style>
+        <div class="widgets-container">
+        {{$theme := .Dashboard.Theme}}
+        {{range .Dashboard.Widgets}}
+            {{$widgetDict := (dict
+                    "Theme" $theme
+                    "Entity" .
+                )}}
+            {{if eq (domain .EntityID) "weather"}}
+                {{template "_weather_widget" ($widgetDict)}}
+            {{else if eq (domain .EntityID) "media_player"}}
+                {{template "_media_widget" ($widgetDict)}}
+            {{end}}
+        {{end}}
+        </div>
+    </div>
+    
     {{if .Dashboard.Sensors}}
         {{template "sensors" .Dashboard}}
+    {{else}}
+        {{/* Take up space inside flexbox */}}
+        <div style="display: hidden;"></div>
     {{end}}
     </div>
 

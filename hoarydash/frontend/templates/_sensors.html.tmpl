@@ -13,11 +13,7 @@
     justify-content: center;
     padding: 1em;
     margin: 0.3125em;
-    border-radius: 0.75em;
-    {{if .Theme.Sensors.Borders}}
-        border: 2px solid {{.Theme.Sensors.BorderColor | default "rgba(130,185,255,0.15)"}};
-        {{end}}
-      background-color: {{.Theme.Sensors.Background | default "rgba(18, 18, 18, 0.75)"}}
+    {{template "create-card-theme" .Theme.Sensors}}
   }
 
   .sensor-label {
@@ -52,16 +48,15 @@
       display: flex;
       -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
       transition: opacity 0.8s ease, margin-bottom 0.5s ease;
-      margin-bottom: 75px;
       width: 75vw;
       justify-content: space-around;;
       flex-wrap: wrap;
       align-items: center;
-      font-size: {{.Theme.Sensors.FontSize | default "inherit"}}px;
+      font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};;
   }
 </style>
 
-<div id="sensors-container">
+<div id="sensors-container" style="order: {{.Order.Sensors}}">
   {{range .Sensors}}
     <div class="sensor-widget card" id="sensor-{{.EntityID}}">
       <div class="sensor-label">{{.Label}}</div>

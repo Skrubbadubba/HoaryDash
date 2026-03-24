@@ -7,49 +7,57 @@
   window.haSubscribeId = null;
   window.haSubscribeId = ++window.haMsgId;
   var haSocket = null;
-  var haSocketReady = false;
+  window.haSocketReady = false;
+  var pendingMap = {};
   window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
+  window.onHaReady = []; // Callback list for fetching initial state
 
   window.haSend = function(msg) {
-      if (!haSocketReady) return;
-      msg.id = ++window.haMsgId;
-      haSocket.send(JSON.stringify(msg));
-  };
+    return new Promise(function(resolve, reject) {
+        if (!window.haSocketReady) {
+            reject(new Error('socket not ready'));
+            return;
+        }
+        msg.id = ++window.haMsgId;
+        pendingMap[msg.id] = function(response) {
+            if (response.success === false) {
+                reject(response.error);
+            } else {
+                resolve(response.result);
+            }
+        };
+        haSocket.send(JSON.stringify(msg));
+    });
+};
 
   function updateEntities(entities) {
-    var entityId, entity;
-    for (entityId in entities) {
-        if (!entities.hasOwnProperty(entityId)) { continue; }
-        entity = entities[entityId];
-
-        fields = entity['+'] !== undefined ? entity['+'] : entity;
-
-        var state, attributes
-        if (fields.s !== undefined) {
-            state = fields.s;
-        }
-        if (fields.a !== undefined) {
-            attributes = fields.a;
-        }
-
-        var listener = window.entityListeners[entityId];
-        if (listener) listener(state, attributes);
-    }
+      var entityId, entity, fields, state, attributes;
+      for (entityId in entities) {
+          if (!entities.hasOwnProperty(entityId)) { continue; }
+          entity = entities[entityId];
+          fields = entity['+'] !== undefined ? entity['+'] : entity;
+          state = fields.s !== undefined ? fields.s : undefined;
+          attributes = fields.a !== undefined ? fields.a : undefined;
+          var listener = window.entityListeners[entityId];
+          if (listener) { listener(state, attributes); }
+      }
   }
-
   function connect() {
     var ws = new WebSocket(
       (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/ws'
     );
 
     ws.onopen = function() {
-      haSocketReady = true;
       haSocket = ws
+      window.haSocketReady = true;
       ws.send(JSON.stringify({
         id: window.haSubscribeId,
         type: 'subscribe_entities',
         entity_ids: entityIds
       }));
+      for (cb in window.onHaReady) {
+        cb()
+      }
     };
 
     ws.onmessage = function(evt) {
@@ -60,6 +68,13 @@
       }
       try { msg = JSON.parse(evt.data); } catch(e) { return; }
 
+      if (msg.type === 'result' && pendingMap[msg.id]) {
+        var cb = pendingMap[msg.id];
+        delete pendingMap[msg.id];
+        cb(msg);
+        return;
+      }
+
       if (msg.type !== 'event' || msg.id !== window.haSubscribeId) { return; }
 
       var ev = msg.event;
@@ -67,12 +82,12 @@
       if (ev.a) { updateEntities(ev.a); }
       if (ev.c) { updateEntities(ev.c); }
     };
-
-    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);haSocketReady = false; };
+    ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);window.haSocketReady = false; };
     ws.onerror = function() { ws.close(); };
   }
-
   connect();
+
+
 })();
 </script>
 {{end}}

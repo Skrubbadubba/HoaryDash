@@ -27,6 +27,7 @@ These are addons you may or may not have. If you do not now how to access your h
 Create a file called `hoarydash.yaml` in that folder with the following content:
 ```yaml
 dashboards:
+  # animations: false
   dash:
     nightlight:
       enabled: true
@@ -42,20 +43,21 @@ dashboards:
       - entity_id: light.ceiling
         label: Ceiling light
         icon: 💡
+    widgets:
+      - entity_id: weather.home
+        internal_borders: false
+        forecast_interval: hourly
+        forecast_times: 5
     # Example of light theme
     # theme:
     #   background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
     #   font_color: "#e0f7fa"
     #   secondary_font_color: "#80cbc4"
     #   icon_color: "#4dd0e1"
-    #   entities:
+    #   cards:
     #     borders: true
     #     border_color: "rgba(255, 255, 255, 0.12)"
     #     background: "rgba(255, 255, 255, 0.08)"
-    #   sensors:
-    #     borders: true
-    #     border_color: "rgba(255, 255, 255, 0.12)"
-    #     background: "rgba(255, 255, 255, 0.05)"
     #   base_font_size: 20
 
 
@@ -68,7 +70,6 @@ fully_kiosk:
   screensaver_timeout: 60
 
 home_assistant:
-  url: "http://homeassistant.local:8123"
   token: "your_long_lived_token_here"
 ```
 

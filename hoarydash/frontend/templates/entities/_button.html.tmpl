@@ -1,4 +1,4 @@
-{{define "button"}}
+{{define "button-style"}}
 <style>
   .ha-button {
     display: -webkit-flex;
@@ -48,8 +48,8 @@
   }
 
   .ha-button-label {
-    color: {{.Theme.SecondaryFontColor | default "#ffffff"}};
-    {{if not .Theme.SecondaryFontColor}}opacity: 0.6;{{end}}
+    color: {{.SecondaryFontColor | default "#ffffff"}};
+    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -60,18 +60,20 @@
     opacity: 0.5;
   }
 </style>
+{{end}}
+{{define "button"}}
 <div class="ha-button card">
-  <button class="ha-button-body" id="ha-btn-{{.Entity.EntityID}}" title="{{.Entity.Label}}">
+  <button class="ha-button-body" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-button-content">
-    {{if .Entity.Icon}}<span class="ha-button-icon">{{.Entity.Icon}}</span>{{end}}
-      <span class="ha-button-label entity-label">{{.Entity.Label}}</span>
+    {{if .Icon}}<span class="ha-button-icon">{{.Icon}}</span>{{end}}
+      <span class="ha-button-label entity-label">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>
 </div>
   <script>
   (function() {
-    var entityId = '{{.Entity.EntityID}}';
+    var entityId = '{{.EntityID}}';
     var domain = entityId.split('.')[0];
     var btn = document.getElementById('ha-btn-' + entityId);
 

@@ -10,29 +10,34 @@
         -webkit-align-items: stretch;
         align-items: stretch;
         max-width: 75vw;
-        margin-top: 40px;
-        font-size: {{.Theme.Entities.FontSize | default "inherit"}}px;
+        font-size: {{if .Theme.Entities.FontSize}}{{.Theme.Entities.FontSize}}px{{else}}inherit{{end}};
     }
     #entities-container > .card {
         margin: 5px;
-        {{if enabledByDefault .Theme.Entities.Borders}}
-        border: 0.125em solid {{.Theme.Entities.BorderColor | default "rgba(130,185,255,0.10)"}};
-        border-radius: 0.75em;
-        {{end}}
-        background-color: {{.Theme.Entities.Background | default "rgba(20, 20, 20, 0.75)"}};
+        {{template "create-card-theme" .Theme.Entities}}
     }
 </style>
-<div id="entities-container">
-{{$theme := .Theme}}
+<div id="entities-container" style="order: {{.Order.Entities}}">
+{{$allDomains := .Entities | entityIDs | domains}}
+{{if anyOfIn $allDomains "switch" "input_boolean"}}
+    {{template "toggle-style" .Theme}}
+{{end}}
+{{if anyOfIn $allDomains "light" "fan"}}
+    {{template "adjustable-style" .Theme}}
+{{end}}
+{{if anyOfIn $allDomains "button" "input_button" "scene" "script"}}
+    {{template "button-style" .Theme}}
+{{end}}
+
 {{range .Entities}}
     {{if domainIn .EntityID "switch" "input_boolean"}}
-        {{template "toggle" (dict "Entity" . "Theme" $theme)}}
+        {{template "toggle" .}}
     {{else if domainIn .EntityID "light" "fan"}}
-        {{template "adjustable" (dict "Entity" . "Theme" $theme)}}
-    {{else if domainIn .EntityID "button" "input_button" "scene" "script"}}
-        {{template "button" (dict "Entity" . "Theme" $theme)}}
+        {{template "adjustable" .}}
+    {{else if domainIn .EntityID }}
+        {{template "button" .}}
     {{else}}
-        {{template "button" (dict "Entity" . "Theme" $theme)}}
+        {{template "button" .}}
     {{end}}
 {{end}}
 </div>
