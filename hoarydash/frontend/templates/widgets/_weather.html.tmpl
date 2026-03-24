@@ -274,7 +274,7 @@
       return;
     }
     var html = '';
-    var days = forecast.slice(0, {{.ForecastDays | default 3}});
+    var days = forecast.slice(0, {{.Entity.ForecastTimes | default 3}});
     var hourly = isHourlyForecast(forecast);
     for (var i = 0; i < days.length; i++) {
       var day       = days[i];

@@ -32,7 +32,7 @@ type Dashboard struct {
 		InternalBorders *bool  `yaml:"internal_borders"`
 		// Weather-specific
 		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-		ForecastDays     *int              `yaml:"forecast_days"`
+		ForecastTimes    *int              `yaml:"forecast_times"`
 		// Media-specific
 		ShowVolume *bool
 		ShowAlbum  *bool
@@ -165,6 +165,9 @@ func BuildDash() {
 				return def
 			}
 			if v.Kind() == reflect.String && v.String() == "" {
+				return def
+			}
+			if v.Kind() == reflect.Int && v.Int() == 0 {
 				return def
 			}
 
