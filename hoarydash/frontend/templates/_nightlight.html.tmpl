@@ -1,24 +1,5 @@
 {{define "nightlight"}}
 <style>
-    body.nightlight {
-        background: hsl(22, 100%, 50%) !important;
-        background-color: hsl(22, 100%, 50%) !important;
-    }
-    body.nightlight,
-    body.nightlight .sensor-label,
-    body.nightlight .sensor-value,
-    body.nightlight .sensor-unit,
-    body.nightlight .entity-label {
-        color: hsla(22, 100%, 35%, 0.5) !important;
-    }
-    body.nightlight .sensors-container {
-        opacity: 0;
-    }
-    body.nightlight .card,
-    body.nightlight #entities-container .card {
-        border-color: rgba(0,0,0,0);
-        background: hsla(22, 100%, 10%, 0.05);
-    }
     #nightlight-btn {
         position: fixed;
         bottom: 24px;
@@ -37,10 +18,9 @@
     #nightlight-btn.active {
         box-shadow: 0 0 24px rgba(255, 100, 0, 0.2);
     }
-    body.nightlight .btn {
-        background-color: #333;
-    }
+    
     #nightlight-btn.active svg { fill: #ff9944; }
+
     #brightness-panel {
         position: fixed;
         bottom: 90px;
@@ -65,10 +45,9 @@
         transform: translateY(12px);
         -webkit-transition: opacity 0.4s ease, -webkit-transform 0.4s ease;
         transition: opacity 0.4s ease, transform 0.4s ease;
+        z-index: 50;
     }
-    body.nightlight #brightness-panel {
-        background-color: #333;
-    }
+    
     #brightness-panel.visible {
         opacity: 1;
         pointer-events: all;
@@ -79,7 +58,7 @@
         position: relative;
         width: 20px;
         height: 140px;
-        background-color: rgba(255,255,255,0.2);
+        background-color: rgba(255, 255, 255, 0.2);
         border-radius: 10px;
         cursor: pointer;
         touch-action: none;
@@ -106,19 +85,38 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         pointer-events: none;
     }
-    #nightlight-overlay {
+
+    .nightlight-overlay {
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background-color: #000000;
         pointer-events: none;
         opacity: 0;
         -webkit-transition: opacity 0.1s linear;
         transition: opacity 0.1s linear;
     }
+    .nightlight-overlay.dark {
+        z-index: 11;
+        background-color: #000000;
+    }
+    .nightlight-overlay.bright {
+        opacity: 0;
+        z-index: 10;
+        background-color: hsl(22, 100%, 50%);
+    }
+    body.nightlight #dateclock-container {
+        color: hsla(22, 100%, 35%, 0.5) !important;
+    }
+    body.nightlight #brightness-panel {
+        background-color: #333;
+    }
+    body.nightlight .btn {
+        background-color: #333;
+    }
 </style>
 
-<div id="nightlight-overlay"></div>
+<div class="nightlight-overlay bright" id="overlay-bright"></div>
+<div class="nightlight-overlay dark" id="overlay-dark"></div>
 <div id="brightness-panel">
     <div id="custom-slider">
         <div id="slider-fill"></div>
@@ -130,15 +128,18 @@
 </button>
 
 <script>
+    (function() {
     var nightlightActive = false;
     var btn = document.getElementById('nightlight-btn');
     var panel = document.getElementById('brightness-panel');
-    var overlay = document.getElementById('nightlight-overlay');
+    var overlayDark = document.getElementById('overlay-dark');
+    var overlayBright = document.getElementById('overlay-bright');
     var sliderContainer = document.getElementById('custom-slider');
     var sliderFill = document.getElementById('slider-fill');
     var sliderThumb = document.getElementById('slider-thumb');
     var isDragging = false;
     var currentBrightness = 80;
+    var screensaverWasOn = false;
 
     function renderSlider(val) {
         sliderFill.style.height = val + '%';
@@ -150,20 +151,26 @@
         nightlightActive = !nightlightActive;
         if (nightlightActive) {
             document.body.className = 'nightlight';
+            overlayBright.style.opacity = 1
             btn.classList.add('active');
             panel.className = 'visible';
             applyBrightness(currentBrightness);
+            screensaverWasOn = window.screensaverIsOn();
+            window.setScreensaverOn();
         } else {
-            document.body.className = '';
+            document.body.className = '';    
             btn.classList.remove('active');
             panel.className = '';
-            overlay.style.opacity = '0';
+            overlayDark.style.opacity = '0';
+            overlayBright.style = null;
+            if (screensaverWasOn) { return; }
+            window.setScreensaverOff();
         }
     });
 
     function applyBrightness(val) {
         var dimAmount = (100 - val) / 100 * 0.92;
-        overlay.style.opacity = dimAmount;
+        overlayDark.style.opacity = dimAmount;
     }
 
     function handleDrag(clientY) {
@@ -182,5 +189,6 @@
     sliderContainer.addEventListener('touchstart', function(e) { isDragging = true; handleDrag(e.touches[0].clientY); e.preventDefault(); }, false);
     document.addEventListener('touchmove', function(e) { if (isDragging) { handleDrag(e.touches[0].clientY); e.preventDefault(); } }, false);
     document.addEventListener('touchend', function() { isDragging = false; }, false);
+    }());
 </script>
 {{end}}

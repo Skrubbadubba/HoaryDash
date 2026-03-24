@@ -1,10 +1,7 @@
 {{define "dateclock"}}
 <style>
-    .dateclock-container {
-        {{/* position: absolute;
-        top: 33vh;
-        left: 0;
-        right: 0; */}}
+    #dateclock-container {
+        z-index: 20;
         display: -webkit-flex;
         display: flex;
         -webkit-flex-direction: column;
@@ -27,11 +24,12 @@
         font-weight: 600;
     }
 </style>
-<div class="dateclock-container">
+<div id="dateclock-container">
     <div class="clock" id="clock"></div>
     <div class="date" id="date"></div>
 </div>
 <script>
+    (function() {
     var locale = window.CONFIG.locale;
     var timezone = window.CONFIG.timezone;
     var hour12 = {{if .Dateclock.Hour12}}true{{else}}false{{end}};
@@ -68,5 +66,6 @@
 
     setInterval(updateTime, 1000);
     updateTime();
+    }());
 </script>
 {{end}}

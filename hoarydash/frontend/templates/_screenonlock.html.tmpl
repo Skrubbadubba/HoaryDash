@@ -25,38 +25,54 @@
 </button>
 
 <script>
-    var screenOnActive = false;
+    (function() {
+    var previousTimer = '{{ .FullyKiosk.ScreensaverTimeout }}';
     var screenOnBtn = document.getElementById('screenon-btn');
-    var previousTimer = fully.getStringSetting("timeToScreensaverV2");
-    if (previousTimer == 0) {
-        screenOnBtn.classList.add('active')
+
+    function getTimer() {
+        if (typeof fully !== 'undefined') {
+            return fully.getStringSetting("timeToScreensaverV2");
+        }
+        return previousTimer;
     }
-    else {
-        screenOnBtn.classList.remove('active')
+
+    function setScreensaverOn() {
+        var current = getTimer();
+        if (current != 0) { previousTimer = current; }
+        if (typeof fully !== 'undefined') {
+            fully.setStringSetting("timeToScreensaverV2", 0);
+        }
+        screenOnBtn.classList.add('active');
+    }
+
+    function setScreensaverOff() {
+        if (typeof fully !== 'undefined') {
+            fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : '{{ .FullyKiosk.ScreensaverTimeout }}');
+        }
+        screenOnBtn.classList.remove('active');
+    }
+
+    function isScreenAlwaysOn() {
+        return getTimer() == 0;
     }
 
     screenOnBtn.addEventListener('click', function() {
-        var currentTimer = fully.getStringSetting("timeToScreensaverV2")
-        console.log("Current screensaver timer is: ", currentTimer)
-        console.log(currentTimer)
-        if (currentTimer == 0) {
-            fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : {{ .FullyKiosk.ScreensaverTimeout }})
-            console.log("Set screensaver timer to ", previousTimer)
-            console.log(previousTimer)
-        }
-        else {
-            previousTimer = currentTimer;
-            console.log(previousTimer)
-            fully.setStringSetting("timeToScreensaverV2", 0)
-            console.log("Set screensaver timer to 0")
-        }
-        screenOnActive = currentTimer != 0;
-        if (screenOnActive) {
-            screenOnBtn.classList.add('active')
-        }
-        else {
-            screenOnBtn.classList.remove('active')
+        if (isScreenAlwaysOn()) {
+            setScreensaverOff();
+        } else {
+            setScreensaverOn();
         }
     });
+
+    if (isScreenAlwaysOn()) {
+        screenOnBtn.classList.add('active');
+    } else {
+        screenOnBtn.classList.remove('active');
+    }
+
+    window.setScreensaverOn    = setScreensaverOn;
+    window.setScreensaverOff   = setScreensaverOff;
+    window.screensaverIsOn     = isScreenAlwaysOn;
+    }());
 </script>
 {{end}}
