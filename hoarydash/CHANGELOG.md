@@ -1,12 +1,20 @@
-# v0.6.0
+# v0.6.1
+
+## Hotfix:
+- Removed FullyKiosk.Password from template as its not used
+
+---
+# Previous minor update
+
+## v0.6.0
 
 Big release 🎉! Lots more theming, and we now have some pretty cool widgets for weather and media players!
 
-## Whats New
+### Whats New
 
-### ✨ Features
+#### ✨ Features
 
-#### Configurable widgets
+##### Configurable widgets
 
 These are a separate card type for entities that require a bit more space. They are configurable under `widgets` and are configured alongside entities and sensors in the yaml like so:
 ```yaml
@@ -26,20 +34,20 @@ These are a separate card type for entities that require a bit more space. They 
 
 These cards sit in the center, to the right of the dateclock
 
-#### Theming
+##### Theming
 
 - `entities`, `sensors` and `widgets` are all now separate. They share the same schema
 - `cards` shares the same schema as above, and serves as a default
 - Per widget fontsize override
 - Can configure border-radius of cards
 
-#### Other
+##### Other
 
 - Configurable nightlight color
 - Nightlight keeps screen on automatically
 - Animations can be toggled
 
-### ⚡️ Code changes & optimizations
+#### ⚡️ Code changes & optimizations
 
 - All scripts now use IIFEs
 - Component style tags are now duplicated

@@ -12,7 +12,6 @@
         var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
             fullyKiosk: {
-                password: "{{.Config.FullyKiosk.Password}}",
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
             entity_ids: [
