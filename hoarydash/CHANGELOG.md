@@ -1,7 +1,7 @@
-# v0.6.1
+# v0.6.2
 
 ## Hotfix:
-- Removed FullyKiosk.Password from template as its not used
+- Fixed code typo in toggles
 
 ---
 # Previous minor update
