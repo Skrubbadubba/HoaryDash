@@ -41,5 +41,10 @@
         {{end}}
         background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
     }
+    .icon {
+        height: 1em;
+        width: 1em;
+        fill: {{.Theme.IconColor | default "#e5e5e5" | css}}
+    }
 </style>
 {{end}}

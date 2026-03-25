@@ -120,7 +120,6 @@
 
     .media-idle {
         font-size: 0.65em;
-
         color: {{.Theme.SecondaryFontColor | default "#8899aa"}};
         font-style: italic;
     }
@@ -194,10 +193,9 @@
         align-items: center;
     }
     .media-vol-icon {
-        font-size: 0.85em;
         margin-right: 0.4em;
-
-        color: {{.Theme.SecondaryFontColor | default "#8899aa"}};
+        height: 1em;
+        font-size: 1.2em;
     }
 
     .media-vol-slider {
@@ -244,7 +242,7 @@
     <div class="media-bottom-row" id="media-volume-row">
         {{ if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
-            <span class="media-vol-icon">🔈</span>
+            <span class="media-vol-icon">{{icon "volume-high"}}</span>
             <input class="media-vol-slider" type="range" min="0" max="1" step="0.02" id="media-vol-slider"
                 value="0.5" />
         </div>

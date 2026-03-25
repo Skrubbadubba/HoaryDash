@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -14,6 +16,11 @@ import (
 	"github.com/radovskyb/watcher"
 	"go.yaml.in/yaml/v4"
 )
+
+//go:embed mdi.json
+var mdiData []byte
+
+var mdiIcons map[string]string
 
 type Dashboard struct {
 	Nightlight struct {
@@ -247,6 +254,19 @@ func BuildDash() {
 			}
 			return out
 		},
+		"icon": func(name string) template.HTML {
+			path := mdiIcons[name]
+			return template.HTML(fmt.Sprintf(
+				`<svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="%s"/></svg>`,
+				path,
+			))
+		},
+		"isEmoji": func(s string) bool {
+			for _, r := range s {
+				return r > 127
+			}
+			return false
+		},
 	}
 
 	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
@@ -304,6 +324,8 @@ func init() {
 		yamlPath = "/config/hoarydash.yaml"
 		frontendPath = "/app/frontend"
 	}
+
+	json.Unmarshal(mdiData, &mdiIcons)
 
 	log.Printf("isDev=%v yamlPath=%s frontendPath=%s", isDev, yamlPath, frontendPath)
 }

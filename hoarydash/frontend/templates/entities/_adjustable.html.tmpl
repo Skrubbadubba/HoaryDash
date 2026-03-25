@@ -51,6 +51,7 @@
     line-height: 1;
     -webkit-transition: opacity 0.2s ease;
     transition: opacity 0.2s ease;
+    margin-right: 0.25em;
   }
   .ha-adjustable.off .ha-adjustable-icon {
     opacity: 0.38;
@@ -235,7 +236,15 @@
 
   <button class="ha-adjustable-body" id="ha-adj-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-adjustable-left">
-      {{if .Icon}}<span class="ha-adjustable-icon">{{.Icon}}</span>{{end}}
+      {{if .Icon}}
+        <span class="ha-adjustable-icon">
+        {{if isEmoji .Icon}}
+            {{.Icon}}
+        {{else}}
+            {{icon .Icon}}
+        {{end}}
+        </span>
+      {{end}}
       <span class="ha-adjustable-label entity-label">{{.Label}}</span>
     </div>
     <div class="ha-adjustable-pill"></div>

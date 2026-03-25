@@ -65,7 +65,15 @@
 <div class="ha-button card">
   <button class="ha-button-body" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-button-content">
-    {{if .Icon}}<span class="ha-button-icon">{{.Icon}}</span>{{end}}
+    {{if .Icon}}
+      <span class="ha-button-icon">
+        {{if isEmoji .Icon}}
+            {{.Icon}}
+        {{else}}
+            {{icon .Icon}}
+        {{end}}
+      </span>
+     {{end}}
       <span class="ha-button-label entity-label">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>

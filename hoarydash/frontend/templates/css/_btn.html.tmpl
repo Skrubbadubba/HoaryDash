@@ -1,11 +1,11 @@
 {{define "btn-style"}}
     <style>
         .btn {
-            width: 52px;
-            height: 52px;
+            width: 4.5em;
+            height: 4.5em;
             background-color: {{.ButtonBackground | default "#1a1a1a" | css}};
             border: none;
-            border-radius: 14px;
+            border-radius: 1em;
             cursor: pointer;
             outline: none;
             display: -webkit-flex;
@@ -17,9 +17,8 @@
             z-index: 50;
         }
         .btn svg {
-            width: 26px;
-            height: 26px;
-            fill: {{.IconColor | default "rgba(255,255,255,0.4)" | css}};
+            width: 2.33em;
+            height: 2.33em;
         }
         .btn:active {
             -webkit-transform: scale(0.88);

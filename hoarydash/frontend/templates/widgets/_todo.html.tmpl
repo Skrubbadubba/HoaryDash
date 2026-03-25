@@ -54,7 +54,7 @@
         align-items: center;
         justify-content: center;
 
-        padding: 0.5em 0.7em;
+        padding: 0.45em 0.6em 0.5em 0.6em;
         font-size: 0.9em;
 
         border-radius: 0.6em;
@@ -66,17 +66,24 @@
         color: inherit;
     }
 
-    .todo-btn span {
-        margin-left: 0.3em;
+    .todo-btn span.divider {
+        margin:0 0.15em;
     }
 
     .todo-btn.complete {
         background: rgba(80, 200, 120, 0.2);
+        fill: #4caf50;
+    }
+    .todo-btn.complete svg {
+        fill: #4caf50;
     }
 
     .todo-btn.delete {
         background: rgba(255, 80, 80, 0.2);
         margin: 0 0.4em;
+    }
+    .todo-btn.delete svg {
+        fill: #cf1020;
     }
 
 
@@ -207,10 +214,10 @@
         </div>
         <div class="todo-controls">
             <button id="todo-all-complete" class="todo-btn complete">
-                ✓ <span>All</span>
+                <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
             <button id="todo-delete-completed" class="todo-btn delete">
-                🗑 <span>Done</span>
+                <span style="margin-top: 0.3em">{{icon "delete"}}</span><span class="divider"></span><span>Done</span>
             </button>
         </div>
     </div>
