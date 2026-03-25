@@ -1,0 +1,209 @@
+{{ define "todo_widget" }}
+<style>
+    .todo-container {
+        overflow: hidden;
+        font-family: inherit;
+        {{ if .Entity.FontSize }}
+        font-size: {{ .Entity.FontSize }}px;
+        {{ end }}
+    }
+    
+    .todo-header {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: stretch;
+        -webkit-align-items: stretch;
+        align-items: stretch;
+        justify-content: space-between;
+        padding: 0.7em 0;
+        {{if enabledByDefault .Entity.InternalBorders}}
+            border-bottom: 0.05em solid rgba(120, 180, 255, 0.12);
+        {{end}}
+    }
+
+    .todo-info {
+        padding-left: 0.5em;
+    }
+
+    .todo-icon {
+        font-size: 1.2em;
+        line-height: 1;
+    }
+
+    .todo-name {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: {{ .Theme.FontColor | default "#f0e0c0" }};
+        line-height: 1;
+    }
+
+    .todo-statistic {
+        font-size: 0.9em;
+        font-weight: 400;
+        color: {{ .Theme.SecondaryFontColor | default "#a08060" }};
+    }
+
+    .todo-controls {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: stretch;
+        -webkit-align-items: stretch;
+        align-items: stretch;
+        padding: 0.7em 0;
+        justify-content: end;
+    }
+
+    .todo-list {
+        padding: 0.4em 0.5em;
+    }
+    .todos {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-flex: 1;
+    }
+
+    .todo {
+        list-style: none;
+        margin: 0 0.1em 0 0.1em;
+    }
+    #todo-dummy {
+        display: block;
+    }
+</style>
+
+<div class="todo-container card">
+    <div class="todo-header">
+        <div class="todo-info">
+            <span class="todo-icon" id="todo-icon"></span>
+            <span class="todo-name" id="todo-name">Todos</span>
+            <span> - </span>
+            <span class="todo-statistic">0/10</span>
+        </div>
+        <div class="todo-controls">
+            <button class="todo-all-complete btn">Complete All</button>
+            <button class="todo-delete-completed btn">Delete Completed</button>
+        </div>
+    </div>
+    <div class="todo-list">Loading...
+        <ol class="todos" id="todos-{{.Entity.EntityID}}">
+            <li class="todo" id="todo-dummy">dummy</li>
+        </ol>
+    </div>
+</div>
+
+<script>
+(function () {
+var POLL_INTERVAL = 10 * 60 * 1000;
+var entityId = {{ .Entity.EntityID }};
+console.log("todo entity id is: ", entityId)
+if (!entityId) { return; }
+
+var locale   = window.CONFIG.locale;
+var timezone = window.CONFIG.timezone;
+
+var todosEl = document.getElementById("todos-" + entityId);
+var dummyTodo = document.getElementById("todo-dummy");
+var todoIds = [];
+
+function renderTodos(todos) {
+    setTimeout(function() {
+        console.log("renderTodos ran with: ", todos);
+        console.log("todosEl to append to is: ", todosEl)
+        console.log("dummy todo is: ", dummyTodo)
+        for (todo of todos) {
+            console.log("todo inside loop is: ", todo)
+            var todoNode = dummyTodo.cloneNode(true);
+            todoNode.id = "todo-" + todo.uid;
+            todoNode.innerHTML = todo.summary;
+            todosEl.appendChild(todoNode);
+        }
+
+    }, 2000)
+}
+function fetchTodos() {
+    console.log("fetchTodos ran");
+    return window.haSend({
+        type: 'call_service',
+        domain: 'todo',
+        service: 'get_items',
+        target: { entity_id: entityId },
+        return_response: true
+    }).then(function(result) {
+        console.log("fetchTodos got: ", result);
+        var todos = result.response
+        && result.response[entityId]
+        && result.response[entityId].items;
+        renderTodos(todos || []);
+    });
+}
+
+function markComplete(id) {
+    return window.haSend({
+        type: 'call_service',
+        domain: 'todo',
+        service: 'update_item',
+        service_data: { item: id, status: 'completed' },
+        target: { entity_id: entityId },
+        return_response: true
+    }).then(function(result) {
+        var sucess = result.response
+        && result.response[entityId]
+        && result.response[entityId].forecast;
+        renderForecast(forecasts || []);
+    });
+}
+
+function completeAll() {
+    return window.haSend({
+        type: 'call_service',
+        domain: 'weather',
+        service: 'get_forecasts',
+        service_data: { type: {{ .ForecastInterval | default "daily" }} },
+        target: { entity_id: entityId },
+        return_response: true
+    }).then(function(result) {
+        var forecasts = result.response
+        && result.response[entityId]
+        && result.response[entityId].forecast;
+        renderForecast(forecasts || []);
+    });
+}
+
+function deleteCompleted() {
+    return window.haSend({
+        type: 'call_service',
+        domain: 'weather',
+        service: 'get_forecasts',
+        service_data: { type: {{ .ForecastInterval | default "daily" }} },
+        target: { entity_id: entityId },
+        return_response: true
+    }).then(function(result) {
+        var forecasts = result.response
+        && result.response[entityId]
+        && result.response[entityId].forecast;
+        renderForecast(forecasts || []);
+    });
+}
+
+window.entityListeners[entityId] = function(state, attributes) {
+    if (state !== undefined) { console.log("got for todo: ", state, attributes) }
+};
+
+window.onHaReady.push(function() {
+    fetchTodos();
+    setInterval(fetchTodos, POLL_INTERVAL);
+});
+
+{{/* tryFetch(); */}}
+}());
+</script>
+{{ end }}
