@@ -1,9 +1,7 @@
-# v0.6.3
+# v0.6.4
 
 ## Hotfix:
-- Fixed initial forecast fetch for weather
-- Removed a duplicated script
-- Put some scripts I missed into IIFEs
+- Adjusted some margins
 
 ---
 # Previous minor update
