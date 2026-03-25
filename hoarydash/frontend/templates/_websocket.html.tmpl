@@ -58,12 +58,13 @@
       if (window.onHaReady == []) { return ;}
       for (cb of window.onHaReady) {
         console.log("onhaready callback is: ", cb)
-        cb()
+        if (cb) { cb(); }
+        
       }
     };
 
     ws.onmessage = function(evt) {
-      console.log("Raw message from server ", evt.data);
+      {{/* console.log("Raw message from server ", evt.data); */}}
       var msg;
       if (evt.data == "reload") {
         location.reload()

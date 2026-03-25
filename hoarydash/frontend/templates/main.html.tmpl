@@ -62,20 +62,13 @@
     {{end}}
 
     <div class="main-container">
-    {{if .Dashboard.Entities}}
-        {{template "entities" .Dashboard}}
-    {{else}}
-        {{/* Take up space inside flexbox */}}
-        <div style="display: hidden;"></div>
-    {{end}}
-    
-    <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
-        {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
-            {{template "dateclock" (dict
-            "Localization" .Config.Localization
-            "Dateclock" .Dashboard.Dateclock
-            )}}
+        {{if .Dashboard.Entities}}
+            {{template "entities" .Dashboard}}
+        {{else}}
+            {{/* Take up space inside flexbox */}}
+            <div style="display: hidden;"></div>
         {{end}}
+        
         <style>
             .center-container {
                 display: -webkit-box;
@@ -91,43 +84,26 @@
             .center-container > div {
                 margin: 0 2rem 0 2rem;
             }
-            .widgets-container {
-                display: flex;
-                flex-direction: column;
-                {{if .Dashboard.Theme.Widgets.FontSize}}
-                    font-size: {{.Dashboard.Theme.Widgets.FontSize}}px;
-                {{end}}
-                min-width: 18em;
-            }
-            .widgets-container > div {
-                margin: 5px 0;
-                {{template "create-card-theme" .Dashboard.Theme.Widgets}}
-            }
         </style>
-        <div class="widgets-container">
-        {{$theme := .Dashboard.Theme}}
-        {{range .Dashboard.Widgets}}
-            {{$widgetDict := (dict
-                    "Theme" $theme
-                    "Entity" .
+        <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
+            {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
+                {{template "dateclock" (dict
+                "Localization" .Config.Localization
+                "Dateclock" .Dashboard.Dateclock
                 )}}
-            {{if eq (domain .EntityID) "weather"}}
-                {{template "_weather_widget" ($widgetDict)}}
-            {{else if eq (domain .EntityID) "media_player"}}
-                {{template "_media_widget" ($widgetDict)}}
             {{end}}
-        {{end}}
+            {{if .Dashboard.Widgets}}
+                {{template "widgets" .Dashboard}}
+            {{end}}
+            
         </div>
+        {{if .Dashboard.Sensors}}
+            {{template "sensors" .Dashboard}}
+        {{else}}
+            {{/* Take up space inside flexbox */}}
+            <div style="display: hidden;"></div>
+        {{end}}
     </div>
-    
-    {{if .Dashboard.Sensors}}
-        {{template "sensors" .Dashboard}}
-    {{else}}
-        {{/* Take up space inside flexbox */}}
-        <div style="display: hidden;"></div>
-    {{end}}
-    </div>
-
     {{template "screenonlock" .}}
 
     {{if .Dashboard.Nightlight.Enabled }}
