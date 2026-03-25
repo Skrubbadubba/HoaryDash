@@ -1,7 +1,7 @@
-# v0.6.5
+# v0.6.6
 
-## Features:
-- New todo widget
+## Hotfix:
+- Show friendly name of todo list in header
 
 ---
 # Previous minor update

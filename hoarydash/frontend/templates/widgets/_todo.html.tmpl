@@ -349,6 +349,9 @@ function stateEventListener(state, attributes) {
             // Toggle back last check
             lastCheckedNode.checked = !lastCheckedNode.checked;
         }
+        if (attributes !== undefined) {
+            document.getElementById("todo-name").textContent = attributes.friendly_name;
+        }
         fetchTodos();
     }
 }
