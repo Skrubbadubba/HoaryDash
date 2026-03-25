@@ -59,3 +59,6 @@ tags:
 
 docker:
     docker compose up --build
+
+extract-mdi:
+    cd hoarydash && sudo sh -c 'docker build --target icons -t mdi-extract . && docker run --rm mdi-extract cat /build/mdi.json > mdi.json'
