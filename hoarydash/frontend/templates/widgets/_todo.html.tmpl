@@ -135,25 +135,63 @@
 
     .todo {
         list-style: none;
-        margin: 0 0.1em 0 0.1em;
+        margin: 0.25em 0.1em 0 0.1em;
     }
     #todo-template {
         display: none;
     }
 
     .todo-label {
+        display: flex;
+        align-items: center;
         cursor: pointer;
     }
 
     .todo-checkbox {
-        margin-right: 8px;
+        display: none;
     }
 
-    .todo-text {
-        vertical-align: middle;
+    .todo-checkmark {
+        width: 1.2em;
+        height: 1.2em;
+        min-width: 1.2em;
+
+        border: 0.08em solid rgba(200,200,200,0.6);
+        border-radius: 0.3em;
+        background-color: rgba(200,200,200,0.2);
+        margin-right: 0.6em;
+
+        position: relative;
     }
 
-    .todo-checkbox:checked + .todo-text {
+    .todo-checkmark::after {
+        content: "";
+        position: absolute;
+
+        left: 0.33em;
+        top: 0.15em;
+
+        width: 0.25em;
+        height: 0.5em;
+
+        border: solid #4caf50;
+        border-width: 0 0.19em 0.19em 0;
+
+        transform: rotate(45deg);
+        display: none;
+    }
+
+    .todo-checkbox:checked + .todo-checkmark::after {
+        display: block;
+    }
+
+    .todo-checkbox:checked + .todo-checkmark {
+        background: rgba(80, 200, 120, 0.3);
+        border-color: #4caf50;
+    }
+
+    /* Strike-through when checked */
+    .todo-checkbox:checked ~ .todo-text {
         text-decoration: line-through;
         color: #888;
     }
@@ -190,10 +228,12 @@
         </div>
         <ol class="todos" id="todos-{{.Entity.EntityID}}">
             <li class="todo" id="todo-template">
-            <label class="todo-label">
-                <input type="checkbox" class="todo-checkbox">
-                <span class="todo-text">template</span>
-            </label></li>
+                <label class="todo-label">
+                    <input type="checkbox" class="todo-checkbox">
+                    <span class="todo-checkmark"></span>
+                    <span class="todo-text">dummy</span>
+                </label>
+            </li>
         </ol>
     </div>
 </div>

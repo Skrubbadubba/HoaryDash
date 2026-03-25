@@ -1,7 +1,6 @@
-# v0.6.6
+# v0.6.7
 
-## Hotfix:
-- Show friendly name of todo list in header
+- Custom checkbox in todos
 
 ---
 # Previous minor update
