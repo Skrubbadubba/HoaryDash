@@ -55,7 +55,9 @@
         type: 'subscribe_entities',
         entity_ids: entityIds
       }));
-      for (cb in window.onHaReady) {
+      if (window.onHaReady == []) { return ;}
+      for (cb of window.onHaReady) {
+        console.log("onhaready callback is: ", cb)
         cb()
       }
     };

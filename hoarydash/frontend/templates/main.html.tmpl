@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <script>
+        (function(){
         var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
         var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
@@ -37,6 +38,7 @@
             };
             xhr.send();
         };
+        }());
     </script>
     {{template "websocket"}}
     {{template "base-style" .Dashboard}}
@@ -55,8 +57,6 @@
     </style>
 </head>
 <body>
-    {{template "websocket" .}}
-    
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}

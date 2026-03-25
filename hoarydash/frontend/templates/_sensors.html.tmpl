@@ -79,22 +79,24 @@
 </div>
 
 <script>
-  var sensors = document.getElementById("sensors-container").children
-  var firstEl = true
-  var widest = 0
-  for (var i = 0; i < sensors.length; i+=2)  { // Every other element to skip the script tags
-    if (firstEl) {
-      sensors[i].style.margin = "0px"
-      firstEl = false
+  (function(){
+    var sensors = document.getElementById("sensors-container").children
+    var firstEl = true
+    var widest = 0
+    for (var i = 0; i < sensors.length; i+=2)  { // Every other element to skip the script tags
+      if (firstEl) {
+        sensors[i].style.margin = "0px"
+        firstEl = false
+      }
+      currentWidth = sensors[i].clientWidth
+      if (currentWidth > widest) {
+        widest = currentWidth
+      }
     }
-    currentWidth = sensors[i].clientWidth
-    if (currentWidth > widest) {
-      widest = currentWidth
+    for (var i = 0; i < sensors.length; i+=2)  {
+      sensors[i].style.minWidth = (widest + 2).toString() + "px"
     }
-  }
-  for (var i = 0; i < sensors.length; i+=2)  {
-    sensors[i].style.minWidth = (widest + 2).toString() + "px"
-  }
+  }());
 </script>
 
 {{end}}
