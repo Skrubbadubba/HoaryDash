@@ -12,9 +12,9 @@
         display: -webkit-box;
         display: -webkit-flex;
         display: flex;
-        -webkit-box-align: stretch;
-        -webkit-align-items: stretch;
-        align-items: stretch;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
         justify-content: space-between;
         padding: 0.7em 0;
         {{if enabledByDefault .Entity.InternalBorders}}
@@ -45,18 +45,80 @@
     }
 
     .todo-controls {
-        display: -webkit-box;
-        display: -webkit-flex;
         display: flex;
-        -webkit-box-align: stretch;
-        -webkit-align-items: stretch;
-        align-items: stretch;
-        padding: 0.7em 0;
-        justify-content: end;
+        font-size: 0.8em;
     }
+
+    .todo-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0.5em 0.7em;
+        font-size: 0.9em;
+
+        border-radius: 0.6em;
+        border: none;
+
+        cursor: pointer;
+
+        background: rgba(255,255,255,0.08);
+        color: inherit;
+    }
+
+    .todo-btn span {
+        margin-left: 0.3em;
+    }
+
+    .todo-btn.complete {
+        background: rgba(80, 200, 120, 0.2);
+    }
+
+    .todo-btn.delete {
+        background: rgba(255, 80, 80, 0.2);
+        margin: 0 0.4em;
+    }
+
 
     .todo-list {
         padding: 0.4em 0.5em;
+        font-size: 1.1em;
+    }
+    .todo-add {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        font-size: 0.9em;
+    }
+
+    .todo-input {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+        padding: 0.4em;
+        border: 0.125em solid rgba(120, 180, 255, 0.2);
+        background: transparent;
+        color: inherit;
+        outline: none;
+        font-size: 1em;
+    }
+
+    .todo-input::placeholder {
+        color: rgba(200, 200, 200, 0.5);
+    }
+
+    .todo-add-btn {
+        margin-left: 0.4em;
+        padding: 0 0.6em;
+        font-size: 1em;
+        cursor: pointer;
+        border: 0.125em solid rgba(120, 180, 255, 0.2);
+        background: transparent;
+        color: inherit;
+    }
+
+    .todo-add-btn:active {
+        opacity: 0.6;
     }
     .todos {
         display: -webkit-box;
@@ -75,8 +137,25 @@
         list-style: none;
         margin: 0 0.1em 0 0.1em;
     }
-    #todo-dummy {
-        display: block;
+    #todo-template {
+        display: none;
+    }
+
+    .todo-label {
+        cursor: pointer;
+    }
+
+    .todo-checkbox {
+        margin-right: 8px;
+    }
+
+    .todo-text {
+        vertical-align: middle;
+    }
+
+    .todo-checkbox:checked + .todo-text {
+        text-decoration: line-through;
+        color: #888;
     }
 </style>
 
@@ -86,16 +165,35 @@
             <span class="todo-icon" id="todo-icon"></span>
             <span class="todo-name" id="todo-name">Todos</span>
             <span> - </span>
-            <span class="todo-statistic">0/10</span>
+            <span class="todo-statistic" id="todo-statistic">0/0</span>
         </div>
         <div class="todo-controls">
-            <button class="todo-all-complete btn">Complete All</button>
-            <button class="todo-delete-completed btn">Delete Completed</button>
+            <button id="todo-all-complete" class="todo-btn complete">
+                ✓ <span>All</span>
+            </button>
+            <button id="todo-delete-completed" class="todo-btn delete">
+                🗑 <span>Done</span>
+            </button>
         </div>
     </div>
-    <div class="todo-list">Loading...
+    <div class="todo-list">
+        <div class="todo-add">
+            <input 
+                type="text" 
+                id="todo-input" 
+                class="todo-input" 
+                placeholder="Add a todo..."
+            >
+            <button id="todo-add-btn" class="todo-add-btn">
+                ＋
+            </button>
+        </div>
         <ol class="todos" id="todos-{{.Entity.EntityID}}">
-            <li class="todo" id="todo-dummy">dummy</li>
+            <li class="todo" id="todo-template">
+            <label class="todo-label">
+                <input type="checkbox" class="todo-checkbox">
+                <span class="todo-text">template</span>
+            </label></li>
         </ol>
     </div>
 </div>
@@ -110,28 +208,65 @@ if (!entityId) { return; }
 var locale   = window.CONFIG.locale;
 var timezone = window.CONFIG.timezone;
 
+var statisticEl = document.getElementById("todo-statistic");
 var todosEl = document.getElementById("todos-" + entityId);
-var dummyTodo = document.getElementById("todo-dummy");
-var todoIds = [];
+var dummyTodo = document.getElementById("todo-template");
+var todoIds = new Set();
+var numCompleted = 0;
+var expectedCompleted = 0;
+var lastCheckedNode;
+
+function updateTodo(todo, node) {
+    node.id = "todo-" + todo.uid;
+
+    var checkboxNode = node.querySelector(".todo-checkbox");
+    var textNode = node.querySelector(".todo-text");
+    textNode.textContent = todo.summary;
+    checkboxNode.checked = (todo.status === "completed");
+    checkboxNode.onchange = function () {
+        setStatus(todo.uid, checkboxNode.checked);
+        lastCheckedNode = checkboxNode;
+    };
+}
 
 function renderTodos(todos) {
-    setTimeout(function() {
-        console.log("renderTodos ran with: ", todos);
-        console.log("todosEl to append to is: ", todosEl)
-        console.log("dummy todo is: ", dummyTodo)
-        for (todo of todos) {
-            console.log("todo inside loop is: ", todo)
-            var todoNode = dummyTodo.cloneNode(true);
-            todoNode.id = "todo-" + todo.uid;
-            todoNode.innerHTML = todo.summary;
-            todosEl.appendChild(todoNode);
+    console.log("renderTodos ran with: ", todos);
+    console.log("todosEl to append to is: ", todosEl)
+    console.log("dummy todo is: ", dummyTodo)
+    for (todo of todos) {
+        console.log("todo inside loop is: ", todo)
+        if (todoIds.has(todo.uid)) {
+            updateTodo(todo, document.getElementById("todo-" + todo.uid));
+            continue;
         }
 
-    }, 2000)
+        var newTodo = dummyTodo.cloneNode(true);
+        updateTodo(todo, newTodo);
+        todosEl.appendChild(newTodo);
+    }
+
 }
+
+function renderStatistic() {
+    statisticEl.textContent = numCompleted + "/" + todoIds.size;
+}
+    
+function clearOldTodos() {
+    var nodes = todosEl.querySelectorAll("li");
+    console.log("nodes in clear olöd: ", nodes)
+    for (var i = nodes.length - 1; i >= 1; i--) { // stop at 1 to not remove todo template
+        var node = nodes[i];
+        var id = node.id.slice(5);
+
+        if (!todoIds.has(id)) {
+            node.parentNode.removeChild(node);
+        }
+    }
+}
+
 function fetchTodos() {
     console.log("fetchTodos ran");
-    return window.haSend({
+    window.haSend({
         type: 'call_service',
         domain: 'todo',
         service: 'get_items',
@@ -143,67 +278,101 @@ function fetchTodos() {
         && result.response[entityId]
         && result.response[entityId].items;
         renderTodos(todos || []);
+
+        numCompleted = 0;
+        todoIds.clear();
+        newTodos = new Set()
+        for (todo of todos) {
+            todoIds.add(todo.uid);
+            if (todo.status == "completed") {
+                ++numCompleted;
+            }
+        }
+        clearOldTodos();
+        renderStatistic();
     });
 }
 
-function markComplete(id) {
-    return window.haSend({
+function addTodo(name) {
+    window.haSend({
+        type: 'call_service',
+        domain: 'todo',
+        service: 'add_item',
+        service_data: { item: name, },
+        target: { entity_id: entityId },
+    });
+}
+
+function setStatus(id, status) {
+    if (status) {
+        ++expectedCompleted;
+    } else {
+        --expectedCompleted;
+    }
+    var statusStr =  status ? "completed" : "needs_action"
+    
+    window.haSend({
         type: 'call_service',
         domain: 'todo',
         service: 'update_item',
-        service_data: { item: id, status: 'completed' },
+        service_data: { item: id, status: statusStr },
         target: { entity_id: entityId },
-        return_response: true
-    }).then(function(result) {
-        var sucess = result.response
-        && result.response[entityId]
-        && result.response[entityId].forecast;
-        renderForecast(forecasts || []);
     });
 }
 
 function completeAll() {
-    return window.haSend({
-        type: 'call_service',
-        domain: 'weather',
-        service: 'get_forecasts',
-        service_data: { type: {{ .ForecastInterval | default "daily" }} },
-        target: { entity_id: entityId },
-        return_response: true
-    }).then(function(result) {
-        var forecasts = result.response
-        && result.response[entityId]
-        && result.response[entityId].forecast;
-        renderForecast(forecasts || []);
-    });
+    // Dont listen for events so as to not refetch
+    // all todos on every set as completed.
+    window.entityListeners[entityId] = null;
+    for (id of todoIds) {
+        setStatus(id, true);
+    }
+    window.entityListeners[entityId] = stateEventListener;
 }
 
 function deleteCompleted() {
-    return window.haSend({
+    window.haSend({
         type: 'call_service',
-        domain: 'weather',
-        service: 'get_forecasts',
-        service_data: { type: {{ .ForecastInterval | default "daily" }} },
+        domain: 'todo',
+        service: 'remove_completed_items',
         target: { entity_id: entityId },
-        return_response: true
-    }).then(function(result) {
-        var forecasts = result.response
-        && result.response[entityId]
-        && result.response[entityId].forecast;
-        renderForecast(forecasts || []);
     });
+    // HA does not send an event after this service
+    fetchTodos()
 }
 
-window.entityListeners[entityId] = function(state, attributes) {
-    if (state !== undefined) { console.log("got for todo: ", state, attributes) }
-};
+function stateEventListener(state, attributes) {
+    if (state !== undefined) { 
+        console.log("got for todo: ", state, attributes);
+        if (lastCheckedNode && state != expectedCompleted) {
+            console.error("HA did not expected number of completed todos");
+            // Toggle back last check
+            lastCheckedNode.checked = !lastCheckedNode.checked;
+        }
+        fetchTodos();
+    }
+}
+
+window.entityListeners[entityId] = stateEventListener;
 
 window.onHaReady.push(function() {
-    fetchTodos();
     setInterval(fetchTodos, POLL_INTERVAL);
 });
 
-{{/* tryFetch(); */}}
+var delComButton = document.getElementById("todo-delete-completed");
+var comAllButton = document.getElementById("todo-all-complete");
+var input = document.getElementById("todo-input");
+var addButton = document.getElementById("todo-add-btn");
+
+delComButton.onclick = deleteCompleted;
+comAllButton.onclick = completeAll;
+addButton.onclick = function () {
+    if (input.value.trim() !== "") {
+        addTodo(input.value);
+        input.value = "";
+    }
+};
+
 }());
 </script>
 {{ end }}
