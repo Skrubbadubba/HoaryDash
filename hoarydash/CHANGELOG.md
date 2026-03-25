@@ -1,7 +1,7 @@
-# v0.6.4
+# v0.6.5
 
-## Hotfix:
-- Adjusted some margins
+## Features:
+- New todo widget
 
 ---
 # Previous minor update
