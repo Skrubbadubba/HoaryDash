@@ -16,9 +16,11 @@
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
             entity_ids: [
-                    {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
-                    {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
-                    {{range .Dashboard.Widgets}}"{{.EntityID}}",{{end}}  
+                {{range .Dashboard.Screens}}
+                    {{range .Sensors}}"{{.EntityID}}",{{end}}
+                    {{range .Entities}}"{{.EntityID}}",{{end}}
+                    {{range .Widgets}}"{{.EntityID}}",{{end}}  
+                {{end}}
                 ],
             locale: locale,
             timezone: timezone,
@@ -41,9 +43,30 @@
         }());
     </script>
     {{template "websocket"}}
-    {{template "base-style" .Dashboard}}
-    {{template "btn-style" .Dashboard.Theme}}
     <style>
+        * {
+            {{if enabledByDefault .Dashboard.Animations}}
+            -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
+            transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+            {{else}}
+            -webkit-transition: none;
+            transition: none;
+            {{end}}
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:focus { outline: none; }
+
+        
+        .screens {
+            overflow: hidden;
+        }
+        .screen {
+            width: 100vw;
+            height: 100vh;
+        }
         .main-container {
             display: flex;
             -webkit-display: flex;
@@ -55,20 +78,16 @@
             padding: 1.5em 0 3em 0;
         }
     </style>
-</head>
+    </head>
 <body>
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
-
-    <div class="main-container">
-        {{if .Dashboard.Entities}}
-            {{template "entities" .Dashboard}}
-        {{else}}
-            {{/* Take up space inside flexbox */}}
-            <div style="display: hidden;"></div>
-        {{end}}
-        
+    <div class="screens">
+    {{$config := .Config}}
+    {{range .Dashboard.Screens}}
+        {{template "base-style" .}}
+        {{template "btn-style" .Theme}}
         <style>
             .center-container {
                 display: -webkit-box;
@@ -84,31 +103,49 @@
             .center-container > div {
                 margin: 0 2rem 0 2rem;
             }
+            #screen-{{.Name}}-container .btn .icon {
+                font-size: 2em;
+            }
         </style>
-        <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
-            {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
-                {{template "dateclock" (dict
-                "Localization" .Config.Localization
-                "Dateclock" .Dashboard.Dateclock
-                )}}
-            {{end}}
-            {{if .Dashboard.Widgets}}
-                {{template "widgets" .Dashboard}}
-            {{end}}
-            
-        </div>
-        {{if .Dashboard.Sensors}}
-            {{template "sensors" .Dashboard}}
-        {{else}}
-            {{/* Take up space inside flexbox */}}
-            <div style="display: hidden;"></div>
+        <div id="screen-{{.Name}}-container" class="screen">
+            {{/* <p>{{json .}}</p> */}}
+            <div class="main-container">
+                {{if .Entities}}
+                    {{template "entities" .}}
+                {{else}}
+                    {{/* Take up space inside flexbox */}}
+                    <div style="display: hidden;"></div>
+                {{end}}
+                
+                
+                <div class="center-container" style="order: {{.Order.Widgets}}">
+                    {{if enabledByDefault .Dateclock.Enabled}}
+                        {{template "dateclock" (dict
+                        "Localization" $config.Localization
+                        "Dateclock" .Dateclock
+                        )}}
+                    {{end}}
+                    {{if .Widgets}}
+                        {{template "widgets" .}}
+                    {{end}}
+                
+                </div>
+                {{if .Sensors}}
+                    {{template "sensors" .}}
+                {{else}}
+                    {{/* Take up space inside flexbox */}}
+                    <div style="display: hidden;"></div>
+                {{end}}
+            </div>
+        {{template "screenonlock" $config}}
+        
+        {{if enabledByDefault .Nightlight.Enabled}}
+            {{template "nightlight" .}}
         {{end}}
-    </div>
-    {{template "screenonlock" .}}
-
-    {{if .Dashboard.Nightlight.Enabled }}
-        {{template "nightlight" .Dashboard}}
+        </div>
     {{end}}
+    </div>
+
 
 </body>
 </html>

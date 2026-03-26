@@ -23,52 +23,59 @@ var mdiData []byte
 var mdiIcons map[string]string
 
 type Dashboard struct {
-	Nightlight struct {
-		Enabled        bool
-		Color          template.CSS
-		OverrideColors bool `yaml:"override_colors"`
-	}
-	Dateclock struct {
-		Enabled       *bool
-		Hour12        bool
-		CapitaliseDay bool `yaml:"capitalise_day"`
-		ShowSeconds   bool `yaml:"show_seconds"`
-	}
-	Widgets []struct {
-		EntityID        string `yaml:"entity_id"`
-		FontSize        string `yaml:"font_size"` // Per widget override
-		InternalBorders *bool  `yaml:"internal_borders"`
-		// Weather-specific
-		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-		ForecastTimes    *int              `yaml:"forecast_times"`
-		// Media-specific
-		ShowVolume *bool
-		ShowAlbum  *bool
-	}
-	Sensors []struct {
-		EntityID string `yaml:"entity_id"`
-		Label    string
-		Unit     string
-	}
-	Entities []Entity
-	Order    struct {
-		Entities int
-		Widgets  int
-		Sensors  int
-	}
-	Animations *bool
-	Theme      struct {
-		BodyBackground     template.CSS `yaml:"body_background"`
-		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Cards              CardTheme    // Default for widgets, entities and sensors
-		Entities           CardTheme
-		Sensors            CardTheme
-		Widgets            CardTheme
-		ButtonBackground   template.CSS `yaml:"button_background"`
-		FontColor          template.CSS `yaml:"font_color"`
-		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-		IconColor          template.CSS `yaml:"icon_color"`
-		BaseFontSize       template.CSS `yaml:"base_font_size"`
+	Animations          *bool
+	ConnectedBackground *bool
+	Screens             []struct {
+		Position   string
+		Navigation *string
+		Name       string
+		Icon       *string
+		Nightlight struct {
+			Enabled        bool
+			Color          template.CSS
+			OverrideColors bool `yaml:"override_colors"`
+		}
+		Dateclock struct {
+			Enabled       *bool
+			Hour12        bool
+			CapitaliseDay bool `yaml:"capitalise_day"`
+			ShowSeconds   bool `yaml:"show_seconds"`
+		}
+		Widgets []struct {
+			EntityID        string `yaml:"entity_id"`
+			FontSize        string `yaml:"font_size"` // Per widget override
+			InternalBorders *bool  `yaml:"internal_borders"`
+			// Weather-specific
+			ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+			ForecastTimes    *int              `yaml:"forecast_times"`
+			// Media-specific
+			ShowVolume *bool
+			ShowAlbum  *bool
+		}
+		Sensors []struct {
+			EntityID string `yaml:"entity_id"`
+			Label    string
+			Unit     string
+		}
+		Entities []Entity
+		Order    struct {
+			Entities int
+			Widgets  int
+			Sensors  int
+		}
+		Theme struct {
+			BodyBackground     template.CSS `yaml:"body_background"`
+			BackgroundGradient template.CSS `yaml:"background_gradient"`
+			Cards              CardTheme    // Default for widgets, entities and sensors
+			Entities           CardTheme
+			Sensors            CardTheme
+			Widgets            CardTheme
+			ButtonBackground   template.CSS `yaml:"button_background"`
+			FontColor          template.CSS `yaml:"font_color"`
+			SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+			IconColor          template.CSS `yaml:"icon_color"`
+			BaseFontSize       template.CSS `yaml:"base_font_size"`
+		}
 	}
 }
 
@@ -102,6 +109,33 @@ func (f *ForecastInterval) UnmarshalYAML(value *yaml.Node) error {
 	*f = ForecastInterval(s)
 	if !f.Valid() {
 		return fmt.Errorf("invalid forecast_interval %q, must be daily, twice_daily or hourly", s)
+	}
+	return nil
+}
+
+type Navigation string
+
+const (
+	NavigationNavbar Navigation = "navbar"
+	NavigationSwipe  Navigation = "swipe"
+)
+
+func (n Navigation) Valid() bool {
+	switch n {
+	case NavigationNavbar, NavigationSwipe:
+		return true
+	}
+	return false
+}
+
+func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return err
+	}
+	*n = Navigation(s)
+	if !n.Valid() {
+		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'")
 	}
 	return nil
 }
@@ -266,6 +300,14 @@ func BuildDash() {
 				return r > 127
 			}
 			return false
+		},
+		"json": func(j interface{}) string { // For debugging
+			var out []byte
+			out, err = json.Marshal(j)
+			if err != nil {
+				return ""
+			}
+			return string(out)
 		},
 	}
 
