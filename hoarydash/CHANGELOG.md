@@ -1,6 +1,6 @@
-# v0.6.7
+# v0.6.8
 
-- Custom checkbox in todos
+- Use mdi icons
 
 ---
 # Previous minor update
