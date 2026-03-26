@@ -25,17 +25,31 @@ var mdiIcons map[string]string
 type Dashboard struct {
 	Animations          *bool
 	ConnectedBackground *bool
-	Screens             []struct {
+	Screenonlock        *bool
+	Nightlight          struct {
+		Enabled        *bool
+		Color          template.CSS
+		OverrideColors bool `yaml:"override_colors"`
+	}
+	Theme struct {
+		BodyBackground     template.CSS `yaml:"body_background"`
+		BackgroundGradient template.CSS `yaml:"background_gradient"`
+		Cards              CardTheme    // Default for widgets, entities and sensors
+		Entities           CardTheme
+		Sensors            CardTheme
+		Widgets            CardTheme
+		ButtonBackground   template.CSS `yaml:"button_background"`
+		FontColor          template.CSS `yaml:"font_color"`
+		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+		IconColor          template.CSS `yaml:"icon_color"`
+		BaseFontSize       template.CSS `yaml:"base_font_size"`
+	}
+	Screens []struct {
 		Position   string
 		Navigation *string
 		Name       string
 		Icon       *string
-		Nightlight struct {
-			Enabled        bool
-			Color          template.CSS
-			OverrideColors bool `yaml:"override_colors"`
-		}
-		Dateclock struct {
+		Dateclock  struct {
 			Enabled       *bool
 			Hour12        bool
 			CapitaliseDay bool `yaml:"capitalise_day"`
@@ -62,19 +76,6 @@ type Dashboard struct {
 			Entities int
 			Widgets  int
 			Sensors  int
-		}
-		Theme struct {
-			BodyBackground     template.CSS `yaml:"body_background"`
-			BackgroundGradient template.CSS `yaml:"background_gradient"`
-			Cards              CardTheme    // Default for widgets, entities and sensors
-			Entities           CardTheme
-			Sensors            CardTheme
-			Widgets            CardTheme
-			ButtonBackground   template.CSS `yaml:"button_background"`
-			FontColor          template.CSS `yaml:"font_color"`
-			SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-			IconColor          template.CSS `yaml:"icon_color"`
-			BaseFontSize       template.CSS `yaml:"base_font_size"`
 		}
 	}
 }

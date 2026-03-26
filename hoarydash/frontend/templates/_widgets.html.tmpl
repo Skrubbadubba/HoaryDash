@@ -16,7 +16,7 @@
 
 <div class="widgets-container">
 {{$theme := .Theme}}
-{{range .Widgets}}
+{{range .Screen.Widgets}}
     {{$widgetDict := (dict
             "Theme" $theme
             "Entity" .

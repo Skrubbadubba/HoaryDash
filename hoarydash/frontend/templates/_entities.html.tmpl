@@ -17,8 +17,8 @@
         {{template "create-card-theme" .Theme.Entities}}
     }
 </style>
-<div id="entities-container" style="order: {{.Order.Entities}}">
-{{$allDomains := .Entities | entityIDs | domains}}
+<div id="entities-container" style="order: {{.Screen.Order.Entities}}">
+{{$allDomains := .Screen.Entities | entityIDs | domains}}
 {{if anyOfIn $allDomains "switch" "input_boolean"}}
     {{template "toggle-style" .Theme}}
 {{end}}
@@ -29,7 +29,7 @@
     {{template "button-style" .Theme}}
 {{end}}
 
-{{range .Entities}}
+{{range .Screen.Entities}}
     {{if domainIn .EntityID "switch" "input_boolean"}}
         {{template "toggle" .}}
     {{else if domainIn .EntityID "light" "fan"}}

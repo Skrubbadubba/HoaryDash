@@ -1,7 +1,9 @@
 {{define "base-style"}}
 <style>
-    #screen-{{.Name}}-container {
+    :root {
         font-size: {{.Theme.BaseFontSize | default "18"}}px;
+    }
+    body {
         background-color: {{.Theme.BodyBackground | default "#000000" | css}};
         background: {{.Theme.BackgroundGradient}};
         color: {{.Theme.FontColor | default "#ffffff" | css}};
@@ -14,17 +16,41 @@
         justify-content: center;
         -webkit-align-items: center;
         align-items: center;
-        height: 100vh;
         overflow: hidden;
     }
-    #screen-{{.Name}}-container .card {
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+        
+    * {
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    button:focus { outline: none; }
+
+    .card {
         border-radius: {{.Theme.Cards.BorderRadius | default "0.5em"}};
         {{if enabledByDefault .Theme.Cards.Borders}}
         border: 0.125em solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
         {{end}}
         background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
     }
-    #screen-{{.Name}}-container .icon {
+    .icon {
         height: 1em;
         width: 1em;
         fill: {{.Theme.IconColor | default "#e5e5e5" | css}}

@@ -56,8 +56,8 @@
   }
 </style>
 
-<div id="sensors-container" style="order: {{.Order.Sensors}}">
-  {{range .Sensors}}
+<div id="sensors-container" style="order: {{.Screen.Order.Sensors}}">
+  {{range .Screen.Sensors}}
     <div class="sensor-widget card" id="sensor-{{.EntityID}}">
       <div class="sensor-label">{{.Label}}</div>
       <div class="sensor-value" id="sensor-value-{{.EntityID}}">—</div>

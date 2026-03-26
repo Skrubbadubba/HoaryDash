@@ -43,29 +43,45 @@
         }());
     </script>
     {{template "websocket"}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    </head>
+<body>
+    {{if .IsDev}}
+        {{template "isdev"}}
+    {{end}}
+    <div class="screens">
+    {{$config := .Config}}
+    {{$theme := .Dashboard.Theme}}
+    {{template "base-style" .}}
+    {{template "btn-style" .Theme}}
     <style>
-        * {
-            {{if enabledByDefault .Dashboard.Animations}}
-            -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
-            transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
-            {{else}}
-            -webkit-transition: none;
-            transition: none;
-            {{end}}
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        button:focus { outline: none; }
-
-        
         .screens {
-            overflow: hidden;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            width: 100%;
+            height: 100%;
+            overflow-x: scroll;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
+
+        .screens::-webkit-scrollbar {
+            display: none;
+        }
+
         .screen {
-            width: 100vw;
-            height: 100vh;
+            -webkit-flex-shrink: 0;
+            -webkit-box-flex: 0;
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
         .main-container {
             display: flex;
@@ -77,41 +93,30 @@
             width: 100%;
             padding: 1.5em 0 3em 0;
         }
+        .center-container {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            justify-content: space-between;
+            width: 90%;
+            margin-bottom: 1em;
+        }
+        .center-container > div {
+            margin: 0 2rem 0 2rem;
+        }
     </style>
-    </head>
-<body>
-    {{if .IsDev}}
-        {{template "isdev"}}
-    {{end}}
-    <div class="screens">
-    {{$config := .Config}}
     {{range .Dashboard.Screens}}
-        {{template "base-style" .}}
-        {{template "btn-style" .Theme}}
-        <style>
-            .center-container {
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: flex;
-                -webkit-box-align: center;
-                -webkit-align-items: center;
-                align-items: center;
-                justify-content: space-between;
-                width: 90%;
-                margin-bottom: 1em;
-            }
-            .center-container > div {
-                margin: 0 2rem 0 2rem;
-            }
-            #screen-{{.Name}}-container .btn .icon {
-                font-size: 2em;
-            }
-        </style>
         <div id="screen-{{.Name}}-container" class="screen">
             {{/* <p>{{json .}}</p> */}}
             <div class="main-container">
                 {{if .Entities}}
-                    {{template "entities" .}}
+                    {{template "entities" (dict
+                        "Theme" $theme
+                        "Screen" .
+                    )}}
                 {{else}}
                     {{/* Take up space inside flexbox */}}
                     <div style="display: hidden;"></div>
@@ -126,26 +131,69 @@
                         )}}
                     {{end}}
                     {{if .Widgets}}
-                        {{template "widgets" .}}
+                        {{template "widgets" (dict
+                        "Theme" $theme
+                        "Screen" .
+                    )}}
                     {{end}}
                 
                 </div>
                 {{if .Sensors}}
-                    {{template "sensors" .}}
+                    {{template "sensors" (dict
+                        "Theme" $theme
+                        "Screen" .
+                    )}}
                 {{else}}
                     {{/* Take up space inside flexbox */}}
                     <div style="display: hidden;"></div>
                 {{end}}
             </div>
-        {{template "screenonlock" $config}}
-        
-        {{if enabledByDefault .Nightlight.Enabled}}
-            {{template "nightlight" .}}
-        {{end}}
         </div>
     {{end}}
     </div>
+    <script>
+    (function() {
+        var container = document.querySelector('.screens');
+        var currentIndex = 0;
+        var totalScreens = container.querySelectorAll('.screen').length;
+
+        console.log('[swipe] init, screens:', totalScreens, 'container:', container);
+
+        var mc = new Hammer.Manager(container);
+        mc.add(new Hammer.Swipe({
+            direction: Hammer.DIRECTION_HORIZONTAL,
+            threshold: 10,
+            velocity: 0.3
+        }));
+
+        // Enable mouse input for desktop testing
+        mc.set({ inputClass: Hammer.MouseInput });
+
+        mc.on('swipeleft swiperight', function(e) {
+            console.log('[swipe] event:', e.type, 'deltaX:', e.deltaX, 'velocity:', e.velocityX);
+            if (e.type === 'swipeleft' && currentIndex < totalScreens - 1) {
+                console.log("swiped left")
+                currentIndex++;
+            } else if (e.type === 'swiperight' && currentIndex > 0) {
+                console.log("swiped righjt")
+                currentIndex--;
+            }
+            console.log('[swipe] navigating to screen', currentIndex);
+            container.scrollLeft = currentIndex * container.offsetWidth;
+        });
+    }());
+    </script>
 
 
+    {{if enabledByDefault .Dashboard.Screenonlock}}
+        {{template "screenonlock"}}
+    {{end}}
+    {{if or (enabledByDefault .Dashboard.Screenonlock) (enabledByDefault .Dashboard.Nightlight.Enabled)}}
+    {{template "screenonlock-script" $config}}
+    {{end}}
+    {{/* <p>{{json .Dashboard.Nightlight}}</p> */}}
+    {{if enabledByDefault .Dashboard.Nightlight.Enabled}}
+        {{template "nightlight" .}}
+    {{end}}
 </body>
 </html>

@@ -2,6 +2,7 @@
 <style>
     #nightlight-btn {
         position: fixed;
+        transform: translateZ(0);
         bottom: 24px;
         right: 24px;
         {{if not .Nightlight.OverrideColors}}
@@ -97,7 +98,7 @@
     .nightlight-overlay.bright {
         opacity: 0;
         z-index: 10;
-        background-color: {{.Nightlight.Color | default "hsl(22, 100%, 55%)"}};
+        background-color: {{.Nightlight.Color | default "hsl(22, 100%, 55%)" | css}};
     }
     {{/* body.nightlight #dateclock-container {
         color: hsla(22, 100%, 35%, 0.5) !important;

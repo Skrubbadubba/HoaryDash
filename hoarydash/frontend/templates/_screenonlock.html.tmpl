@@ -4,6 +4,7 @@
         position: fixed;
         bottom: 24px;
         left: 24px;
+        transform: translateZ(0);
     }
 
     #screenon-btn.active {
@@ -21,7 +22,8 @@
 <button id="screenon-btn" class="btn" title="Keep screen on">
     {{icon "eye"}}
 </button>
-
+{{end}}
+{{define "screenonlock-script"}}
 <script>
     (function() {
     var previousTimer = '{{ .FullyKiosk.ScreensaverTimeout }}';
