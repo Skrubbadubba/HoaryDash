@@ -439,9 +439,9 @@
         });
     }
 
-    window.entityListeners[entityId] = function (state, attributes) {
+    window.entityListeners[entityId].push(function (state, attributes) {
         mergeUpdate(state, attributes);
-    };
+    });
 
     var MAX_TRIES = 15;
     var tries = 0;

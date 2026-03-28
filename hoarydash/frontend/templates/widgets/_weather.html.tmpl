@@ -341,9 +341,9 @@
     }
   }
 
-  window.entityListeners[entityId] = function(state, attributes) {
+  window.entityListeners[entityId].push(function(state, attributes) {
       if (state !== undefined) { renderCurrent(state, attributes); }
-  };
+  });
 
   window.onHaReady.push(function() {
       fetchTranslations(function() {

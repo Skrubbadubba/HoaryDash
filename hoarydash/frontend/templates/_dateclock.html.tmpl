@@ -1,6 +1,6 @@
-{{define "dateclock"}}
+{{define "dateclock-style"}}
 <style>
-    #dateclock-container {
+    .dateclock-container {
         z-index: 20;
         display: -webkit-flex;
         display: flex;
@@ -24,15 +24,21 @@
         font-weight: 600;
     }
 </style>
-<div id="dateclock-container">
-    <div class="clock" id="clock"></div>
-    <div class="date" id="date"></div>
+{{end}}
+{{define "dateclock"}}
+<div class="dateclock-container">
+    <div class="clock"></div>
+    <div class="date"></div>
 </div>
 <script>
-    (function() {
+    component(function(root) {
+    var clockEl = root.querySelector(".clock")
+    var dateEl = root.querySelector(".date")
+
     var locale = window.CONFIG.locale;
     var timezone = window.CONFIG.timezone;
     var hour12 = {{if .Dateclock.Hour12}}true{{else}}false{{end}};
+
     function updateTime() {
         var now = new Date();
 
@@ -60,12 +66,12 @@
         {{end}}
         var date = now.toLocaleDateString(locale);
 
-        document.getElementById('clock').textContent = time;
-        document.getElementById('date').textContent = day + ', ' + date;
+        clockEl.textContent = time;
+        dateEl.textContent = day + ', ' + date;
     }
 
     setInterval(updateTime, 1000);
     updateTime();
-    }());
+    });
 </script>
 {{end}}

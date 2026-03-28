@@ -1,6 +1,6 @@
 {{define "sensors"}}
 <style>
-  .sensor-widget {
+  .sensor-card {
     display: -webkit-flex;
     display: flex;
     -webkit-flex-direction: column;
@@ -44,7 +44,7 @@
     margin-top: 0.25rem;
   }
 
-  #sensors-container {
+  .sensors-container {
       display: flex;
       -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
       transition: opacity 0.8s ease, margin-bottom 0.5s ease;
@@ -56,47 +56,49 @@
   }
 </style>
 
-<div id="sensors-container" style="order: {{.Screen.Order.Sensors}}">
+<div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
+  {{$screenName := .Screen.Name}}
   {{range .Screen.Sensors}}
-    <div class="sensor-widget card" id="sensor-{{.EntityID}}">
+    <div class="sensor-card card" id="sensor-{{.EntityID}}">
       <div class="sensor-label">{{.Label}}</div>
-      <div class="sensor-value" id="sensor-value-{{.EntityID}}">—</div>
+      <div class="sensor-value">—</div>
       <div class="sensor-unit">{{.Unit}}</div>
     </div>
     <script>
-    (function() {
+    component(function(root) {
       var entityId = '{{.EntityID}}';
-      var el = document.getElementById('sensor-value-' + entityId);
+      var el = root.querySelector('.sensor-value');
     
       function update(state, attrs) {
         el.textContent = state;
       }
     
-      window.entityListeners[entityId] = update
-    })();
+      window.entityListeners[entityId].push(update)
+    });
     </script>
   {{end}}
 </div>
 
 <script>
-  (function(){
-    var sensors = document.getElementById("sensors-container").children
-    var firstEl = true
-    var widest = 0
+  component(function(root) {
+    var sensors = root.children;
+    
+    var firstEl = true;
+    var widest = 0;
     for (var i = 0; i < sensors.length; i+=2)  { // Every other element to skip the script tags
       if (firstEl) {
-        sensors[i].style.margin = "0px"
-        firstEl = false
+        sensors[i].style.margin = "0px";
+        firstEl = false;
       }
-      currentWidth = sensors[i].clientWidth
+      currentWidth = sensors[i].clientWidth;
       if (currentWidth > widest) {
-        widest = currentWidth
+        widest = currentWidth;
       }
     }
     for (var i = 0; i < sensors.length; i+=2)  {
-      sensors[i].style.minWidth = (widest + 2).toString() + "px"
+      sensors[i].style.minWidth = (widest + 2).toString() + "px";
     }
-  }());
+  });
 </script>
 
 {{end}}

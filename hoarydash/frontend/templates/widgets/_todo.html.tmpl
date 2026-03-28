@@ -370,11 +370,11 @@ function setStatus(id, status) {
 function completeAll() {
     // Dont listen for events so as to not refetch
     // all todos on every set as completed.
-    window.entityListeners[entityId] = null;
+    window.entityListeners[entityId][listenersIndex] = null;
     for (id of todoIds) {
         setStatus(id, true);
     }
-    window.entityListeners[entityId] = stateEventListener;
+    window.entityListeners[entityId][listenersIndex] = stateEventListener;
 }
 
 function deleteCompleted() {
@@ -403,7 +403,8 @@ function stateEventListener(state, attributes) {
     }
 }
 
-window.entityListeners[entityId] = stateEventListener;
+window.entityListeners[entityId].push(stateEventListener);
+var listenerIndex = window.entityListeners.length;
 
 window.onHaReady.push(function() {
     setInterval(fetchTodos, POLL_INTERVAL);

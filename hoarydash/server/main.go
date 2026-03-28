@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -23,10 +24,9 @@ var mdiData []byte
 var mdiIcons map[string]string
 
 type Dashboard struct {
-	Animations          *bool
-	ConnectedBackground *bool
-	Screenonlock        *bool
-	Nightlight          struct {
+	Animations   *bool
+	Screenonlock *bool
+	Nightlight   struct {
 		Enabled        *bool
 		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
@@ -45,7 +45,7 @@ type Dashboard struct {
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
 	Screens []struct {
-		Position   string
+		Position   int
 		Navigation *string
 		Name       string
 		Icon       *string
@@ -197,6 +197,8 @@ func BuildDash() {
 		return
 	}
 
+	var tmpl *template.Template
+
 	funcMap := template.FuncMap{
 		"default": func(def any, val any) any {
 			if val == nil {
@@ -310,9 +312,41 @@ func BuildDash() {
 			}
 			return string(out)
 		},
+		"merge": func(maps ...any) (map[string]any, error) {
+			result := map[string]any{}
+			for _, m := range maps {
+				switch v := m.(type) {
+				case map[string]any:
+					for k, val := range v {
+						result[k] = val
+					}
+				default:
+					rv := reflect.ValueOf(m)
+					if rv.Kind() == reflect.Ptr {
+						rv = rv.Elem()
+					}
+					if rv.Kind() != reflect.Struct {
+						return nil, fmt.Errorf("merge: unsupported type %T", m)
+					}
+					rt := rv.Type()
+					for i := 0; i < rv.NumField(); i++ {
+						f := rt.Field(i)
+						if f.IsExported() {
+							result[f.Name] = rv.Field(i).Interface()
+						}
+					}
+				}
+			}
+			return result, nil
+		},
+		"slot": func(name string, data any) (template.HTML, error) {
+			var buf bytes.Buffer
+			err := tmpl.ExecuteTemplate(&buf, name, data)
+			return template.HTML(buf.String()), err
+		},
 	}
 
-	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	if err != nil {
 		log.Printf("Could not return root level templates %v", err)
 		return

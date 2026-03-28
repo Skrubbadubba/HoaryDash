@@ -19,11 +19,11 @@
 </style>
 <div id="entities-container" style="order: {{.Screen.Order.Entities}}">
 {{$allDomains := .Screen.Entities | entityIDs | domains}}
-{{if anyOfIn $allDomains "switch" "input_boolean"}}
+{{if anyOfIn $allDomains "switch" "input_boolean" "light" "fan"}}
     {{template "toggle-style" .Theme}}
 {{end}}
 {{if anyOfIn $allDomains "light" "fan"}}
-    {{template "adjustable-style" .Theme}}
+    {{template "adjustable-chevron-style" .Theme}}
 {{end}}
 {{if anyOfIn $allDomains "button" "input_button" "scene" "script"}}
     {{template "button-style" .Theme}}

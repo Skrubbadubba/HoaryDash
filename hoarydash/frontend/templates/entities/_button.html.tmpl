@@ -80,10 +80,10 @@
   </button>
 </div>
   <script>
-  (function() {
+  component(function(wrapper) {
     var entityId = '{{.EntityID}}';
     var domain = entityId.split('.')[0];
-    var btn = document.getElementById('ha-btn-' + entityId);
+    var btn = wrapper.firstElementChild;
 
     var toggleOrPressMap = {
         'input_button': 'press',
@@ -106,6 +106,6 @@
         target: { entity_id: entityId }
       });
     });
-  })();
+  });
   </script>
 {{end}}

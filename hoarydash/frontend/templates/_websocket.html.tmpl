@@ -9,7 +9,14 @@
   var haSocket = null;
   window.haSocketReady = false;
   var pendingMap = {};
-  window.entityListeners = {}; // Callback dict for calling entities on incoming ws messages
+
+  // Callback dict for calling entities on incoming ws messages
+  // Keys are entity ids, values are list of callbacks
+  window.entityListeners = {};
+  for (id of window.CONFIG.entity_ids) {
+    window.entityListeners[id] = [];
+  } 
+
   window.onHaReady = []; // Callback list for fetching initial state
 
   window.haSend = function(msg) {
@@ -38,8 +45,11 @@
           fields = entity['+'] !== undefined ? entity['+'] : entity;
           state = fields.s !== undefined ? fields.s : undefined;
           attributes = fields.a !== undefined ? fields.a : undefined;
-          var listener = window.entityListeners[entityId];
-          if (listener) { listener(state, attributes); }
+          var listeners = window.entityListeners[entityId];
+          if (!listeners) { continue; }
+          for (listener of  listeners) {
+            if (listener) { listener(state, attributes); }
+          }
       }
   }
   function connect() {

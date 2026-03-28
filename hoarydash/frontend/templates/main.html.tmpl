@@ -53,7 +53,7 @@
     {{$config := .Config}}
     {{$theme := .Dashboard.Theme}}
     {{template "base-style" .}}
-    {{template "btn-style" .Theme}}
+    {{template "btn-style" $theme}}
     <style>
         .screens {
             display: -webkit-box;
@@ -68,7 +68,9 @@
             overflow-x: scroll;
             overflow-y: scroll;
             -webkit-overflow-scrolling: touch;
+            {{if enabledByDefault .Dashboard.Animations}}
             scroll-behavior: smooth;
+            {{end}}
         }
 
         .screens::-webkit-scrollbar {
@@ -108,8 +110,14 @@
             margin: 0 2rem 0 2rem;
         }
     </style>
+    <script>
+        function component(script) {
+            var root = document.currentScript.previousElementSibling;
+            script(root);
+        };
+    </script>
     {{range .Dashboard.Screens}}
-        <div id="screen-{{.Name}}-container" class="screen">
+        <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
             {{/* <p>{{json .}}</p> */}}
             <div class="main-container">
                 {{if .Entities}}
