@@ -133,6 +133,7 @@
                 
                 <div class="center-container" style="order: {{.Order.Widgets}}">
                     {{if enabledByDefault .Dateclock.Enabled}}
+                        {{template "dateclock-style" $theme}}
                         {{template "dateclock" (dict
                         "Localization" $config.Localization
                         "Dateclock" .Dateclock

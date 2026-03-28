@@ -166,26 +166,26 @@
 <div class="weather-container card">
   <div class="weather-main">
     <div class="weather-current">
-      <div class="weather-icon" id="weather-icon">🌡️</div>
+      <div class="weather-icon">🌡️</div>
       <div>
-        <span class="weather-temp" id="weather-temp">--</span><span class="weather-temp-unit">°C</span>
+        <span class="weather-temp">--</span><span class="weather-temp-unit">°C</span>
       </div>
     </div>
     <div class="weather-divider"></div>
     <div class="weather-details">
-      <div class="weather-condition" id="weather-condition">Loading...</div>
+      <div class="weather-condition">Loading...</div>
       <div class="weather-meta">
-        <span id="weather-wind"></span>
-        <span id="weather-humidity"></span>
-        <span id="weather-feels"></span>
+        <span class="weather-wind"></span>
+        <span class="weather-humidity"></span>
+        <span class="weather-feels"></span>
       </div>
     </div>
   </div>
-  <div class="weather-forecast" id="weather-forecast"></div>
+  <div class="weather-forecast"></div>
 </div>
 
 <script>
-(function () {
+component(function(wrapper) {
   var POLL_INTERVAL = 10 * 60 * 1000;
   var entityId = {{.Entity.EntityID}};
   console.log("weather entity id is: ", entityId)
@@ -253,22 +253,22 @@
 
   function renderCurrent(state, attributes) {
     var condLabel = translations[state] || (state || '').replace(/-/g, ' ');
-    document.getElementById('weather-icon').textContent      = iconForCondition(state);
-    document.getElementById('weather-temp').textContent      = round1(attributes.temperature || 0);
-    document.getElementById('weather-condition').textContent = condLabel;
-    document.getElementById('weather-wind').textContent      = attributes.wind_speed
+    wrapper.querySelector('.weather-icon').textContent      = iconForCondition(state);
+    wrapper.querySelector('.weather-temp').textContent      = round1(attributes.temperature || 0);
+    wrapper.querySelector('.weather-condition').textContent = condLabel;
+    wrapper.querySelector('.weather-wind').textContent      = attributes.wind_speed
       ? '💨 ' + attributes.wind_speed + ' ' + (attributes.wind_speed_unit || 'm/s')
       : '';
-    document.getElementById('weather-humidity').textContent  = attributes.humidity
+    wrapper.querySelector('.weather-humidity').textContent  = attributes.humidity
       ? '💧 ' + attributes.humidity + '%'
       : '';
-    document.getElementById('weather-feels').textContent     = attributes.apparent_temperature
+    wrapper.querySelector('.weather-feels').textContent     = attributes.apparent_temperature
       ? 'Feels ' + round1(attributes.apparent_temperature) + '°'
       : '';
   }
 
   function renderForecast(forecast) {
-    var container = document.getElementById('weather-forecast');
+    var container = wrapper.querySelector('.weather-forecast');
     if (!forecast || !forecast.length) {
       container.style.display = 'none';
       return;
@@ -353,6 +353,6 @@
   });
 
   tryFetch();
-}());
+});
 </script>
 {{end}}

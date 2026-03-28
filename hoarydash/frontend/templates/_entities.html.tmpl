@@ -42,8 +42,7 @@
 {{end}}
 </div>
 <script>
-    (function() {
-    var container = document.getElementById('entities-container');
+    component(function(container) {
     var cards = container.querySelectorAll('.card');
     var maxW = 0;
     var maxH = 0;
@@ -56,6 +55,6 @@
         cards[i].style.width  = maxW + 'px';
         cards[i].style.height = maxH + 'px';
     }
-})();
+});
 </script>
 {{end}}

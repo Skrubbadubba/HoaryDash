@@ -172,7 +172,7 @@
         opacity: 0.5;
     }
 
-    .media-ctrl-btn.media-play-btn {
+    .media-ctrl-btn.play {
         font-size: 1.7em;
         padding-left: 0.2em;
         padding-right: 0.2em;
@@ -231,46 +231,45 @@
 <div class="media-container card">
     <div class="media-top-row">
         <div class="media-info">
-            <div class="media-cover" id="media-cover">
-                <div class="media-cover-placeholder" id="media-cover-placeholder">♪</div>
+            <div class="media-cover">
+                <div class="media-cover-placeholder">♪</div>
             </div>
-            <div class="media-song-info" id="media-song-info">
-                <span class="media-idle" id="media-idle">Idle</span>
+            <div class="media-song-info">
+                <span class="media-idle">Idle</span>
             </div>
         </div>
     </div>
-    <div class="media-bottom-row" id="media-volume-row">
+    <div class="media-bottom-row">
         {{ if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
             <span class="media-vol-icon">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider" type="range" min="0" max="1" step="0.02" id="media-vol-slider"
-                value="0.5" />
+            <input class="media-vol-slider" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls">
-            <button class="media-ctrl-btn" id="media-back" title="Previous">⏮</button>
-            <button class="media-ctrl-btn media-play-btn" id="media-play" title="Play/Pause">▶</button>
-            <button class="media-ctrl-btn" id="media-forward" title="Next">⏭</button>
+            <button class="media-ctrl-btn back" title="Previous">⏮</button>
+            <button class="media-ctrl-btn play" title="Play-Pause">▶</button>
+            <button class="media-ctrl-btn forward" title="Next">⏭</button>
         </div>
     </div>
 </div>
 
 <script>
-    (function () {
+component(function(wrapper) {
     var POLL_INTERVAL = 30 * 1000;
     var entityId = {{.Entity.EntityID}}
     if (!entityId) { return; }
 
     var haUrl = window.CONFIG.haUrl || '';
 
-    var elIdle = document.getElementById('media-idle');
-    var elSongInfo = document.getElementById('media-song-info');
-    var elCover = document.getElementById('media-cover');
-    var elPlaceholder = document.getElementById('media-cover-placeholder');
-    var elPlay = document.getElementById('media-play');
-    var elBack = document.getElementById('media-back');
-    var elForward = document.getElementById('media-forward');
-    var elVolSlider = document.getElementById('media-vol-slider');
+    var elIdle = wrapper.querySelector('.media-idle');
+    var elSongInfo = wrapper.querySelector('.media-song-info');
+    var elCover = wrapper.querySelector('.media-cover');
+    var elPlaceholder = wrapper.querySelector('.media-cover-placeholder');
+    var elPlay = wrapper.querySelector('.media-ctrl-btn.play');
+    var elBack = wrapper.querySelector('.media-ctrl-btn.back');
+    var elForward = wrapper.querySelector('.media-ctrl-btn.forward');
+    var elVolSlider = wrapper.querySelector('.media-vol-slider');
 
     function callService(service) {
         return window.haSend({
@@ -459,6 +458,6 @@
     }
 
     tryFetch();
-}());
+});
 </script>
 {{ end }}

@@ -207,16 +207,16 @@
 <div class="todo-container card">
     <div class="todo-header">
         <div class="todo-info">
-            <span class="todo-icon" id="todo-icon"></span>
-            <span class="todo-name" id="todo-name">Todos</span>
+            <span class="todo-icon"></span>
+            <span class="todo-name">Todos</span>
             <span> - </span>
-            <span class="todo-statistic" id="todo-statistic">0/0</span>
+            <span class="todo-statistic">0/0</span>
         </div>
         <div class="todo-controls">
-            <button id="todo-all-complete" class="todo-btn complete">
+            <button class="todo-btn complete">
                 <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
-            <button id="todo-delete-completed" class="todo-btn delete">
+            <button class="todo-btn delete">
                 <span style="margin-top: 0.3em">{{icon "delete"}}</span><span class="divider"></span><span>Done</span>
             </button>
         </div>
@@ -225,16 +225,15 @@
         <div class="todo-add">
             <input 
                 type="text" 
-                id="todo-input" 
                 class="todo-input" 
                 placeholder="Add a todo..."
             >
-            <button id="todo-add-btn" class="todo-add-btn">
+            <button class="todo-add-btn">
                 ＋
             </button>
         </div>
-        <ol class="todos" id="todos-{{.Entity.EntityID}}">
-            <li class="todo" id="todo-template">
+        <ol class="todos">
+            <li class="todo">
                 <label class="todo-label">
                     <input type="checkbox" class="todo-checkbox">
                     <span class="todo-checkmark"></span>
@@ -246,7 +245,7 @@
 </div>
 
 <script>
-(function () {
+component(function(wrapper) {
 var POLL_INTERVAL = 10 * 60 * 1000;
 var entityId = {{ .Entity.EntityID }};
 console.log("todo entity id is: ", entityId)
@@ -255,9 +254,14 @@ if (!entityId) { return; }
 var locale   = window.CONFIG.locale;
 var timezone = window.CONFIG.timezone;
 
-var statisticEl = document.getElementById("todo-statistic");
-var todosEl = document.getElementById("todos-" + entityId);
-var dummyTodo = document.getElementById("todo-template");
+var statisticEl = wrapper.querySelector(".todo-statistic");
+var todosEl = wrapper.querySelector(".todos");
+var dummyTodo = wrapper.querySelector("#todo-template");
+var delComButton = wrapper.querySelector(".todo-btn.delete");
+var comAllButton = wrapper.querySelector(".todo-btn.complete");
+var input = wrapper.querySelector(".todo-input");
+var addButton = wrapper.querySelector(".todo-add-btn");
+
 var todoIds = new Set();
 var numCompleted = 0;
 var expectedCompleted = 0;
@@ -397,7 +401,7 @@ function stateEventListener(state, attributes) {
             lastCheckedNode.checked = !lastCheckedNode.checked;
         }
         if (attributes !== undefined) {
-            document.getElementById("todo-name").textContent = attributes.friendly_name;
+            wrapper.querySelector(".todo-name").textContent = attributes.friendly_name;
         }
         fetchTodos();
     }
@@ -410,10 +414,7 @@ window.onHaReady.push(function() {
     setInterval(fetchTodos, POLL_INTERVAL);
 });
 
-var delComButton = document.getElementById("todo-delete-completed");
-var comAllButton = document.getElementById("todo-all-complete");
-var input = document.getElementById("todo-input");
-var addButton = document.getElementById("todo-add-btn");
+
 
 delComButton.onclick = deleteCompleted;
 comAllButton.onclick = completeAll;
@@ -424,6 +425,6 @@ addButton.onclick = function () {
     }
 };
 
-}());
+});
 </script>
 {{ end }}
