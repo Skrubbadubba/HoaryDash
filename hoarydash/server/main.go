@@ -54,8 +54,8 @@ type Dashboard struct {
 }
 
 type Screen struct {
-	Position int
-
+	Position   int
+	Layout     string
 	Navigation *string
 	Name       string
 	Icon       *string
@@ -65,34 +65,49 @@ type Screen struct {
 		CapitaliseDay bool `yaml:"capitalise_day"`
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
-	Widgets []struct {
-		EntityID        string `yaml:"entity_id"`
-		FontSize        string `yaml:"font_size"` // Per widget override
-		InternalBorders *bool  `yaml:"internal_borders"`
-		// Weather-specific
-		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-		ForecastTimes    *int              `yaml:"forecast_times"`
-		// Media-specific
-		ShowVolume *bool
-		ShowAlbum  *bool
-	}
-	Sensors []struct {
-		EntityID string `yaml:"entity_id"`
-		Label    string
-		Unit     string
-	}
-	Entities []Entity
+	// Centered-layout specific
+	Widgets  []Card
+	Sensors  []Card
+	Entities []Card
 	Order    struct {
 		Entities int
 		Widgets  int
 		Sensors  int
 	}
+
+	// Tiled-layout specific
+	Groups []struct {
+		Name  string
+		Icon  string
+		Cards []Card
+	}
 }
 
-type Entity struct {
+type Widget struct {
+	EntityID        string `yaml:"entity_id"`
+	FontSize        string `yaml:"font_size"` // Per widget override
+	InternalBorders *bool  `yaml:"internal_borders"`
+	// Weather-specific
+	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+	ForecastTimes    *int              `yaml:"forecast_times"`
+	// Media-specific
+	ShowVolume *bool
+	ShowAlbum  *bool
+}
+type Card struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
 	Icon     string
+	Unit     string
+	// Widget specific
+	FontSize        string `yaml:"font_size"`
+	InternalBorders *bool  `yaml:"internal_borders"`
+	// Weather-specific
+	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+	ForecastTimes    *int              `yaml:"forecast_times"`
+	// Media-specific
+	ShowVolume *bool `yaml:"show_volume"`
+	ShowAlbum  *bool `yaml:"show_album"`
 }
 
 type ForecastInterval string
@@ -199,6 +214,17 @@ func domain(entityID string) string {
 	return parts[0]
 }
 
+func makeOnceFunc() func(string) bool {
+	seen := make(map[string]bool)
+	return func(key string) bool {
+		if seen[key] {
+			return false
+		}
+		seen[key] = true
+		return true
+	}
+}
+
 func BuildDash() {
 	cfg, err := parseYaml()
 	if err != nil {
@@ -293,7 +319,7 @@ func BuildDash() {
 			}
 			return out
 		},
-		"entityIDs": func(entities []Entity) []string {
+		"entityIDs": func(entities []Card) []string {
 			out := make([]string, len(entities))
 			for i, e := range entities {
 				out[i] = e.EntityID
@@ -360,6 +386,7 @@ func BuildDash() {
 			}
 			return nil
 		},
+		"once": makeOnceFunc(),
 	}
 
 	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
@@ -373,6 +400,7 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {

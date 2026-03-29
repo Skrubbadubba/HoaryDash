@@ -22,11 +22,11 @@
             "Entity" .
         )}}
     {{if eq (domain .EntityID) "weather"}}
-        {{template "weather_widget" ($widgetDict)}}
+        {{template "weather-widget" ($widgetDict)}}
     {{else if eq (domain .EntityID) "media_player"}}
-        {{template "media_widget" ($widgetDict)}}
+        {{template "media-widget" ($widgetDict)}}
     {{else if eq (domain .EntityID) "todo"}}
-        {{template "todo_widget" ($widgetDict)}}
+        {{template "todo-widget" ($widgetDict)}}
     {{end}}
 {{end}}
 </div>

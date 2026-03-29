@@ -86,29 +86,9 @@
             height: 100%;
             overflow: hidden;
         }
-        .main-container {
-            display: flex;
-            -webkit-display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
+        .layout-container {
             height: 100%;
             width: 100%;
-            padding: 1.5em 0 3em 0;
-        }
-        .center-container {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            align-items: center;
-            justify-content: space-between;
-            width: 90%;
-            margin-bottom: 1em;
-        }
-        .center-container > div {
-            margin: 0 2rem 0 2rem;
         }
         {{$showHints := enabledByDefault .Dashboard.ShowHints}}
         {{if $showHints}}
@@ -142,8 +122,8 @@
     {{if .Dashboard.Navbar.Enabled}}
         {{if eq .Dashboard.Navbar.Position "bottom"}}{{$extraPad = "padding-bottom: 5.5em;"}}{{end}}
         {{if eq .Dashboard.Navbar.Position "top"}}{{$extraPad = "padding-top: 6em;"}}{{end}}
-        {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 2.5em;"}}{{end}}
-        {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 2.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
     {{end}}
     <script>
         function component(script) {
@@ -162,51 +142,25 @@
             {{end}}
             {{end}}
             {{/* <p>{{json .}}</p> */}}
-            <div class="main-container" style="{{css $extraPad}}">
-                {{if .Entities}}
-                    {{template "entities" (dict
-                        "Theme" $theme
-                        "Screen" $screen
-                    )}}
+            <div class="layout-container" style="{{css $extraPad}}">
+                {{$layoutDict := (dict 
+                    "Theme" $theme
+                    "Config" $config
+                    "Screen" $screen
+                )}}
+                {{if eq $screen.Layout "tiled"}}
+                    {{template "tiled-layout" $layoutDict}}
                 {{else}}
-                    {{/* Take up space inside flexbox */}}
-                    <div style="display: hidden;"></div>
-                {{end}}
-                
-                
-                <div class="center-container" style="order: {{.Order.Widgets}}">
-                    {{if enabledByDefault .Dateclock.Enabled}}
-                        {{template "dateclock-style" $theme}}
-                        {{template "dateclock" (dict
-                        "Localization" $config.Localization
-                        "Dateclock" .Dateclock
-                        )}}
-                    {{end}}
-                    {{if .Widgets}}
-                        {{template "widgets" (dict
-                        "Theme" $theme
-                        "Screen" $screen
-                    )}}
-                    {{end}}
-                
-                </div>
-                {{if .Sensors}}
-                    {{template "sensors" (dict
-                        "Theme" $theme
-                        "Screen" $screen
-                    )}}
-                {{else}}
-                    {{/* Take up space inside flexbox */}}
-                    <div style="display: hidden;"></div>
-                {{end}}
-                {{if $showHints}}
-                {{with nextScreen $.Dashboard $i}}
-                <div class="swipe-hint right">
-                    {{if .Icon}}{{icon .Icon}}{{end}}
-                    {{icon "chevron-right"}}
-                </div>
+                    {{template "centered-layout" $layoutDict}}
                 {{end}}
             </div>
+            {{if $showHints}}
+            {{with nextScreen $.Dashboard $i}}
+            <div class="swipe-hint right">
+                {{if .Icon}}{{icon .Icon}}{{end}}
+                {{icon "chevron-right"}}
+            </div>
+            {{end}}
         {{end}}
         </div>
     {{end}}
