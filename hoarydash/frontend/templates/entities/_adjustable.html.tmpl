@@ -1,4 +1,4 @@
-{{define "adjustable-chevron-style"}}
+{{define "_adjustable-chevron-style"}}
 <style>
   .ha-adjustable-chevron {
     display: block;
@@ -329,8 +329,11 @@ component(function(wrapper) {
 {{end}}
 
 {{define "adjustable"}}
-  {{template "_toggle-open" .}}
-  {{template "_adjustable-chevron" .}}
+  {{if once "adjustable-chevron-style"}}
+    {{template "_adjustable-chevron-style" .Theme}}
+  {{end}}
+  {{template "_toggle-open" .Entity}}
+  {{template "_adjustable-chevron" .Entity}}
   </div>
-  {{template "_toggle-script" .}}
+  {{template "_toggle-script" .Entity}}
 {{end}}

@@ -81,7 +81,6 @@
         background-color: #ffffff;
         border-radius: 50%;
         box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        pointer-events: none;
     }
 
     .nightlight-overlay {
@@ -100,9 +99,9 @@
         z-index: 10;
         background-color: {{.Nightlight.Color | default "hsl(22, 100%, 55%)" | css}};
     }
-    {{/* body.nightlight #dateclock-container {
-        color: hsla(22, 100%, 35%, 0.5) !important;
-    } */}}
+    body.nightlight .nightlight-overlay {
+        pointer-events: all;
+    }
     body.nightlight #brightness-panel {
         background-color: #333;
     }
@@ -133,7 +132,7 @@
     var sliderContainer   = document.getElementById('custom-slider');
     var sliderFill        = document.getElementById('slider-fill');
     var sliderThumb       = document.getElementById('slider-thumb');
-    var dateclockEl       = document.getElementById('dateclock-container');
+    var dateclockEls      = document.getElementsByClassName('dateclock-container');
     var isDragging        = false;
     var currentBrightness = 80;
     var screensaverWasOn  = false;
@@ -161,7 +160,9 @@
             panel.className = '';
             overlayDark.style.opacity = '0';
             overlayBright.style = null;
-            dateclockEl.style = null;
+            for (dateclock of dateclockEls) {
+                dateclock.style = null;
+            }
             if (screensaverWasOn) { return; }
             window.setScreensaverOff();
         }
@@ -172,7 +173,9 @@
         overlayDark.style.opacity = dimAmount;
 
         var textOpacity = (1-(dimAmount*0.6)) * 0.25;
-        dateclockEl.style.opacity = textOpacity;
+        for (dateclock of dateclockEls) {
+            dateclock.style.opacity = textOpacity;
+        }
     }
 
     function handleDrag(clientY) {

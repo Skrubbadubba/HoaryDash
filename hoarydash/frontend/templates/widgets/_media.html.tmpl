@@ -1,4 +1,5 @@
-{{ define "media-widget" }}
+{{define "media-widget" }}
+{{if once "media-widget-style"}}
 <style>
     .media-container {
         overflow: hidden;
@@ -227,6 +228,7 @@
         cursor: pointer;
     }
 </style>
+{{end}}
 
 <div class="media-container card">
     <div class="media-top-row">

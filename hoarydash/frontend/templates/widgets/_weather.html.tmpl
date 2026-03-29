@@ -1,4 +1,5 @@
 {{define "weather-widget"}}
+{{if once "weather-widget-style"}}
 <style>
   .weather-container {
     overflow: hidden;
@@ -162,7 +163,7 @@
     color: #6a7a8a;
   }
 </style>
-
+{{end}}
 <div class="weather-container card">
   <div class="weather-main">
     <div class="weather-current">

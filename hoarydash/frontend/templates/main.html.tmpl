@@ -86,11 +86,17 @@
             height: 100%;
             overflow: hidden;
         }
+        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
         .layout-container {
             height: 100%;
             width: 100%;
+            {{if $showHints}}
+                padding: 1em 3em;
+            {{else}}
+            padding: 1em;
+            {{end}}
         }
-        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
+        
         {{if $showHints}}
         .swipe-hint {
             position: absolute;

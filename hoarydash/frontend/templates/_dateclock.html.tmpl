@@ -1,4 +1,5 @@
-{{define "dateclock-style"}}
+{{define "dateclock"}}
+{{if once "dateclock-style"}}
 <style>
     .dateclock-container {
         z-index: 20;
@@ -9,6 +10,7 @@
         -webkit-align-items: center;
         align-items: center;
         pointer-events: none;
+        flex-grow: 1;
     }
     .clock {
         font-size: calc(8vw + 1em);
@@ -25,7 +27,6 @@
     }
 </style>
 {{end}}
-{{define "dateclock"}}
 <div class="dateclock-container">
     <div class="clock"></div>
     <div class="date"></div>

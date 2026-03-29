@@ -158,7 +158,10 @@ component(function(wrapper) {
 </script>
 {{end}}
 {{define "toggle"}}
-{{template "_toggle-open" .}}
+  {{if once "toggle-style"}}
+    {{template "toggle-style" .Theme}}
+  {{end}}
+{{template "_toggle-open" .Entity}}
 </div>
-{{template "_toggle-script" .}}
+{{template "_toggle-script" .Entity}}
 {{end}}

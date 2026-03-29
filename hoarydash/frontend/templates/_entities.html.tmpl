@@ -18,26 +18,20 @@
     }
 </style>
 <div id="entities-container" style="order: {{.Screen.Order.Entities}}">
-{{$allDomains := .Screen.Entities | entityIDs | domains}}
-{{if anyOfIn $allDomains "switch" "input_boolean" "light" "fan"}}
-    {{template "toggle-style" .Theme}}
-{{end}}
-{{if anyOfIn $allDomains "light" "fan"}}
-    {{template "adjustable-chevron-style" .Theme}}
-{{end}}
-{{if anyOfIn $allDomains "button" "input_button" "scene" "script"}}
-    {{template "button-style" .Theme}}
-{{end}}
-
+    {{$theme := .Theme}}
 {{range .Screen.Entities}}
+    {{$entityDict := (dict
+        "Theme" $theme  
+        "Entity" .  
+    )}}
     {{if domainIn .EntityID "switch" "input_boolean"}}
-        {{template "toggle" .}}
+        {{template "toggle" $entityDict}}
     {{else if domainIn .EntityID "light" "fan"}}
-        {{template "adjustable" .}}
+        {{template "adjustable" $entityDict}}
     {{else if domainIn .EntityID }}
-        {{template "button" .}}
+        {{template "button" $entityDict}}
     {{else}}
-        {{template "button" .}}
+        {{template "button" $entityDict}}
     {{end}}
 {{end}}
 </div>

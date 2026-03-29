@@ -1,4 +1,5 @@
-{{define "button-style"}}
+{{define "_button-style"}}
+{{if once "button-style"}}
 <style>
   .ha-button {
     display: -webkit-flex;
@@ -61,7 +62,8 @@
   }
 </style>
 {{end}}
-{{define "button"}}
+{{end}}
+{{define "_button"}}
 <div class="ha-button card">
   <button class="ha-button-body" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-button-content">
@@ -108,4 +110,8 @@
     });
   });
   </script>
+{{end}}
+{{define "button"}}
+  {{template "_button-style" .Theme}}
+  {{template "_button" .Entity}}
 {{end}}

@@ -1,4 +1,5 @@
-{{ define "todo-widget" }}
+{{define "todo-widget" }}
+{{if once "todo-widget-style"}}
 <style>
     .todo-container {
         overflow: hidden;
@@ -203,7 +204,7 @@
         color: #888;
     }
 </style>
-
+{{end}}
 <div class="todo-container card">
     <div class="todo-header">
         <div class="todo-info">
@@ -233,7 +234,7 @@
             </button>
         </div>
         <ol class="todos">
-            <li class="todo">
+            <li class="todo template">
                 <label class="todo-label">
                     <input type="checkbox" class="todo-checkbox">
                     <span class="todo-checkmark"></span>
@@ -256,7 +257,7 @@ var timezone = window.CONFIG.timezone;
 
 var statisticEl = wrapper.querySelector(".todo-statistic");
 var todosEl = wrapper.querySelector(".todos");
-var dummyTodo = wrapper.querySelector("#todo-template");
+var dummyTodo = wrapper.querySelector(".todo.template");
 var delComButton = wrapper.querySelector(".todo-btn.delete");
 var comAllButton = wrapper.querySelector(".todo-btn.complete");
 var input = wrapper.querySelector(".todo-input");
@@ -374,11 +375,11 @@ function setStatus(id, status) {
 function completeAll() {
     // Dont listen for events so as to not refetch
     // all todos on every set as completed.
-    window.entityListeners[entityId][listenersIndex] = null;
+    window.entityListeners[entityId][listenerIndex] = null;
     for (id of todoIds) {
         setStatus(id, true);
     }
-    window.entityListeners[entityId][listenersIndex] = stateEventListener;
+    window.entityListeners[entityId][listenerIndex] = stateEventListener;
 }
 
 function deleteCompleted() {
