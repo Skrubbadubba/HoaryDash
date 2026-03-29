@@ -1,0 +1,172 @@
+{{define "centered-layout"}}
+{{if once "centered-layout-style"}}
+<style>
+    .main-container {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        width: 100%;
+        padding: 0 0 3em 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    .main-container > div {
+        height: 100%;
+    }
+    .center-container {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1em;
+    }
+    .center-container > div {
+        margin: 0 2rem 0 2rem;
+    }
+</style>
+{{end}}
+<div class="main-container">
+    {{if .Screen.Entities}}
+        {{if once "entities-style"}}
+        <style>
+            .entities-container {
+                display: -webkit-flex;
+                display: flex;
+                -webkit-flex-wrap: wrap;
+                flex-wrap: wrap;
+                -webkit-justify-content: center;
+                justify-content: center;
+                -webkit-align-items: stretch;
+                align-items: stretch;
+                max-width: 75vw;
+                font-size: {{if .Theme.Entities.FontSize}}{{.Theme.Entities.FontSize}}px{{else}}inherit{{end}};
+            }
+            .entities-container > .card {
+                margin: 5px;
+                {{template "create-card-theme" .Theme.Entities}}
+            }
+        </style>
+        {{end}}
+        <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
+        {{$theme := .Theme}}
+        {{range .Screen.Entities}}
+            {{$entityDict := (dict
+                "Theme" $theme  
+                "Entity" .  
+            )}}
+            {{if domainIn .EntityID "switch" "input_boolean"}}
+                {{template "toggle" $entityDict}}
+            {{else if domainIn .EntityID "light" "fan"}}
+                {{template "adjustable" $entityDict}}
+            {{else if domainIn .EntityID }}
+                {{template "button" $entityDict}}
+            {{else}}
+                {{template "button" $entityDict}}
+            {{end}}
+        {{end}}
+        </div>
+        <script>
+            component(function(container) {
+                normalizeHeight(container)
+            });
+        </script>
+    {{else}}
+        {{/* Take up space inside flexbox */}}
+        <div style="display: hidden;"></div>
+    {{end}}
+
+    <div class="center-container" style="order: {{.Screen.Order.Widgets}}">
+        {{if enabledByDefault .Screen.Dateclock.Enabled}}
+            {{template "dateclock" (dict
+            "Localization" .Config.Localization
+            "Dateclock" .Screen.Dateclock
+            )}}
+        {{end}}
+
+        {{if .Screen.Widgets}}
+            <div style="flex-grow:1;"></div>
+            {{if once "widgets-style"}}
+            <style>
+                .widgets-container {
+                    display: flex;
+                    flex-direction: column;
+                    {{if .Theme.Widgets.FontSize}}
+                        font-size: {{.Theme.Widgets.FontSize}}px;
+                    {{end}}
+                    width: 19em;
+                    min-height: 0;
+                }
+                .widgets-container > div {
+                    min-height: 0;
+                    margin: 5px 0;
+                    {{template "create-card-theme" .Theme.Widgets}}
+                }
+                </style>
+            {{end}}
+                <div class="widgets-container">
+                {{$theme := .Theme}}
+                {{range .Screen.Widgets}}
+                    {{$widgetDict := (dict
+                            "Theme" $theme
+                            "Entity" .
+                        )}}
+                    {{if eq (domain .EntityID) "weather"}}
+                        {{template "weather-widget" ($widgetDict)}}
+                    {{else if eq (domain .EntityID) "media_player"}}
+                        {{template "media-widget" ($widgetDict)}}
+                    {{else if eq (domain .EntityID) "todo"}}
+                        {{template "todo-widget" ($widgetDict)}}
+                    {{end}}
+                {{end}}
+                </div>
+        {{end}}
+    </div>
+
+    {{if .Screen.Sensors}}
+        {{if once "sensors-style"}}
+        <style>
+            .sensors-container {
+                display: flex;
+                -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+                transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+                width: 75vw;
+                justify-content: space-around;;
+                flex-wrap: wrap;
+                align-items: center;
+                font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};
+            }
+        </style>
+        {{end}}
+        <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
+        {{$screenName := .Screen.Name}}
+        {{$theme := .Theme}}
+        {{range .Screen.Sensors}}
+            {{template "sensor" (dict
+                "Theme" $theme
+                "Entity" .
+            )}}
+        {{end}}
+        </div>
+        <script>
+            component(function(root) {
+                normalizeSize(root)
+            });
+        </script>
+    {{else}}
+        {{/* Take up space inside flexbox */}}
+        <div style="display: hidden;"></div>
+    {{end}}
+</div>
+{{end}}

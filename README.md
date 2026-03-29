@@ -30,6 +30,11 @@ A lightweight Home Assistant dashboard for old Android tablets. It runs as an ad
 - Fully Kiosk Browser on your tablet
 - A long-lived access token from Home Assistant
 
+
+## Setup
+
+See [DOCS.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/DOCS.md)
+
 ## Why
 
 Home Assistant's own dashboard is too modern for decade-old hardware. Fully kiosk and similar apps uses androids built in webviews, which for old tablets is heavily outdated and won't run the javascript that comes with lovelace.

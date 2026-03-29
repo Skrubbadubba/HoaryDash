@@ -23,41 +23,14 @@ var mdiData []byte
 var mdiIcons map[string]string
 
 type Dashboard struct {
-	Nightlight struct {
-		Enabled        bool
+	Animations   *bool
+	Screenonlock *bool
+	Nightlight   struct {
+		Enabled        *bool
 		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
-	Dateclock struct {
-		Enabled       *bool
-		Hour12        bool
-		CapitaliseDay bool `yaml:"capitalise_day"`
-		ShowSeconds   bool `yaml:"show_seconds"`
-	}
-	Widgets []struct {
-		EntityID        string `yaml:"entity_id"`
-		FontSize        string `yaml:"font_size"` // Per widget override
-		InternalBorders *bool  `yaml:"internal_borders"`
-		// Weather-specific
-		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-		ForecastTimes    *int              `yaml:"forecast_times"`
-		// Media-specific
-		ShowVolume *bool
-		ShowAlbum  *bool
-	}
-	Sensors []struct {
-		EntityID string `yaml:"entity_id"`
-		Label    string
-		Unit     string
-	}
-	Entities []Entity
-	Order    struct {
-		Entities int
-		Widgets  int
-		Sensors  int
-	}
-	Animations *bool
-	Theme      struct {
+	Theme struct {
 		BodyBackground     template.CSS `yaml:"body_background"`
 		BackgroundGradient template.CSS `yaml:"background_gradient"`
 		Cards              CardTheme    // Default for widgets, entities and sensors
@@ -70,12 +43,71 @@ type Dashboard struct {
 		IconColor          template.CSS `yaml:"icon_color"`
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
+	ShowHints *bool `yaml:"show_hints"`
+	Swipe     *bool
+	Navbar    struct {
+		Enabled  bool
+		Position string
+		Style    string
+	}
+	Screens []Screen
 }
 
-type Entity struct {
+type Screen struct {
+	Position   int
+	Layout     string
+	Navigation *string
+	Name       string
+	Icon       *string
+	Dateclock  struct {
+		Enabled       *bool
+		Hour12        bool
+		CapitaliseDay bool `yaml:"capitalise_day"`
+		ShowSeconds   bool `yaml:"show_seconds"`
+	}
+	// Centered-layout specific
+	Widgets  []Card
+	Sensors  []Card
+	Entities []Card
+	Order    struct {
+		Entities int
+		Widgets  int
+		Sensors  int
+	}
+
+	// Tiled-layout specific
+	Groups []struct {
+		Name  string
+		Icon  string
+		Cards []Card
+	}
+}
+
+type Widget struct {
+	EntityID        string `yaml:"entity_id"`
+	FontSize        string `yaml:"font_size"` // Per widget override
+	InternalBorders *bool  `yaml:"internal_borders"`
+	// Weather-specific
+	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+	ForecastTimes    *int              `yaml:"forecast_times"`
+	// Media-specific
+	ShowVolume *bool
+	ShowAlbum  *bool
+}
+type Card struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
 	Icon     string
+	Unit     string
+	// Widget specific
+	FontSize        string `yaml:"font_size"`
+	InternalBorders *bool  `yaml:"internal_borders"`
+	// Weather-specific
+	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+	ForecastTimes    *int              `yaml:"forecast_times"`
+	// Media-specific
+	ShowVolume *bool `yaml:"show_volume"`
+	ShowAlbum  *bool `yaml:"show_album"`
 }
 
 type ForecastInterval string
@@ -102,6 +134,33 @@ func (f *ForecastInterval) UnmarshalYAML(value *yaml.Node) error {
 	*f = ForecastInterval(s)
 	if !f.Valid() {
 		return fmt.Errorf("invalid forecast_interval %q, must be daily, twice_daily or hourly", s)
+	}
+	return nil
+}
+
+type Navigation string
+
+const (
+	NavigationNavbar Navigation = "navbar"
+	NavigationSwipe  Navigation = "swipe"
+)
+
+func (n Navigation) Valid() bool {
+	switch n {
+	case NavigationNavbar, NavigationSwipe:
+		return true
+	}
+	return false
+}
+
+func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return err
+	}
+	*n = Navigation(s)
+	if !n.Valid() {
+		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'")
 	}
 	return nil
 }
@@ -155,12 +214,25 @@ func domain(entityID string) string {
 	return parts[0]
 }
 
+func makeOnceFunc() func(string) bool {
+	seen := make(map[string]bool)
+	return func(key string) bool {
+		if seen[key] {
+			return false
+		}
+		seen[key] = true
+		return true
+	}
+}
+
 func BuildDash() {
 	cfg, err := parseYaml()
 	if err != nil {
 		log.Printf("Could not load config when building dashboard")
 		return
 	}
+
+	var tmpl *template.Template
 
 	funcMap := template.FuncMap{
 		"default": func(def any, val any) any {
@@ -247,7 +319,7 @@ func BuildDash() {
 			}
 			return out
 		},
-		"entityIDs": func(entities []Entity) []string {
+		"entityIDs": func(entities []Card) []string {
 			out := make([]string, len(entities))
 			for i, e := range entities {
 				out[i] = e.EntityID
@@ -267,9 +339,57 @@ func BuildDash() {
 			}
 			return false
 		},
+		"json": func(j interface{}) string { // For debugging
+			var out []byte
+			out, err = json.Marshal(j)
+			if err != nil {
+				return ""
+			}
+			return string(out)
+		},
+		"merge": func(maps ...any) (map[string]any, error) {
+			result := map[string]any{}
+			for _, m := range maps {
+				switch v := m.(type) {
+				case map[string]any:
+					for k, val := range v {
+						result[k] = val
+					}
+				default:
+					rv := reflect.ValueOf(m)
+					if rv.Kind() == reflect.Ptr {
+						rv = rv.Elem()
+					}
+					if rv.Kind() != reflect.Struct {
+						return nil, fmt.Errorf("merge: unsupported type %T", m)
+					}
+					rt := rv.Type()
+					for i := 0; i < rv.NumField(); i++ {
+						f := rt.Field(i)
+						if f.IsExported() {
+							result[f.Name] = rv.Field(i).Interface()
+						}
+					}
+				}
+			}
+			return result, nil
+		},
+		"prevScreen": func(d Dashboard, i int) *Screen {
+			if i > 0 {
+				return &d.Screens[i-1]
+			}
+			return nil
+		},
+		"nextScreen": func(d Dashboard, i int) *Screen {
+			if i+1 < len(d.Screens) {
+				return &d.Screens[i+1]
+			}
+			return nil
+		},
+		"once": makeOnceFunc(),
 	}
 
-	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
 	if err != nil {
 		log.Printf("Could not return root level templates %v", err)
 		return
@@ -279,9 +399,28 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
 	check(err, "Created template object")
 
+	// Clone to give each dashboard its own once func
+	// Needs to be done before any execution
+	dashTmpls := make(map[string]*template.Template)
+	for name := range cfg.Dashboards {
+		funcMap["once"] = makeOnceFunc()
+		dashTmpl, err := tmpl.Clone()
+		if err != nil {
+			log.Printf("Could not clone template for %s: %v", name, err)
+			continue
+		}
+		dashTmpls[name] = dashTmpl.Funcs(funcMap)
+	}
+
 	for name, dash := range cfg.Dashboards {
+		dashTmpl, ok := dashTmpls[name]
+		if !ok {
+			continue
+		}
 		outputDir := frontendPath + "/static/" + name
 		err = os.MkdirAll(outputDir, 0755)
 		check(err, "Created %s", outputDir)
@@ -291,7 +430,7 @@ func BuildDash() {
 		// fmt.Printf("Parsed yaml:\n%+v\n", cfg)
 		data := TemplateData{dash, cfg.Config, isDev}
 		// fmt.Printf("Template data:\n%+v\n", data)
-		err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
+		err = dashTmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 		out.Sync()
 		check(err, "Template executed")
 	}

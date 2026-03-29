@@ -1,0 +1,29 @@
+{{define "navbar"}}
+<nav class="navbar">
+    {{range $i, $screen := .}}
+    <div class="navbar-item{{if eq $i 0}} active{{end}}" onclick="window.navigateTo({{$i}})">
+        <div class="navbar-icon">
+            {{if $screen.Icon}}
+                {{icon $screen.Icon}}
+            {{else}}
+                {{icon "circle-medium"}}
+            {{end}}
+        </div>
+        <div class="navbar-label">{{$screen.Name}}</div>
+    </div>
+    {{end}}
+</nav>
+<script>
+component(function(navbar) {
+    var items = navbar.querySelectorAll('.navbar-item');
+    var widest = 0;
+    for (var i = 0; i < items.length; i++) {
+        var w = items[i].offsetWidth;
+        if (w > widest) { widest = w; }
+    }
+    for (var i = 0; i < items.length; i++) {
+        items[i].style.minWidth = widest + 'px';
+    }
+});
+</script>
+{{end}}

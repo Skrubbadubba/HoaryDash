@@ -16,9 +16,13 @@
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
             entity_ids: [
-                    {{range .Dashboard.Sensors}}"{{.EntityID}}",{{end}}
-                    {{range .Dashboard.Entities}}"{{.EntityID}}",{{end}}
-                    {{range .Dashboard.Widgets}}"{{.EntityID}}",{{end}}  
+                {{/* Duplicates are fine so just loop over every possible entity definition */}}
+                {{range .Dashboard.Screens}}
+                    {{range .Sensors}}"{{.EntityID}}",{{end}}
+                    {{range .Entities}}"{{.EntityID}}",{{end}}
+                    {{range .Widgets}}"{{.EntityID}}",{{end}} 
+                    {{range .Groups}}{{range .Cards}} "{{.EntityID}}",{{end}}{{end}}
+                {{end}}
                 ],
             locale: locale,
             timezone: timezone,
@@ -41,74 +45,288 @@
         }());
     </script>
     {{template "websocket"}}
-    {{template "base-style" .Dashboard}}
-    {{template "btn-style" .Dashboard.Theme}}
-    <style>
-        .main-container {
-            display: flex;
-            -webkit-display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding: 1.5em 0 3em 0;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 </head>
 <body>
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
+    {{$config := .Config}}
+    {{$theme := .Dashboard.Theme}}
+    {{template "base-style" .}}
+    {{template "btn-style" $theme}}
+    <script>
+        function component(script) {
+            var root = document.currentScript.previousElementSibling;
+            script(root);
+        };
+        function normalizeSize(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+                divs[i].style.width = widest + 'px';
+            }
+        }
+        function normalizeHeight(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+            }
+        }
+        function normalizeWidth(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.width = widest + 'px';
+            }
+        }
+    </script>
+    <div class="screens">
+    <style>
+        .screens {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            {{if enabledByDefault .Dashboard.Animations}}
+            scroll-behavior: smooth;
+            {{end}}
+        }
 
-    <div class="main-container">
-        {{if .Dashboard.Entities}}
-            {{template "entities" .Dashboard}}
-        {{else}}
-            {{/* Take up space inside flexbox */}}
-            <div style="display: hidden;"></div>
+        .screens::-webkit-scrollbar {
+            display: none;
+        }
+
+        .screen {
+            position: relative;
+            -webkit-flex-shrink: 0;
+            -webkit-box-flex: 0;
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
+        .layout-container {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            {{if $showHints}}
+                padding: 1em 3.5em;
+            {{else}}
+            padding: 1em;
+            {{end}}
+        }
+
+        {{if $showHints}}
+        .swipe-hint {
+            position: absolute;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            opacity: 0.2;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+        .swipe-hint.left {
+            left: 0.1em;
+        }
+        .swipe-hint.right {
+            right: 0.11em;
+        }
         {{end}}
-        
-        <style>
-            .center-container {
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: flex;
-                -webkit-box-align: center;
-                -webkit-align-items: center;
-                align-items: center;
-                justify-content: space-between;
-                width: 90%;
-                margin-bottom: 1em;
-            }
-            .center-container > div {
-                margin: 0 2rem 0 2rem;
-            }
-        </style>
-        <div class="center-container" style="order: {{.Dashboard.Order.Widgets}}">
-            {{if enabledByDefault .Dashboard.Dateclock.Enabled}}
-                {{template "dateclock" (dict
-                "Localization" .Config.Localization
-                "Dateclock" .Dashboard.Dateclock
+    </style>
+    {{$extraPad := ""}}
+    {{if .Dashboard.Navbar.Enabled}}
+        {{if eq .Dashboard.Navbar.Position "bottom"}}{{$extraPad = "padding-bottom: 5.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "top"}}{{$extraPad = "padding-top: 6em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
+    {{end}}
+    
+    {{range $i, $screen := .Dashboard.Screens}}
+        <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
+            {{if $showHints}}
+            {{with prevScreen $.Dashboard $i}}
+                <div class="swipe-hint left">
+                    {{icon "chevron-left"}}
+                    {{if .Icon}}{{icon .Icon}}{{end}}
+                </div>
+            {{end}}
+            {{end}}
+            {{/* <p>{{json .}}</p> */}}
+            <div class="layout-container" style="{{css $extraPad}}">
+                {{$layoutDict := (dict 
+                    "Theme" $theme
+                    "Config" $config
+                    "Screen" $screen
                 )}}
+                {{if eq $screen.Layout "tiled"}}
+                    {{template "tiled-layout" $layoutDict}}
+                {{else}}
+                    {{template "centered-layout" $layoutDict}}
+                {{end}}
+            </div>
+            {{if $showHints}}
+            {{with nextScreen $.Dashboard $i}}
+            <div class="swipe-hint right">
+                {{if .Icon}}{{icon .Icon}}{{end}}
+                {{icon "chevron-right"}}
+            </div>
             {{end}}
-            {{if .Dashboard.Widgets}}
-                {{template "widgets" .Dashboard}}
-            {{end}}
-            
-        </div>
-        {{if .Dashboard.Sensors}}
-            {{template "sensors" .Dashboard}}
-        {{else}}
-            {{/* Take up space inside flexbox */}}
-            <div style="display: hidden;"></div>
         {{end}}
-    </div>
-    {{template "screenonlock" .}}
-
-    {{if .Dashboard.Nightlight.Enabled }}
-        {{template "nightlight" .Dashboard}}
+        </div>
     {{end}}
 
+    {{if .Dashboard.Navbar.Enabled}}
+        {{$orientation := "horizontal"}}
+        {{if or (eq .Dashboard.Navbar.Position "left") (eq .Dashboard.Navbar.Position "right")}}
+            {{$orientation = "vertical"}}
+        {{end}}
+
+        <style>
+            .navbar-container {
+                position: absolute;
+                z-index: 5;
+            }
+            .navbar-container.navbar-bottom {
+                bottom: 1em;
+                left: 50%;
+                -webkit-transform: translateX(-50%);
+                transform: translateX(-50%);
+            }
+            .navbar-container.navbar-top {
+                top: 1em;
+                left: 50%;
+                -webkit-transform: translateX(-50%);
+                transform: translateX(-50%);
+            }
+            .navbar-container.navbar-left {
+                left: 1em;
+                top: 50%;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+            .navbar-container.navbar-right {
+                right: 1em;
+                top: 50%;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+            .navbar-container.navbar-horizontal > nav {
+                -webkit-flex-direction: row;
+                flex-direction: row;
+            }
+            .navbar-container.navbar-vertical > nav{
+                -webkit-flex-direction: column;
+                flex-direction: column;
+            }
+        </style>
+        <div class="navbar-container navbar-{{.Dashboard.Navbar.Position | default "bottom"}} navbar-{{$orientation}}">
+            {{template "navbar" .Dashboard.Screens}}
+            {{if eq .Dashboard.Navbar.Style "rectangle"}}
+                {{template "navbar-rectangle-style" (merge .Dashboard.Theme .Dashboard.Navbar)}}
+            {{else}}
+                {{template "navbar-default-style" .Dashboard.Theme}}
+            {{end}}
+        </div>
+    {{end}}
+    </div>
+    <script>
+    (function() {
+        var container = document.querySelector('.screens');
+        var currentIndex = 0;
+
+        window.navigateTo = function(index) {
+            var screens = container.querySelectorAll('.screen');
+            if (index < 0 || index >= screens.length) { return; }
+            currentIndex = index;
+            container.scrollLeft = index * container.offsetWidth;
+            var items = document.querySelectorAll('.navbar-item');
+            for (var i = 0; i < items.length; i++) {
+                if (i === index) {
+                    items[i].className = 'navbar-item active';
+                } else {
+                    items[i].className = 'navbar-item';
+                }
+            }
+        };
+
+        {{if enabledByDefault .Dashboard.Swipe}}
+        var mc = new Hammer.Manager(document.body);
+        mc.add(new Hammer.Swipe({
+            direction: Hammer.DIRECTION_HORIZONTAL,
+            threshold: 10,
+            velocity: 0.3
+        }));
+        {{/* mc.set({ inputClass: Hammer.MouseInput }); */}}
+        mc.on('swipeleft swiperight', function(e) {
+            if (e.type === 'swipeleft') {
+                window.navigateTo(currentIndex + 1);
+            } else if (e.type === 'swiperight') {
+                window.navigateTo(currentIndex - 1);
+            }
+        });
+        {{end}}
+    }());
+    </script>
+
+
+    {{if enabledByDefault .Dashboard.Screenonlock}}
+        {{template "screenonlock"}}
+    {{end}}
+    {{if or (enabledByDefault .Dashboard.Screenonlock) (enabledByDefault .Dashboard.Nightlight.Enabled)}}
+    {{template "screenonlock-script" $config}}
+    {{end}}
+    {{/* <p>{{json .Dashboard.Nightlight}}</p> */}}
+    {{if enabledByDefault .Dashboard.Nightlight.Enabled}}
+        {{template "nightlight" .}}
+    {{end}}
+    <script>
+        // Connect to HA as late as possible to make sure all
+        // scripts have been parsed before connection is opened
+        window.connectToHa();
+    </script>
 </body>
 </html>

@@ -1,0 +1,156 @@
+{{define "tiled-layout"}}
+{{if once "tiled-layout-style"}}
+<style>
+    .tiled-container {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .tiled-clock {
+        width: 100%;
+        margin-bottom: 1em;
+    }
+
+    .tiled-group {
+        width: 100%;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        max-width: 100%;
+        margin-bottom: 1.2em;
+        touch-action: pan-y;
+    }
+
+    .tiled-group-header {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        margin-bottom: 0.5em;
+        opacity: 0.5;
+        font-size: 0.75em;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .tiled-group-header-icon {
+        margin-right: 0.4em;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    .tiled-group-header-line {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+        height: 1px;
+        background: currentColor;
+        opacity: 0.2;
+        margin-left: 0.6em;
+    }
+
+    .tiled-cards {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        max-width: 100%;
+    }
+
+    .tiled-cards > * {
+        margin: 0 0.5em 0.5em 0;
+    }
+</style>
+{{end}}
+
+{{$theme := .Theme}}
+<div class="tiled-container">
+    {{if enabledByDefault .Screen.Dateclock.Enabled}}
+        <div class="tiled-clock">
+            {{template "dateclock" (dict
+                "Localization" .Config.Localization
+                "Dateclock" .Screen.Dateclock
+            )}}
+        </div>
+    {{end}}
+
+    {{range $gi, $group := .Screen.Groups}}
+    <div class="tiled-group">
+        {{if or $group.Name $group.Icon}}
+        <div class="tiled-group-header">
+            {{if $group.Icon}}
+                <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
+            {{end}}
+            {{if $group.Name}}
+                <span>{{$group.Name}}</span>
+            {{end}}
+            <div class="tiled-group-header-line"></div>
+        </div>
+        {{end}}
+
+        <div class="tiled-cards" id="tiled-group-{{$gi}}">
+            {{range $group.Cards}}
+                {{$cardDict := (dict 
+                "Theme" $theme 
+                "Entity" .)}}
+                {{if domainIn .EntityID "weather"}}
+                    {{template "weather-widget" $cardDict}}
+                {{else if domainIn .EntityID "media_player"}}
+                    {{template "media-widget" $cardDict}}
+                {{else if domainIn .EntityID "todo"}}
+                    {{template "todo-widget" $cardDict}}
+                {{else if domainIn .EntityID "sensor" "binary_sensor"}}
+                    {{template "sensor" $cardDict}}
+                {{else if domainIn .EntityID "switch" "input_boolean"}}
+                    {{template "toggle" $cardDict}}
+                {{else if domainIn .EntityID "light" "fan"}}
+                    {{template "adjustable" $cardDict}}
+                {{else}}
+                    {{template "button" $cardDict}}
+                {{end}}
+            {{end}}
+        </div>
+
+    </div>
+    {{end}}
+
+</div>
+
+<script>
+{{/* component(function(container) {
+    setTimeout(function(){
+        var groups = container.querySelectorAll('.tiled-cards');
+        for (var g = 0; g < groups.length; g++) {
+            normalizeHeight(groups[g])
+        }
+
+    }, 500)
+}); */}}
+</script>
+{{end}}

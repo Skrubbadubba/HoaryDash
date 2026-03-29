@@ -1,114 +1,23 @@
-{{define "adjustable-style"}}
+{{define "_adjustable-chevron-style"}}
 <style>
   .ha-adjustable {
+    display: -webkit-box;
     display: -webkit-flex;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
     -webkit-flex-direction: column;
     flex-direction: column;
-    min-width: 5em;
-    overflow: visible;
-    position: relative;
-    height: min-content;
-  }
-
-  .ha-adjustable-body {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-justify-content: space-between;
-    justify-content: space-between;
-    padding: 0.4em 0.75em 0.3em 0.75em;
-    background: none;
-    border: none;
-    border-radius: 12px 12px 0 0;
-    cursor: pointer;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
     width: 100%;
-    color: inherit;
-    font: inherit;
-    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-  }
-  .ha-adjustable-body:active {
-    -webkit-transform: scale(0.95);
-    transform: scale(0.95);
-    opacity: 0.7;
-  }
-
-  .ha-adjustable-left {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -webkit-align-items: center;
-    align-items: center;
-  }
-
-  .ha-adjustable-icon {
-    font-size: 1.6em;
-    line-height: 1;
-    -webkit-transition: opacity 0.2s ease;
-    transition: opacity 0.2s ease;
-    margin-right: 0.25em;
-  }
-  .ha-adjustable.off .ha-adjustable-icon {
-    opacity: 0.38;
-  }
-
-  .ha-adjustable-label {
-    color: {{.SecondaryFontColor | default "#ffffff" | css}};
-    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
-    font-size: 1em;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-  }
-
-  .ha-adjustable-pill {
-    width: 1.25em;
-    height: 2.25em;
-    border-radius: 0.625em;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.14);
     position: relative;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-    pointer-events: none;
-    -webkit-transition: background 0.2s ease, border-color 0.2s ease, -webkit-box-shadow 0.2s ease;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    margin-left: 0.5em;
-    margin-right: 0.1em;
   }
-  .ha-adjustable-pill::after {
-    content: '';
-    position: absolute;
-    top: 1.1875em;
-    left: 0.2em;
-    width: 0.75em;
-    height: 0.75em;
-    border-radius: 50%;
-    background: rgba(200,220,240,0.38);
-    -webkit-transition: top 0.18s ease, background 0.18s ease;
-    transition: top 0.18s ease, background 0.18s ease;
-  }
-  .ha-adjustable.on .ha-adjustable-pill {
-    background: rgba(90,210,120,0.3);
-    border-color: rgba(90,220,120,0.52);
-    -webkit-box-shadow: 0 0 8px rgba(70,200,100,0.22);
-    box-shadow: 0 0 8px rgba(70,200,100,0.22);
-  }
-  .ha-adjustable.on .ha-adjustable-pill::after {
-    top: 0.1875em;
-    background: #7ae894;
-  }
-
-  /* Chevron strip */
   .ha-adjustable-chevron {
     display: block;
     width: 100%;
-    height: 100%;
+    flex: 1;
     padding: 0.1875em 0 0.25em;
     background: none;
     border: none;
@@ -137,11 +46,10 @@
     transform: rotate(180deg);
   }
 
-  /* Overlay */
   .ha-adjustable-overlay {
     display: none;
     position: absolute;
-    top: calc(100% + 0.625em);
+    top: calc(100% + 0.5em);
     left: 50%;
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
@@ -152,6 +60,8 @@
     z-index: 200;
     -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
     box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+    width: fit-content;
+    font-size: 1.3em;
   }
   .ha-adjustable.expanded .ha-adjustable-overlay {
     display: block;
@@ -200,17 +110,28 @@
     -webkit-appearance: none;
     -webkit-flex: 1;
     flex: 1;
-    height: 0.375em;
+    height: 0.6em;
     border-radius: 2px;
     background: rgba(100,160,255,0.2);
     outline: none;
     border: none;
     cursor: pointer;
+    margin: 0 0.75em;
   }
   .ha-slider-row input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 0.75em;
-    height: 0.75em;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    background: #78b4f0;
+    -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
+    box-shadow: 0 0 8px rgba(90,175,255,0.44);
+    cursor: pointer;
+  }
+  .ha-slider-row input[type=range]::-moz-range-thumb {
+    -webkit-appearance: none;
+    width: 1.25em;
+    height: 1.25em;
     border-radius: 50%;
     background: #78b4f0;
     -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
@@ -225,32 +146,17 @@
     flex-shrink: 0;
   }
 
+ 
+
   /* Hidden until JS confirms the attribute exists */
   .ha-slider-row.hidden {
     display: none;
   }
 </style>
 {{end}}
-{{define "adjustable"}}
-<div class="ha-adjustable card off" id="ha-adj-{{.EntityID}}">
-
-  <button class="ha-adjustable-body" id="ha-adj-btn-{{.EntityID}}" title="{{.Label}}">
-    <div class="ha-adjustable-left">
-      {{if .Icon}}
-        <span class="ha-adjustable-icon">
-        {{if isEmoji .Icon}}
-            {{.Icon}}
-        {{else}}
-            {{icon .Icon}}
-        {{end}}
-        </span>
-      {{end}}
-      <span class="ha-adjustable-label entity-label">{{.Label}}</span>
-    </div>
-    <div class="ha-adjustable-pill"></div>
-  </button>
-
-  <button class="ha-adjustable-chevron" id="ha-adj-chv-{{.EntityID}}">
+{{define "_adjustable-chevron"}}
+<div class="ha-adjustable">
+  <button class="ha-adjustable-chevron">
     <i class="ha-adjustable-chevron-icon">&#9660;</i>
   </button>
 
@@ -260,66 +166,58 @@
     {{$domain := domain .EntityID}}
 
     {{if eq $domain "light"}}
-    <div class="ha-slider-row" id="ha-adj-dim-{{.EntityID}}">
-      <span class="ha-slider-label" style="width: 4em;">Dim</span>
-      <input type="range" min="0" max="255" value="255" id="ha-adj-dim-input-{{.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-dim-val-{{.EntityID}}" style="width: 3.375em;">100%</span>
+    <div class="ha-slider-row dim">
+      <span class="ha-slider-label">Dim</span>
+      <input class="ha-slider-input" type="range" min="0" max="255" value="255">
+      <span class="ha-slider-val" style="width: 3.375em;">100%</span>
     </div>
-    <div class="ha-slider-row hidden" id="ha-adj-cct-{{.EntityID}}">
-      <span class="ha-slider-label" style="width: 4em;">Temp</span>
-      <input type="range" min="2700" max="6500" value="4000" id="ha-adj-cct-input-{{.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-cct-val-{{.EntityID}}" style="width: 3.375em;">4000K</span>
+    <div class="ha-slider-row cct hidden">
+      <span class="ha-slider-label">Temp</span>
+      <input class="ha-slider-input" type="range" min="2700" max="6500" value="4000">
+      <span class="ha-slider-val" style="width: 3.375em;">4000K</span>
     </div>
     {{end}}
 
     {{if eq $domain "fan"}}
-    <div class="ha-slider-row" id="ha-adj-speed-{{.EntityID}}" >
-      <span class="ha-slider-label" style="width: 4em;">Speed</span>
-      <input type="range" min="0" max="100" value="0" id="ha-adj-speed-input-{{.EntityID}}">
-      <span class="ha-slider-val" id="ha-adj-speed-val-{{.EntityID}}" style="width: 2.5em;">100%</span>
+    <div class="ha-slider-row speed">
+      <span class="ha-slider-label">Speed</span>
+      <input class="ha-slider-input" type="range" min="0" max="100" value="0" >
+      <span class="ha-slider-val" width="0">100%</span>
+      <span class="ha-slider-val" style="visibility: hidden;">100%</span>
     </div>
-  {{end}}
+    {{end}}
   </div>
-
 </div>
-
 <script>
-(function() {
+component(function(wrapper) {
   var entityId = '{{.EntityID}}';
   var domain = '{{domain .EntityID}}';
-  var wrapper  = document.getElementById('ha-adj-'     + entityId);
-  var btn      = document.getElementById('ha-adj-btn-' + entityId);
-  var chevron  = document.getElementById('ha-adj-chv-' + entityId);
+  var chevron  = wrapper.querySelector('.ha-adjustable-chevron');
+  console.log("wrapper: ", wrapper, "chevron: ", chevron)
 
   {{if eq $domain "light"}}
-  var dimRow   = document.getElementById('ha-adj-dim-'       + entityId);
-  var dimInput = document.getElementById('ha-adj-dim-input-' + entityId);
-  var dimVal   = document.getElementById('ha-adj-dim-val-'   + entityId);
-  var cctRow   = document.getElementById('ha-adj-cct-'       + entityId);
-  var cctInput = document.getElementById('ha-adj-cct-input-' + entityId);
-  var cctVal   = document.getElementById('ha-adj-cct-val-'   + entityId);
+  var dimRow   = wrapper.querySelector('.ha-slider-row.dim');
+  var dimInput = dimRow.querySelector('.ha-slider-input');
+  var dimVal   = dimRow.querySelector('.ha-slider-val');
+  var cctRow   = wrapper.querySelector('.ha-slider-row.cct');
+  var cctInput = cctRow.querySelector('.ha-slider-input');
+  var cctVal   = cctRow.querySelector('.ha-slider-val');
   {{end}}
 
   {{if eq $domain "fan"}}
-  var speedRow   = document.getElementById('ha-adj-speed-'       + entityId);
-  var speedInput   = document.getElementById('ha-adj-speed-input-' + entityId);
-  var speedVal   = document.getElementById('ha-adj-speed-val-'   + entityId);
+  var speedRow   = wrapper.querySelector('.ha-slider-row.speed');
+  var speedInput = speedRow.querySelector('.ha-slider-input');
+  var speedVal   = speedRow.querySelector('.ha-slider-val');
+
+  // Hard set width to initial value, long values with decimals dont stretch the wrapper
+  var speedValInitWidth = speedVal.clientWidth;
+  console.log("initial width of speed val: ", speedValInitWidth)
+  speedVal.style.width = speedValInitWidth;
   {{end}}
 
-  var first = true;
-  /* ── State updates from HA ── */
-  window.entityListeners[entityId] = function(state, attributes) {
-    console.log("HA update for light: ", attributes, state)
-    /* Toggle pill */
-    if (state === 'on') {
-      wrapper.classList.remove('off');
-      wrapper.classList.add('on');
-    } 
-    else if (state === 'off') {
-      wrapper.classList.remove('on');
-      wrapper.classList.add('off');
-    }
 
+  var first = true;
+  window.entityListeners[entityId].push(function(state, attributes) {
     {{if eq $domain "light"}}
     /* Brightness — HA sends 0-255, display as 0-100% */
     if (attributes.brightness !== undefined && attributes.brightness !== null) {
@@ -366,31 +264,19 @@
       if (attributes.percentage !== undefined && attributes.percentage !== null) {
         var percentage = attributes.percentage
         speedInput.value = percentage
-        speedVal.textContent = percentage + '%';
+        speedVal.textContent = parseFloat(percentage.toFixed(1)) + '%';
       }
       if (attributes.percentage_step !== undefined && attributes.percentage_tep !== null) {
         speedInput.step = attributes.percentage_step
       }
     {{end}}
-  };
-
-  /* ── Toggle tap ── */
-  btn.addEventListener('click', function() {
-    window.haSend({
-      type: 'call_service',
-      domain: domain,
-      service: 'toggle',
-      target: { entity_id: entityId }
-    });
   });
 
-  /* ── Chevron tap ── */
   chevron.addEventListener('click', function(e) {
     e.stopPropagation();
     wrapper.classList.toggle('expanded');
   });
 
-  /* ── Close overlay when clicking outside ── */
   document.addEventListener('click', function(e) {
     if (!wrapper.classList.contains('expanded')) return;
     var el = e.target;
@@ -402,7 +288,6 @@
   });
 
   {{if eq $domain "light"}}
-  /* ── Dim slider → HA ── */
   dimInput.addEventListener('change', function() {
     var pct = Math.round(dimInput.value / 255 * 100);
     dimVal.textContent = pct + '%';
@@ -414,13 +299,13 @@
       service_data: { brightness: parseInt(dimInput.value, 10) }
     });
   });
+  
   /* Live display while dragging, send only on release (change) */
   dimInput.addEventListener('input', function() {
     var pct = Math.round(dimInput.value / 255 * 100);
     dimVal.textContent = pct + '%';
   });
 
-  /* ── CCT slider → HA ── */
   cctInput.addEventListener('change', function() {
     var kelvin = parseInt(cctInput.value, 10);
     cctVal.textContent = kelvin + 'K';
@@ -439,8 +324,8 @@
 
   {{if eq $domain "fan"}}
   speedInput.addEventListener('change', function() {
-    var speed = speedInput.value
-      speedVal.textContent = speed + '%';
+      var speed = speedInput.value
+      speedVal.textContent = parseFloat(speed).toFixed(1) + '%';
       window.haSend({
         type: 'call_service',
         domain: 'fan',
@@ -450,10 +335,20 @@
       });
     });
     speedInput.addEventListener('input', function() {
-      speedVal.textContent = speedInput.value + '%';
+      speedVal.textContent = parseFloat(speedInput.value).toFixed(1) + '%';
     });
   {{end}}
 
-})();
+});
 </script>
+{{end}}
+
+{{define "adjustable"}}
+  {{if once "adjustable-chevron-style"}}
+    {{template "_adjustable-chevron-style" .Theme}}
+  {{end}}
+  {{template "_toggle-open" .Entity}}
+  {{template "_adjustable-chevron" .Entity}}
+  </div>
+  {{template "_toggle-script" .Entity}}
 {{end}}

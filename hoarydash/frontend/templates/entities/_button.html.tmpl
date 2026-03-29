@@ -1,4 +1,5 @@
-{{define "button-style"}}
+{{define "_button-style"}}
+{{if once "button-style"}}
 <style>
   .ha-button {
     display: -webkit-flex;
@@ -30,10 +31,11 @@
     -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
     transition: opacity 0.15s ease, transform 0.15s ease;
     }
-    .ha-button-content {
-      display: flex;
-      align-items: center;
-    }
+    
+  .ha-button-content {
+    display: flex;
+    align-items: center;
+  }
 
   .ha-button:active {
     -webkit-transform: scale(0.88);
@@ -61,7 +63,8 @@
   }
 </style>
 {{end}}
-{{define "button"}}
+{{end}}
+{{define "_button"}}
 <div class="ha-button card">
   <button class="ha-button-body" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
     <div class="ha-button-content">
@@ -80,10 +83,10 @@
   </button>
 </div>
   <script>
-  (function() {
+  component(function(wrapper) {
     var entityId = '{{.EntityID}}';
     var domain = entityId.split('.')[0];
-    var btn = document.getElementById('ha-btn-' + entityId);
+    var btn = wrapper.firstElementChild;
 
     var toggleOrPressMap = {
         'input_button': 'press',
@@ -106,6 +109,10 @@
         target: { entity_id: entityId }
       });
     });
-  })();
+  });
   </script>
+{{end}}
+{{define "button"}}
+  {{template "_button-style" .Theme}}
+  {{template "_button" .Entity}}
 {{end}}
