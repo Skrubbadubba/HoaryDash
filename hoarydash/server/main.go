@@ -44,7 +44,13 @@ type Dashboard struct {
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
 	ShowHints *bool `yaml:"show_hints"`
-	Screens   []Screen
+	Swipe     *bool
+	Navbar    struct {
+		Enabled  bool
+		Position string
+		Style    string
+	}
+	Screens []Screen
 }
 
 type Screen struct {
