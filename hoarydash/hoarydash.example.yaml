@@ -1,19 +1,69 @@
 dashboards:
   dash:
+    swipe: true
+    show_hints: true
+    animations: true
+
+    navbar:
+      enabled: true
+      position: bottom
+      style: default
+
     nightlight:
       enabled: true
       override_colors: true
-    sensors:
-      - entity_id: sensor.living_room_temperature # Or whatever you have
-        label: Temperature
-        unit: °C
-    entities:
-      - entity_id: button.doorbell
-        label: Ring doorbell
-        icon: 🔔
-      - entity_id: light.ceiling
-        label: Ceiling light
-        icon: 💡
+      color: "hsl(22, 100%, 55%)"
+
+    screens:
+      - name: Main
+        icon: home
+        layout: centered
+        # Default order
+        order:
+          entities: 1
+          widgets: 2
+          sensors: 3
+        dateclock:
+          enabled: true
+          show_seconds: true
+          capitalise_day: true
+        entities:
+          - entity_id: light.ceiling
+            label: Ceiling
+            icon: lightbulb
+          - entity_id: switch.fan
+            label: Fan
+        widgets:
+          - entity_id: weather.home
+            forecast_interval: twice_daily
+            forecast_times: 5
+          - entity_id: media_player.spotify
+            show_album: true
+        sensors:
+          - entity_id: sensor.living_room_temperature
+            label: Temperature
+            unit: °C
+
+      - name: Tiles
+        icon: view-grid
+        layout: tiled
+        dateclock:
+          enabled: true
+        groups:
+          - name: Climate
+            icon: thermometer
+            cards:
+              - entity_id: sensor.living_room_temperature
+                label: Temperature
+                unit: °C
+              - entity_id: sensor.living_room_humidity
+                label: Humidity
+                unit: "%"
+          - name: Lights
+            cards:
+              - entity_id: light.ceiling
+                label: Ceiling
+
     theme:
       background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
       font_color: "#e0f7fa"
@@ -29,19 +79,11 @@ dashboards:
       sensors:
         borders: false
         background: "rgba(0, 0, 0, 0)"
-      base_font_size: 20
-  screensaver:
-    nightlight:
-      enabled: false
-    sensors:
-      - entity_id: sensor.living_room_temperature
-        label: Temperature
-        unit: °C
 
 localization:
-  locale: "en-US"
-  timezone: "America/New_York"
-  hour12: false # Or true I guess if your weird
+  locale: "sv-SE"
+  timezone: "Europe/Stockholm"
+  hour12: false
 
 fully_kiosk:
   screensaver_timeout: 60

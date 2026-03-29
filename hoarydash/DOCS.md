@@ -11,6 +11,8 @@ Chromium 44 (Android 6+) via Fully Kiosk Browser.
 4. Find **HoaryDash** in the store and click **Install**
 5. Start the addon — this creates the config folder on first run
 
+---
+
 ## Configuration
 
 After first start, a folder called `hoarydash` will appear in your addon config
@@ -81,6 +83,10 @@ Save the file. The dashboard will regenerate automatically — no restart needed
 
 Each entry under `dashboards` will become its own dashboard with its own endpoint, reachable on \<HoaryDash-url\>/\<dashboard-name\>. So from the example above one dashboard would be created at <a href="">http://homeassistant.local:4567/dash</a>
 
+Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md)
+
+---
+
 ## Getting a Long-Lived Access Token
 
 1. In Home Assistant, click your username in the bottom-left
@@ -111,7 +117,4 @@ Enable the javascript interface:
 
 ## Config Reference
 
-See [go struct](./server/main.go#L16). The yaml annotation to the right of fields dictate the field name in yaml. The ones that dont have an annotation are just lowercased in yaml.
-
-> **Timezone note:** Chromium 44 requires strict `Area/Location` IANA format.
-> `Asia/Tokyo` works. Bare aliases like `Japan` do not.
+See [go struct](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/server/main.go#L16). The yaml annotation to the right of fields dictate the field name in yaml. The ones that dont have an annotation are just lowercased in yaml.
