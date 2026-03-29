@@ -52,12 +52,13 @@
           }
       }
   }
-  function connect() {
+  window.connectToHa = function() {
     var ws = new WebSocket(
       (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/ws'
     );
 
     ws.onopen = function() {
+      console.log("ha websocket opened")
       haSocket = ws
       window.haSocketReady = true;
       ws.send(JSON.stringify({
@@ -74,7 +75,7 @@
     };
 
     ws.onmessage = function(evt) {
-      {{/* console.log("Raw message from server ", evt.data); */}}
+      console.log("Raw message from server ", evt.data);
       var msg;
       if (evt.data == "reload") {
         location.reload()
@@ -98,9 +99,6 @@
     ws.onclose = function() { setTimeout(connect, RECONNECT_DELAY_MS);window.haSocketReady = false; };
     ws.onerror = function() { ws.close(); };
   }
-  connect();
-
-
 })();
 </script>
 {{end}}

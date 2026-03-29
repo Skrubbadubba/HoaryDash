@@ -16,6 +16,7 @@
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
             entity_ids: [
+                {{/* Duplicates are fine so just loop over every possible entity definition */}}
                 {{range .Dashboard.Screens}}
                     {{range .Sensors}}"{{.EntityID}}",{{end}}
                     {{range .Entities}}"{{.EntityID}}",{{end}}
@@ -140,7 +141,7 @@
             var root = document.currentScript.previousElementSibling;
             script(root);
         };
-        function normalizeSize(container, height, width) {
+        function normalizeSize(container) {
             var divs = container.children;
             console.log("container: ", container, "divs: ", divs)
             var tallest = 0;
@@ -153,7 +154,33 @@
             for (var i = 0; i < divs.length; i++) {
                 if (divs[i].tagName == "SCRIPT") { continue; }
                 divs[i].style.height = tallest + 'px';
-                divs[i].style.Width = widest + 'px';
+                divs[i].style.width = widest + 'px';
+            }
+        }
+        function normalizeHeight(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+            }
+        }
+        function normalizeWidth(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.width = widest + 'px';
             }
         }
     </script>
@@ -295,5 +322,11 @@
     {{if enabledByDefault .Dashboard.Nightlight.Enabled}}
         {{template "nightlight" .}}
     {{end}}
+
+    <script>
+        // Connect to HA as late as possible to make sure all
+        // scripts have been parsed before connection is opened
+        window.connectToHa();
+    </script>
 </body>
 </html>

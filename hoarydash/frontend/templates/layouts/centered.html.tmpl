@@ -2,14 +2,22 @@
 {{if once "centered-layout-style"}}
 <style>
     .main-container {
+        display: -webkit-box;
+        display: -webkit-flex;
         display: flex;
-        -webkit-display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
         flex-direction: column;
-        justify-content: space-between;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
         align-items: center;
+        justify-content: space-between;
         height: 100%;
         width: 100%;
         padding: 0 0 3em 0;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
     .center-container {
         display: -webkit-box;
@@ -68,7 +76,7 @@
         </div>
         <script>
             component(function(container) {
-                normalizeSize(container)
+                normalizeHeight(container)
             });
         </script>
     {{else}}
