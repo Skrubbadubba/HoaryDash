@@ -78,6 +78,7 @@
         }
 
         .screen {
+            position: relative;
             -webkit-flex-shrink: 0;
             -webkit-box-flex: 0;
             flex-shrink: 0;
@@ -109,6 +110,33 @@
         .center-container > div {
             margin: 0 2rem 0 2rem;
         }
+        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
+        {{if $showHints}}
+        .swipe-hint {
+            position: absolute;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            opacity: 0.2;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+        .swipe-hint.left {
+            left: 0.1em;
+        }
+        .swipe-hint.right {
+            right: 0.11em;
+        }
+        {{end}}
     </style>
     <script>
         function component(script) {
@@ -116,14 +144,22 @@
             script(root);
         };
     </script>
-    {{range .Dashboard.Screens}}
+    {{range $i, $screen := .Dashboard.Screens}}
         <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
+            {{if $showHints}}
+            {{with prevScreen $.Dashboard $i}}
+                <div class="swipe-hint left">
+                    {{icon "chevron-left"}}
+                    {{if .Icon}}{{icon .Icon}}{{end}}
+                </div>
+            {{end}}
+            {{end}}
             {{/* <p>{{json .}}</p> */}}
             <div class="main-container">
                 {{if .Entities}}
                     {{template "entities" (dict
                         "Theme" $theme
-                        "Screen" .
+                        "Screen" $screen
                     )}}
                 {{else}}
                     {{/* Take up space inside flexbox */}}
@@ -142,7 +178,7 @@
                     {{if .Widgets}}
                         {{template "widgets" (dict
                         "Theme" $theme
-                        "Screen" .
+                        "Screen" $screen
                     )}}
                     {{end}}
                 
@@ -150,13 +186,21 @@
                 {{if .Sensors}}
                     {{template "sensors" (dict
                         "Theme" $theme
-                        "Screen" .
+                        "Screen" $screen
                     )}}
                 {{else}}
                     {{/* Take up space inside flexbox */}}
                     <div style="display: hidden;"></div>
                 {{end}}
+                {{if $showHints}}
+                {{with nextScreen $.Dashboard $i}}
+                <div class="swipe-hint right">
+                    {{if .Icon}}{{icon .Icon}}{{end}}
+                    {{icon "chevron-right"}}
+                </div>
+                {{end}}
             </div>
+        {{end}}
         </div>
     {{end}}
     </div>

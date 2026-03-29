@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -44,39 +43,43 @@ type Dashboard struct {
 		IconColor          template.CSS `yaml:"icon_color"`
 		BaseFontSize       template.CSS `yaml:"base_font_size"`
 	}
-	Screens []struct {
-		Position   int
-		Navigation *string
-		Name       string
-		Icon       *string
-		Dateclock  struct {
-			Enabled       *bool
-			Hour12        bool
-			CapitaliseDay bool `yaml:"capitalise_day"`
-			ShowSeconds   bool `yaml:"show_seconds"`
-		}
-		Widgets []struct {
-			EntityID        string `yaml:"entity_id"`
-			FontSize        string `yaml:"font_size"` // Per widget override
-			InternalBorders *bool  `yaml:"internal_borders"`
-			// Weather-specific
-			ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-			ForecastTimes    *int              `yaml:"forecast_times"`
-			// Media-specific
-			ShowVolume *bool
-			ShowAlbum  *bool
-		}
-		Sensors []struct {
-			EntityID string `yaml:"entity_id"`
-			Label    string
-			Unit     string
-		}
-		Entities []Entity
-		Order    struct {
-			Entities int
-			Widgets  int
-			Sensors  int
-		}
+	ShowHints *bool `yaml:"show_hints"`
+	Screens   []Screen
+}
+
+type Screen struct {
+	Position int
+
+	Navigation *string
+	Name       string
+	Icon       *string
+	Dateclock  struct {
+		Enabled       *bool
+		Hour12        bool
+		CapitaliseDay bool `yaml:"capitalise_day"`
+		ShowSeconds   bool `yaml:"show_seconds"`
+	}
+	Widgets []struct {
+		EntityID        string `yaml:"entity_id"`
+		FontSize        string `yaml:"font_size"` // Per widget override
+		InternalBorders *bool  `yaml:"internal_borders"`
+		// Weather-specific
+		ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
+		ForecastTimes    *int              `yaml:"forecast_times"`
+		// Media-specific
+		ShowVolume *bool
+		ShowAlbum  *bool
+	}
+	Sensors []struct {
+		EntityID string `yaml:"entity_id"`
+		Label    string
+		Unit     string
+	}
+	Entities []Entity
+	Order    struct {
+		Entities int
+		Widgets  int
+		Sensors  int
 	}
 }
 
@@ -339,10 +342,17 @@ func BuildDash() {
 			}
 			return result, nil
 		},
-		"slot": func(name string, data any) (template.HTML, error) {
-			var buf bytes.Buffer
-			err := tmpl.ExecuteTemplate(&buf, name, data)
-			return template.HTML(buf.String()), err
+		"prevScreen": func(d Dashboard, i int) *Screen {
+			if i > 0 {
+				return &d.Screens[i-1]
+			}
+			return nil
+		},
+		"nextScreen": func(d Dashboard, i int) *Screen {
+			if i+1 < len(d.Screens) {
+				return &d.Screens[i+1]
+			}
+			return nil
 		},
 	}
 
