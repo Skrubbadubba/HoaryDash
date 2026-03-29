@@ -51,11 +51,59 @@
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
-    <div class="screens">
     {{$config := .Config}}
     {{$theme := .Dashboard.Theme}}
     {{template "base-style" .}}
     {{template "btn-style" $theme}}
+    <script>
+        function component(script) {
+            var root = document.currentScript.previousElementSibling;
+            script(root);
+        };
+        function normalizeSize(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+                divs[i].style.width = widest + 'px';
+            }
+        }
+        function normalizeHeight(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+            }
+        }
+        function normalizeWidth(container) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.width = widest + 'px';
+            }
+        }
+    </script>
+    <div class="screens">
     <style>
         .screens {
             display: -webkit-box;
@@ -136,54 +184,7 @@
         {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
         {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
     {{end}}
-    <script>
-        function component(script) {
-            var root = document.currentScript.previousElementSibling;
-            script(root);
-        };
-        function normalizeSize(container) {
-            var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
-            var tallest = 0;
-            var widest = 0;
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
-                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
-            }
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                divs[i].style.height = tallest + 'px';
-                divs[i].style.width = widest + 'px';
-            }
-        }
-        function normalizeHeight(container) {
-            var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
-            var tallest = 0;
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
-            }
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                divs[i].style.height = tallest + 'px';
-            }
-        }
-        function normalizeWidth(container) {
-            var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
-            var widest = 0;
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
-            }
-            for (var i = 0; i < divs.length; i++) {
-                if (divs[i].tagName == "SCRIPT") { continue; }
-                divs[i].style.width = widest + 'px';
-            }
-        }
-    </script>
+    
     {{range $i, $screen := .Dashboard.Screens}}
         <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
@@ -322,7 +323,6 @@
     {{if enabledByDefault .Dashboard.Nightlight.Enabled}}
         {{template "nightlight" .}}
     {{end}}
-
     <script>
         // Connect to HA as late as possible to make sure all
         // scripts have been parsed before connection is opened

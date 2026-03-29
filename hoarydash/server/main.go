@@ -403,7 +403,24 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
 	check(err, "Created template object")
 
+	// Clone to give each dashboard its own once func
+	// Needs to be done before any execution
+	dashTmpls := make(map[string]*template.Template)
+	for name := range cfg.Dashboards {
+		funcMap["once"] = makeOnceFunc()
+		dashTmpl, err := tmpl.Clone()
+		if err != nil {
+			log.Printf("Could not clone template for %s: %v", name, err)
+			continue
+		}
+		dashTmpls[name] = dashTmpl.Funcs(funcMap)
+	}
+
 	for name, dash := range cfg.Dashboards {
+		dashTmpl, ok := dashTmpls[name]
+		if !ok {
+			continue
+		}
 		outputDir := frontendPath + "/static/" + name
 		err = os.MkdirAll(outputDir, 0755)
 		check(err, "Created %s", outputDir)
@@ -413,7 +430,7 @@ func BuildDash() {
 		// fmt.Printf("Parsed yaml:\n%+v\n", cfg)
 		data := TemplateData{dash, cfg.Config, isDev}
 		// fmt.Printf("Template data:\n%+v\n", data)
-		err = tmpl.ExecuteTemplate(out, "main.html.tmpl", data)
+		err = dashTmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 		out.Sync()
 		check(err, "Template executed")
 	}
