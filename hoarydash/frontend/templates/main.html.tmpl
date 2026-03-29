@@ -94,7 +94,7 @@
             align-items: center;
             height: 100%;
             width: 100%;
-            padding: 1.5em 0 5.5em 0;
+            padding: 1.5em 0 3em 0;
         }
         .center-container {
             display: -webkit-box;
@@ -138,15 +138,19 @@
         }
         {{end}}
     </style>
+    {{$extraPad := ""}}
+    {{if .Dashboard.Navbar.Enabled}}
+        {{if eq .Dashboard.Navbar.Position "bottom"}}{{$extraPad = "padding-bottom: 5.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "top"}}{{$extraPad = "padding-top: 6em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 2.5em;"}}{{end}}
+        {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 2.5em;"}}{{end}}
+    {{end}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
             script(root);
         };
     </script>
-    {{if .Dashboard.Navbar.Enabled}}
-    {{template "navbar-style" .Dashboard}}
-    {{end}}
     {{range $i, $screen := .Dashboard.Screens}}
         <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
@@ -158,7 +162,7 @@
             {{end}}
             {{end}}
             {{/* <p>{{json .}}</p> */}}
-            <div class="main-container">
+            <div class="main-container" style="{{css $extraPad}}">
                 {{if .Entities}}
                     {{template "entities" (dict
                         "Theme" $theme
@@ -206,8 +210,59 @@
         {{end}}
         </div>
     {{end}}
+
     {{if .Dashboard.Navbar.Enabled}}
-    {{template "navbar" .Dashboard}}
+        {{$orientation := "horizontal"}}
+        {{if or (eq .Dashboard.Navbar.Position "left") (eq .Dashboard.Navbar.Position "right")}}
+            {{$orientation = "vertical"}}
+        {{end}}
+
+        <style>
+            .navbar-container {
+                position: absolute;
+                z-index: 5;
+            }
+            .navbar-container.navbar-bottom {
+                bottom: 1em;
+                left: 50%;
+                -webkit-transform: translateX(-50%);
+                transform: translateX(-50%);
+            }
+            .navbar-container.navbar-top {
+                top: 1em;
+                left: 50%;
+                -webkit-transform: translateX(-50%);
+                transform: translateX(-50%);
+            }
+            .navbar-container.navbar-left {
+                left: 1em;
+                top: 50%;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+            .navbar-container.navbar-right {
+                right: 1em;
+                top: 50%;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+            .navbar-container.navbar-horizontal > nav {
+                -webkit-flex-direction: row;
+                flex-direction: row;
+            }
+            .navbar-container.navbar-vertical > nav{
+                -webkit-flex-direction: column;
+                flex-direction: column;
+            }
+        </style>
+        <div class="navbar-container navbar-{{.Dashboard.Navbar.Position | default "bottom"}} navbar-{{$orientation}}">
+            {{template "navbar" .Dashboard.Screens}}
+            {{if eq .Dashboard.Navbar.Style "rectangle"}}
+                {{template "navbar-rectangle-style" (merge .Dashboard.Theme .Dashboard.Navbar)}}
+            {{else}}
+                {{template "navbar-default-style" .Dashboard.Theme}}
+            {{end}}
+        </div>
     {{end}}
     </div>
     <script>

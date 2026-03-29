@@ -372,6 +372,7 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
 	check(err, "Created template object")
 
 	for name, dash := range cfg.Dashboards {

@@ -1,0 +1,64 @@
+{{define "navbar-default-style"}}
+<style>
+    .navbar {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: row;
+        align-items: center;
+        z-index: 5;
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 2em;
+        padding: 0.4em 0.6em;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        font-size: 1.1em;
+    }
+
+    .navbar-item {
+        opacity: 0.45;
+        padding: 0.5em 0.9em;
+        cursor: pointer;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        color: {{css .FontColor}};
+        -webkit-transition: opacity 0.2s ease;
+        transition: opacity 0.2s ease;
+        border-radius: 2em;
+        font-size: 0.85em;
+    }
+
+    .navbar-item.active {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .navbar-label {
+        font-size: 0.7em;
+        margin-top: 0.3em;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+    }
+
+    .navbar-icon {
+        font-size: 1.4em;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+</style>
+{{end}}
