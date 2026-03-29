@@ -19,6 +19,9 @@
         overflow-x: hidden;
         overflow-y: auto;
     }
+    .main-container > div {
+        height: 100%;
+    }
     .center-container {
         display: -webkit-box;
         display: -webkit-flex;
@@ -84,7 +87,7 @@
         <div style="display: hidden;"></div>
     {{end}}
 
-    <div class="center-container" style="order: {{.Order.Widgets}}">
+    <div class="center-container" style="order: {{.Screen.Order.Widgets}}">
         {{if enabledByDefault .Screen.Dateclock.Enabled}}
             {{template "dateclock" (dict
             "Localization" .Config.Localization
@@ -103,8 +106,10 @@
                         font-size: {{.Theme.Widgets.FontSize}}px;
                     {{end}}
                     width: 19em;
+                    min-height: 0;
                 }
                 .widgets-container > div {
+                    min-height: 0;
                     margin: 5px 0;
                     {{template "create-card-theme" .Theme.Widgets}}
                 }
@@ -140,7 +145,7 @@
                 justify-content: space-around;;
                 flex-wrap: wrap;
                 align-items: center;
-                font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};;
+                font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};
             }
         </style>
         {{end}}
