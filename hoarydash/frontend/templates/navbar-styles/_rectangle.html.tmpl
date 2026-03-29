@@ -15,11 +15,12 @@
         font-size: 1.1em;
         width: 100%;
         border: 0.1em solid rgba(255, 255, 255, 0.15);
+        border-{{.Position | default "bottom"}}: none;
         padding: 0.6em 0.4em;
     }
         
     .navbar-container {
-        {{.Position | default "bottom"}}: -0.1em !important;
+        {{.Position | default "bottom"}}: 0em !important;
     }   
 
     .navbar-item {

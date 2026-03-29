@@ -14,6 +14,7 @@
         align-items: center;
         width: 100%;
         height: 100%;
+        overflow-x: hidden;
         overflow-y: auto;
         padding: 1.5em 1em;
         -webkit-box-sizing: border-box;
@@ -22,18 +23,16 @@
 
     .tiled-clock {
         width: 100%;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
         margin-bottom: 1em;
     }
 
     .tiled-group {
         width: 100%;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        max-width: 100%;
         margin-bottom: 1.2em;
+        touch-action: pan-y;
     }
 
     .tiled-group-header {
@@ -84,6 +83,7 @@
         flex-direction: row;
         -webkit-flex-wrap: wrap;
         flex-wrap: wrap;
+        max-width: 100%;
     }
 
     .tiled-cards > * {
@@ -149,10 +149,13 @@
 
 <script>
 component(function(container) {
-    var groups = container.querySelectorAll('.tiled-cards');
-    for (var g = 0; g < groups.length; g++) {
-        normalizeSize(groups[g])
-    }
+    setTimeout(function(){
+        var groups = container.querySelectorAll('.tiled-cards');
+        for (var g = 0; g < groups.length; g++) {
+            normalizeSize(groups[g])
+        }
+
+    }, 500)
 });
 </script>
 {{end}}
