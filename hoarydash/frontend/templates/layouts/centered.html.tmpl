@@ -1,5 +1,5 @@
 {{define "centered-layout"}}
-    {{if once "centered-layout-style"}}
+{{if once "centered-layout-style"}}
 <style>
     .main-container {
         display: flex;
@@ -9,7 +9,7 @@
         align-items: center;
         height: 100%;
         width: 100%;
-        padding: 1.5em 0 3em 0;
+        padding: 0 0 3em 0;
     }
     .center-container {
         display: -webkit-box;
@@ -28,14 +28,54 @@
 {{end}}
 <div class="main-container">
     {{if .Screen.Entities}}
-        {{template "entities" (dict
-            "Theme" .Theme
-            "Screen" .Screen
-        )}}
+        {{if once "entities-style"}}
+        <style>
+            .entities-container {
+                display: -webkit-flex;
+                display: flex;
+                -webkit-flex-wrap: wrap;
+                flex-wrap: wrap;
+                -webkit-justify-content: center;
+                justify-content: center;
+                -webkit-align-items: stretch;
+                align-items: stretch;
+                max-width: 75vw;
+                font-size: {{if .Theme.Entities.FontSize}}{{.Theme.Entities.FontSize}}px{{else}}inherit{{end}};
+            }
+            .entities-container > .card {
+                margin: 5px;
+                {{template "create-card-theme" .Theme.Entities}}
+            }
+        </style>
+        {{end}}
+        <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
+        {{$theme := .Theme}}
+        {{range .Screen.Entities}}
+            {{$entityDict := (dict
+                "Theme" $theme  
+                "Entity" .  
+            )}}
+            {{if domainIn .EntityID "switch" "input_boolean"}}
+                {{template "toggle" $entityDict}}
+            {{else if domainIn .EntityID "light" "fan"}}
+                {{template "adjustable" $entityDict}}
+            {{else if domainIn .EntityID }}
+                {{template "button" $entityDict}}
+            {{else}}
+                {{template "button" $entityDict}}
+            {{end}}
+        {{end}}
+        </div>
+        <script>
+            component(function(container) {
+                normalizeSize(container)
+            });
+        </script>
     {{else}}
         {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>
     {{end}}
+
     <div class="center-container" style="order: {{.Order.Widgets}}">
         {{if enabledByDefault .Screen.Dateclock.Enabled}}
             {{template "dateclock" (dict
@@ -43,19 +83,74 @@
             "Dateclock" .Screen.Dateclock
             )}}
         {{end}}
+
         {{if .Screen.Widgets}}
             <div style="flex-grow:1;"></div>
-            {{template "widgets" (dict
-            "Theme" .Theme
-            "Screen" .Screen
-        )}}
+            {{if once "widgets-style"}}
+            <style>
+                .widgets-container {
+                    display: flex;
+                    flex-direction: column;
+                    {{if .Theme.Widgets.FontSize}}
+                        font-size: {{.Theme.Widgets.FontSize}}px;
+                    {{end}}
+                    width: 19em;
+                }
+                .widgets-container > div {
+                    margin: 5px 0;
+                    {{template "create-card-theme" .Theme.Widgets}}
+                }
+                </style>
+            {{end}}
+                <div class="widgets-container">
+                {{$theme := .Theme}}
+                {{range .Screen.Widgets}}
+                    {{$widgetDict := (dict
+                            "Theme" $theme
+                            "Entity" .
+                        )}}
+                    {{if eq (domain .EntityID) "weather"}}
+                        {{template "weather-widget" ($widgetDict)}}
+                    {{else if eq (domain .EntityID) "media_player"}}
+                        {{template "media-widget" ($widgetDict)}}
+                    {{else if eq (domain .EntityID) "todo"}}
+                        {{template "todo-widget" ($widgetDict)}}
+                    {{end}}
+                {{end}}
+                </div>
         {{end}}
     </div>
+
     {{if .Screen.Sensors}}
-        {{template "sensors" (dict
-            "Theme" .Theme
-            "Screen" .Screen
-        )}}
+        {{if once "sensors-style"}}
+        <style>
+            .sensors-container {
+                display: flex;
+                -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+                transition: opacity 0.8s ease, margin-bottom 0.5s ease;
+                width: 75vw;
+                justify-content: space-around;;
+                flex-wrap: wrap;
+                align-items: center;
+                font-size: font-size: {{if .Theme.Sensors.FontSize}}{{.Theme.Sensors.FontSize}}px{{else}}inherit{{end}};;
+            }
+        </style>
+        {{end}}
+        <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
+        {{$screenName := .Screen.Name}}
+        {{$theme := .Theme}}
+        {{range .Screen.Sensors}}
+            {{template "sensor" (dict
+                "Theme" $theme
+                "Entity" .
+            )}}
+        {{end}}
+        </div>
+        <script>
+            component(function(root) {
+                normalizeSize(root)
+            });
+        </script>
     {{else}}
         {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>

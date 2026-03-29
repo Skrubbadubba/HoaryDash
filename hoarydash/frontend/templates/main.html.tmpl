@@ -44,7 +44,7 @@
     </script>
     {{template "websocket"}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-    </head>
+</head>
 <body>
     {{if .IsDev}}
         {{template "isdev"}}
@@ -136,6 +136,22 @@
             var root = document.currentScript.previousElementSibling;
             script(root);
         };
+        function normalizeSize(container, height, width) {
+            var divs = container.children;
+            console.log("container: ", container, "divs: ", divs)
+            var tallest = 0;
+            var widest = 0;
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                if (divs[i].offsetHeight > tallest) { tallest = divs[i].offsetHeight; }
+                if (divs[i].offsetWidth > widest) { widest = divs[i].offsetWidth; }
+            }
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].tagName == "SCRIPT") { continue; }
+                divs[i].style.height = tallest + 'px';
+                divs[i].style.minWidth = widest + 'px';
+            }
+        }
     </script>
     {{range $i, $screen := .Dashboard.Screens}}
         <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">

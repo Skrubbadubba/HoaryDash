@@ -130,8 +130,8 @@
                     {{template "media-widget" $cardDict}}
                 {{else if domainIn .EntityID "todo"}}
                     {{template "todo-widget" $cardDict}}
-                {{/* {{else if domainIn .EntityID "sensor" "binary_sensor"}}
-                    {{template "sensor" .}} */}}
+                {{else if domainIn .EntityID "sensor" "binary_sensor"}}
+                    {{template "sensor" $cardDict}}
                 {{else if domainIn .EntityID "switch" "input_boolean"}}
                     {{template "toggle" $cardDict}}
                 {{else if domainIn .EntityID "light" "fan"}}
@@ -151,17 +151,7 @@
 component(function(container) {
     var groups = container.querySelectorAll('.tiled-cards');
     for (var g = 0; g < groups.length; g++) {
-        var cards = groups[g].children;
-        var tallest = 0;
-        var widest = 0;
-        for (var i = 0; i < cards.length; i++) {
-            if (cards[i].offsetHeight > tallest) { tallest = cards[i].offsetHeight; }
-            if (cards[i].offsetWidth > widest) { widest = cards[i].offsetWidth; }
-        }
-        for (var i = 0; i < cards.length; i++) {
-            cards[i].style.height = tallest + 'px';
-            cards[i].style.minWidth = widest + 'px';
-        }
+        normalizeSize(groups[g])
     }
 });
 </script>

@@ -1,8 +1,13 @@
 {{define "_adjustable-chevron-style"}}
 <style>
+  .ha-adjustable {
+    position: relative;
+    height: 100%;
+  }
   .ha-adjustable-chevron {
     display: block;
     width: 100%;
+    height: 100%;
     padding: 0.1875em 0 0.25em;
     background: none;
     border: none;
@@ -33,8 +38,8 @@
 
   .ha-adjustable-overlay {
     display: none;
-    position: relative;
-    top: 0.625em;
+    position: absolute;
+    top: calc(100% + 0.5em);
     left: 50%;
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
