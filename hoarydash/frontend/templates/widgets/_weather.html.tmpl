@@ -124,14 +124,14 @@
     border-right: 0.05em solid rgba(120, 180, 255, 0.1);
     {{end}}
   }
-
-
+  
   .forecast-day-name {
     font-size: 0.45em;
     color: #8899aa;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.2em;
+    white-space: nowrap;
   }
 
   .forecast-day-icon {
@@ -243,7 +243,8 @@ component(function(wrapper) {
               hour: '2-digit',
               minute: '2-digit',
               timeZone: timezone,
-              hour12: hour12
+              hour12: {{disabledByDefault .Entity.Hour12}},
+              weekday: 'short',
           });
       }
       return date.toLocaleDateString(locale, {
@@ -310,7 +311,7 @@ component(function(wrapper) {
       type: 'call_service',
       domain: 'weather',
       service: 'get_forecasts',
-      service_data: { type: {{.ForecastInterval | default "daily"}} },
+      service_data: { type: {{.Entity.ForecastInterval | default "daily"}} },
       target: { entity_id: entityId },
       return_response: true
     }).then(function(result) {

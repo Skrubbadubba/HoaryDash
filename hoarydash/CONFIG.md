@@ -245,6 +245,7 @@ widgets:
   - entity_id: weather.home
     forecast_interval: twice_daily
     forecast_times: 5
+    hour12: false
 
   - entity_id: media_player.spotify
     show_volume: true
@@ -265,6 +266,7 @@ widgets:
 |-----|------|---------|-------------|
 | `forecast_interval` | string | `daily` | Forecast granularity. One of `daily`, `twice_daily`, `hourly` |
 | `forecast_times` | int | `5` | Number of forecast periods to display |
+| `hour12` | bool | `false` | Show time in 12-hour format |
 
 ### Media player-specific fields
 

@@ -105,6 +105,7 @@ type Card struct {
 	// Weather-specific
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`
+	Hour12           *bool
 	// Media-specific
 	ShowVolume *bool `yaml:"show_volume"`
 	ShowAlbum  *bool `yaml:"show_album"`
