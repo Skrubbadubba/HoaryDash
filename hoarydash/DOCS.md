@@ -7,7 +7,7 @@ Chromium 44 (Android 6+) via Fully Kiosk Browser.
 
 1. In Home Assistant, go to **Settings → Add-ons → Add-on Store**
 2. Click the three-dot menu (⋮) in the top right and choose **Repositories**
-3. Add the repository URL: `https://github.com/YOUR_USERNAME/HoaryDash`
+3. Add the repository URL: `https://github.com/Skrubbadubba/HoaryDash`
 4. Find **HoaryDash** in the store and click **Install**
 5. Start the addon — this creates the config folder on first run
 
