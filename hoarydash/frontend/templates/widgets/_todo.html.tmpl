@@ -145,7 +145,7 @@
         list-style: none;
         margin: 0.25em 0.1em 0 0.1em;
     }
-    #todo-template {
+    .todo.template {
         display: none;
     }
 
@@ -293,6 +293,7 @@ function renderTodos(todos) {
         }
 
         var newTodo = dummyTodo.cloneNode(true);
+        newTodo.classList.remove("template")
         updateTodo(todo, newTodo);
         todosEl.appendChild(newTodo);
     }
