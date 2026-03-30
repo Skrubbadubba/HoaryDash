@@ -1,6 +1,6 @@
 # HoaryDash Configuration Reference
 
-All configuration lives in a single file: `/addon_configs/hoarydash/hoarydash.yaml`. This is the heart of the entire operation
+All configuration lives in a single file: `/addon_configs/hoarydash/hoarydash.yaml`. This is the heart of the entire operation.
 
 The file has two top-level sections: `dashboards` (a map of dashboard names to dashboard configs) and a set of global keys (`localization`, `fully_kiosk`, `home_assistant`).
 
@@ -67,7 +67,7 @@ Each dashboard supports the following fields.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `animations` | bool | `true` | Enable CSS transition animations |
-| `screenonlock` | bool | — | Keep screen on when the dashboard is active |
+| `screenonlock` | bool | `true` | Show button to toggle Fully Kiosks screensaver |
 | `swipe` | bool | `true` | Enable horizontal swipe to navigate between screens |
 | `show_hints` | bool | `true` | Show chevron hints at screen edges pointing toward adjacent screens |
 | `screens` | list | — | List of screens (see [Screens](#screens)) |
@@ -173,7 +173,7 @@ order:
   sensors: 3
 ```
 
-Lower numbers appear first (top of the screen). Values can be any integer. For example, to just set sensors top the top:
+Lower numbers appear first (top of the screen). Values can be any integer. For example, to just set sensors to the top:
 
 ```yaml
 order:
@@ -334,7 +334,7 @@ theme:
     borders: false
 ```
 
-A current limitation is that there are no per-screen theming, meaning if you set sensors with a transparent backgrounds, they will appear so on every screen, which mioght not look the best on the tiled layout.
+A current limitation is that there are no per-screen theming, meaning if you set sensors with a transparent backgrounds, they will appear so on every screen, which might look good on the centered layout but not so much on tiled.
 
 ### Dashboard-level theme fields
 
