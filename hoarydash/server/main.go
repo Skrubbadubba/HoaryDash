@@ -30,11 +30,10 @@ type Dashboard struct {
 		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
-	Theme        Theme
-	BaseFontSize int   `yaml:"base_font_size"`
-	ShowHints    *bool `yaml:"show_hints"`
-	Swipe        *bool
-	Navbar       struct {
+	Theme     Theme
+	ShowHints *bool `yaml:"show_hints"`
+	Swipe     *bool
+	Navbar    struct {
 		Enabled  bool
 		Position string
 		Style    string
@@ -368,12 +367,12 @@ func BuildDash() {
 			}
 			return result, nil
 		},
-		"concat": func(strings ...string) string {
-			var out string
-			for _, str := range strings {
-				out += str
+		"concat": func(values ...any) string {
+			var out strings.Builder
+			for _, v := range values {
+				out.WriteString(fmt.Sprint(v))
 			}
-			return out
+			return out.String()
 		},
 		"prevScreen": func(d Dashboard, i int) *Screen {
 			if i > 0 {

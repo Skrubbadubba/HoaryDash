@@ -185,9 +185,9 @@
     {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
-        {{$id := concat "screen-" .Name "-container"}}
+        {{$id := concat "screen-" .Name "-container-" $i}}
         {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
-        <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
+        <div id="{{$id}}" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
                 <div class="swipe-hint left">
