@@ -52,9 +52,8 @@
         {{template "isdev"}}
     {{end}}
     {{$config := .Config}}
-    {{$theme := .Dashboard.Theme}}
     {{template "base-style" .}}
-    {{template "btn-style" $theme}}
+    {{template "btn-style" .Dashboard.Theme}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
@@ -186,7 +185,9 @@
     {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
-        <div id="screen-{{.Name}}-container" class="screen" style="order: {{.Position}};">
+        {{$id := concat "screen-" .Name "-container-" $i}}
+        {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
+        <div id="{{$id}}" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
                 <div class="swipe-hint left">
@@ -198,7 +199,6 @@
             {{/* <p>{{json .}}</p> */}}
             <div class="layout-container" style="{{css $extraPad}}">
                 {{$layoutDict := (dict 
-                    "Theme" $theme
                     "Config" $config
                     "Screen" $screen
                 )}}

@@ -10,4 +10,4 @@ if (-not (Test-Path $env:ANDROID_AVD_HOME)) {
     New-Item -ItemType Directory -Path $env:ANDROID_AVD_HOME | Out-Null
 }
 
-& "$sdk\emulator\emulator.exe" -avd chromium44 -no-snapshot-load
+& "$sdk\emulator\emulator.exe" -avd chromium46 -no-snapshot-load

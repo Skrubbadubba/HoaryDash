@@ -30,19 +30,7 @@ type Dashboard struct {
 		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
-	Theme struct {
-		BodyBackground     template.CSS `yaml:"body_background"`
-		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Cards              CardTheme    // Default for widgets, entities and sensors
-		Entities           CardTheme
-		Sensors            CardTheme
-		Widgets            CardTheme
-		ButtonBackground   template.CSS `yaml:"button_background"`
-		FontColor          template.CSS `yaml:"font_color"`
-		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-		IconColor          template.CSS `yaml:"icon_color"`
-		BaseFontSize       template.CSS `yaml:"base_font_size"`
-	}
+	Theme     Theme
 	ShowHints *bool `yaml:"show_hints"`
 	Swipe     *bool
 	Navbar    struct {
@@ -51,6 +39,19 @@ type Dashboard struct {
 		Style    string
 	}
 	Screens []Screen
+}
+
+type Theme struct {
+	Background         template.CSS
+	Cards              CardTheme // Default for widgets, entities and sensors
+	Entities           CardTheme
+	Sensors            CardTheme
+	Widgets            CardTheme
+	ButtonBackground   template.CSS `yaml:"button_background"`
+	FontColor          template.CSS `yaml:"font_color"`
+	SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+	IconColor          template.CSS `yaml:"icon_color"`
+	FontSize           template.CSS `yaml:"font_size"`
 }
 
 type Screen struct {
@@ -79,21 +80,12 @@ type Screen struct {
 	Groups []struct {
 		Name  string
 		Icon  string
+		Theme CardTheme
 		Cards []Card
 	}
+	Theme Theme
 }
 
-type Widget struct {
-	EntityID        string `yaml:"entity_id"`
-	FontSize        string `yaml:"font_size"` // Per widget override
-	InternalBorders *bool  `yaml:"internal_borders"`
-	// Weather-specific
-	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-	ForecastTimes    *int              `yaml:"forecast_times"`
-	// Media-specific
-	ShowVolume *bool
-	ShowAlbum  *bool
-}
 type Card struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
@@ -374,6 +366,13 @@ func BuildDash() {
 				}
 			}
 			return result, nil
+		},
+		"concat": func(values ...any) string {
+			var out strings.Builder
+			for _, v := range values {
+				out.WriteString(fmt.Sprint(v))
+			}
+			return out.String()
 		},
 		"prevScreen": func(d Dashboard, i int) *Screen {
 			if i > 0 {

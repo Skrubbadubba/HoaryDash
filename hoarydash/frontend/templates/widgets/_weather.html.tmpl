@@ -4,9 +4,6 @@
   .weather-container {
     overflow: hidden;
     font-family: inherit;
-    {{if .Entity.FontSize}}
-      font-size: {{.Entity.FontSize}}px;
-    {{end}}
   }
 
   .weather-main {
@@ -43,14 +40,14 @@
   .weather-temp {
     font-size: 1.9em;
     font-weight: 700;
-    color: {{.Theme.FontColor | default "#f0e0c0"}};
+    color: #f0e0c0;
     line-height: 1;
   }
 
   .weather-temp-unit {
     font-size: 0.9em;
     font-weight: 400;
-    color: {{.Theme.SecondaryFontColor | default "#a08060"}};
+    color: #a08060};
   }
 
   .weather-divider {
@@ -83,7 +80,7 @@
   .weather-condition {
     font-size: 0.65em;
     font-weight: 600;
-    color: {{.Theme.SecondaryFontColor | default "#d0c8b8"}};
+    color: #d0c8b8;
     text-transform: capitalize;
   }
 
@@ -100,9 +97,6 @@
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
-    {{if enabledByDefault .Entity.InternalBorders}}
-    border-top: 0.05em solid rgba(120, 180, 255, 0.12);
-    {{end}}
     overflow: scroll;
   }
 
@@ -120,9 +114,6 @@
     -webkit-align-items: center;
     align-items: center;
     padding: 0.4em;
-    {{if enabledByDefault .Entity.InternalBorders}}
-    border-right: 0.05em solid rgba(120, 180, 255, 0.1);
-    {{end}}
   }
   
   .forecast-day-name {
@@ -155,7 +146,7 @@
   .forecast-temp-high {
     font-size: 0.55em;
     font-weight: 600;
-    color: {{.Theme.FontColor | default "#d0c0a0"}};
+    color: #d0c0a0;
   }
 
   .forecast-temp-low {
@@ -164,17 +155,20 @@
   }
 </style>
 {{end}}
-<div class="weather-container card">
+<div class="weather-container widget card"
+{{if .FontSize}}
+  style="font-size: {{.FontSize}}px;"
+{{end}}>
   <div class="weather-main">
     <div class="weather-current">
       <div class="weather-icon">🌡️</div>
       <div>
-        <span class="weather-temp">--</span><span class="weather-temp-unit">°C</span>
+        <span class="weather-temp font-primary">--</span><span class="weather-temp-unit font-secondary">°C</span>
       </div>
     </div>
     <div class="weather-divider"></div>
     <div class="weather-details">
-      <div class="weather-condition">Loading...</div>
+      <div class="weather-condition font-secondary">Loading...</div>
       <div class="weather-meta">
         <span class="weather-wind"></span>
         <span class="weather-humidity"></span>
@@ -182,13 +176,16 @@
       </div>
     </div>
   </div>
-  <div class="weather-forecast"></div>
+  <div class="weather-forecast"
+  {{if enabledByDefault .InternalBorders}}
+    style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"
+  {{end}}></div>
 </div>
 
 <script>
 component(function(wrapper) {
   var POLL_INTERVAL = 10 * 60 * 1000;
-  var entityId = {{.Entity.EntityID}};
+  var entityId = {{.EntityID}};
   console.log("weather entity id is: ", entityId)
   if (!entityId) { return; }
 
@@ -243,7 +240,7 @@ component(function(wrapper) {
               hour: '2-digit',
               minute: '2-digit',
               timeZone: timezone,
-              hour12: {{disabledByDefault .Entity.Hour12}},
+              hour12: {{disabledByDefault .Hour12}},
               weekday: 'short',
           });
       }
@@ -276,7 +273,7 @@ component(function(wrapper) {
       return;
     }
     var html = '';
-    var days = forecast.slice(0, {{.Entity.ForecastTimes | default 3}});
+    var days = forecast.slice(0, {{.ForecastTimes | default 3}});
     var hourly = isHourlyForecast(forecast);
     for (var i = 0; i < days.length; i++) {
       var day       = days[i];
@@ -285,11 +282,11 @@ component(function(wrapper) {
       var icon      = iconForCondition(day.condition);
       var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
       var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
-      html += '<div class="forecast-day">'
+      html += '<div class="forecast-day" {{if enabledByDefault .InternalBorders}}style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"{{end}}>'
         + '<div class="forecast-day-name">'  + timeLabel + '</div>'
         + '<div class="forecast-day-icon">'  + icon    + '</div>'
         + '<div class="forecast-day-temps">'
-        +   '<span class="forecast-temp-high">' + high + '</span>'
+        +   '<span class="forecast-temp-high font-primary">' + high + '</span>'
         +   (low ? '<span class="forecast-temp-low">' + low + '</span>' : '')
         + '</div>'
         + '</div>';
@@ -311,7 +308,7 @@ component(function(wrapper) {
       type: 'call_service',
       domain: 'weather',
       service: 'get_forecasts',
-      service_data: { type: {{.Entity.ForecastInterval | default "daily"}} },
+      service_data: { type: {{.ForecastInterval | default "daily"}} },
       target: { entity_id: entityId },
       return_response: true
     }).then(function(result) {

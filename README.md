@@ -1,6 +1,6 @@
 # ⚠🛠 Under heavy development 🛠⚠
 
-This is very early alpha, looks fine IMO but possibly hard to setup. Is alpha even the right word? Not like its a product lol im just messing around.
+This is very early alpha. Works fine, looks fine, but you can expect breaking changes at any update. Be sure to read in the changelog if you need to reconfigure after an update
 
 ---
 
@@ -20,6 +20,8 @@ A lightweight Home Assistant dashboard for old Android tablets. It runs as an ad
 - Runs comfortably on Chromium 44 / Android 6 tablets via Fully Kiosk Browser
 - Live entity state via HA WebSocket (no polling)
 - Sensor widgets, clock, nightlight mode, keep-screen-on toggle
+- Multiple screens with swipe or navbar navigation
+- Multiple dashboards on separate endpoints
 - Fully Kiosk Browser integration (screensaver control, brightness)
 - Config-driven — edit one YAML file, dashboard regenerates automatically
 - Designed as an HA addon, also runnable as a standalone Docker container
@@ -34,6 +36,21 @@ A lightweight Home Assistant dashboard for old Android tablets. It runs as an ad
 ## Setup
 
 See [DOCS.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/DOCS.md)
+
+## Plans/Goals
+
+I have a bunch of features planned. The idea is to make a feature rich configurable dashboard that not only works with old browser, but is good enough to where someone might even want use as an alternative to lovelace. That being said, I hyper-focus and switch interests easily. I have no idea how long this will be motivating for me. I also don't when I will have time for it. Anyways, goals:
+
+- [x] More complex widgets
+- [x] Multiple screens per dashboard
+- [ ] A browse media modal
+- [ ] Fullscreen-widget layouts (such as a full screen just for media)
+- [ ] System for preset themes, allowing easy switch between them
+- [ ] Controllable HA entities via mqtt such as current screen and theme
+- [ ] Some security
+- [ ] Calendar widget
+- [ ] Custom cards (altought not sure if thats a good idea)
+- [ ] A logo
 
 ## Why
 
@@ -54,7 +71,7 @@ In the future, I have plans for CSS and JS to get run through Babel and PostCSS 
 
 ### Why this stack
 
-The other option were to have it be a custom integration. That would allow for a pretty straight forward way of adding entities to control the config, such as toggling or even scheduling the nightlight. Even more ambititous would be to make an android app and have the integration just be a thin controller instead of an entire server.
+The other option were to have it be a custom integration. That would allow for a pretty straight forward way of adding entities to control the config, such as toggling or even scheduling the nightlight. Even more ambititous would be to make an android app and have the integration just be a thin controller instead of an entire server, but I don't know anything about native android development.
 
 The current stack was chosen mostly because adding PostCSS and such requires node. Docker allows that easily and then we just control it from go. I dont know if thats even possibly in HAs python environment. The other reason is I like go and docker. I think python is and should stay a scripting language. The friction of adding features in python when you also need to follow HAs requirments is much higher than in just go + html.
 

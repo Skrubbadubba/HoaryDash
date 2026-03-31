@@ -1,4 +1,4 @@
-{{define "toggle-style"}}
+{{define "_toggle-style"}}
 <style>
   .ha-toggle {
     display: -webkit-flex;
@@ -58,12 +58,11 @@
   }
 
   .ha-toggle-label {
-    color: {{.SecondaryFontColor | default "#ffffff" | css}};
-    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
+    color: rgba(255,255,255,0.6)
   }
 
   .ha-toggle-pill {
@@ -106,7 +105,10 @@
 </style>
 {{end}}
 {{define "_toggle-open"}}
-<div class="ha-toggle card off">
+<div class="ha-toggle entity card off"
+{{if .FontSize}}
+  style="font-size: {{.FontSize}}px;"
+{{end}}>
   <button class="ha-toggle-body" title="{{.Label}}">
     <div class="ha-toggle-left">
       {{if .Icon}}
@@ -118,7 +120,7 @@
         {{end}}
       </span>
       {{end}}
-      <span class="ha-toggle-label entity-label">{{.Label}}</span>
+      <span class="ha-toggle-label entity-label font-primary">{{.Label}}</span>
     </div>
     <div class="ha-toggle-pill"></div>
   </button>
@@ -159,9 +161,9 @@ component(function(wrapper) {
 {{end}}
 {{define "toggle"}}
   {{if once "toggle-style"}}
-    {{template "toggle-style" .Theme}}
+    {{template "_toggle-style"}}
   {{end}}
-{{template "_toggle-open" .Entity}}
+{{template "_toggle-open" .}}
 </div>
-{{template "_toggle-script" .Entity}}
+{{template "_toggle-script" .}}
 {{end}}

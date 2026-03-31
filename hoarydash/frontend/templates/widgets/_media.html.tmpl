@@ -4,9 +4,6 @@
     .media-container {
         overflow: hidden;
         font-family: inherit;
-        {{if .Entity.FontSize}}
-            font-size: {{.Entity.FontSize}}px;
-        {{end}}
     }
 
     .media-top-row {
@@ -88,8 +85,7 @@
     .media-song {
         font-size: 0.7em;
         font-weight: 600;
-
-        color: {{ .Theme.FontColor | default "#e0f0ff" }};
+        color: #e0f0ff;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -98,8 +94,7 @@
 
     .media-artist {
         font-size: 0.6em;
-
-        color: {{ .Theme.SecondaryFontColor | default "#8899aa"}};
+        color: #8899aa;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -109,8 +104,7 @@
 
     .media-album {
         font-size: 0.55em;
-
-        color: {{.Theme.SecondaryFontColor | default "#8899aa"}};
+        color: #8899aa;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -121,7 +115,7 @@
 
     .media-idle {
         font-size: 0.65em;
-        color: {{.Theme.SecondaryFontColor | default "#8899aa"}};
+        color: #8899aa;
         font-style: italic;
     }
     .media-bottom-row {
@@ -136,9 +130,6 @@
         align-items: center;
         padding: 0.2em 0.2em;
         justify-content: space-evenly;
-        {{if enabledByDefault .Entity.InternalBorders}}
-        border-top: 0.05em solid rgba(120, 180, 255, 0.12);
-        {{end}}
     }
 
     .media-play-controls {
@@ -160,13 +151,13 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: {{.Theme.FontColor | default "#c0d8f0"}};
         font-size: 1.2em;
         line-height: 1;
         line-height: 1;
         padding-bottom: 0.2em;
         opacity: 0.85;
         -webkit-tap-highlight-color: transparent;
+        color: #c0d8f0;
     }
 
     .media-ctrl-btn:active {
@@ -215,7 +206,7 @@
         width: 1.8em;
         height: 1.8em;
         border-radius: 50%;
-        background: {{.Theme.FontColor | default "#949494"}};
+        background: #949494;
         cursor: pointer;
     }
 
@@ -224,34 +215,39 @@
         width: 1.8em;
         height: 1.8em;
         border-radius: 50%;
-        background: {{.Theme.FontColor | default "#949494"}};
+        background: #949494;
         cursor: pointer;
     }
 </style>
 {{end}}
-
-<div class="media-container card">
+<div class="media-container widget card"
+{{if .FontSize}}
+  style="font-size: {{.FontSize}}px;"
+{{end}}>
     <div class="media-top-row">
         <div class="media-info">
             <div class="media-cover">
                 <div class="media-cover-placeholder">♪</div>
             </div>
             <div class="media-song-info">
-                <span class="media-idle">Idle</span>
+                <span class="media-idle font-secondary">Idle</span>
             </div>
         </div>
     </div>
-    <div class="media-bottom-row">
-        {{ if enabledByDefault .ShowVolume }}
+    <div class="media-bottom-row"
+    {{if enabledByDefault .InternalBorders}}
+        style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"
+    {{end}}>
+        {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
             <span class="media-vol-icon">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <input class="media-vol-slider font-primary" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls">
-            <button class="media-ctrl-btn back" title="Previous">⏮</button>
-            <button class="media-ctrl-btn play" title="Play-Pause">▶</button>
-            <button class="media-ctrl-btn forward" title="Next">⏭</button>
+            <button class="media-ctrl-btn back font-primary" title="Previous">⏮</button>
+            <button class="media-ctrl-btn play font-primary" title="Play-Pause">▶</button>
+            <button class="media-ctrl-btn forward font-primary" title="Next">⏭</button>
         </div>
     </div>
 </div>
@@ -259,7 +255,7 @@
 <script>
 component(function(wrapper) {
     var POLL_INTERVAL = 30 * 1000;
-    var entityId = {{.Entity.EntityID}}
+    var entityId = {{.EntityID}}
     if (!entityId) { return; }
 
     var haUrl = window.CONFIG.haUrl || '';
@@ -356,13 +352,13 @@ component(function(wrapper) {
         }
 
         var elSong = document.createElement('span');
-        elSong.className = 'media-song';
+        elSong.className = 'media-song font-primary';
         elSong.textContent = song || '—';
         elSongInfo.appendChild(elSong);
 
         if (artist) {
             var elArtist = document.createElement('span');
-            elArtist.className = 'media-artist';
+            elArtist.className = 'media-artist font-secondary';
             elArtist.textContent = artist;
             elSongInfo.appendChild(elArtist);
         }
@@ -370,7 +366,7 @@ component(function(wrapper) {
         {{ if disabledByDefault .ShowAlbum}}
         if (album) {
             var elAlbum = document.createElement('span');
-            elAlbum.className = 'media-album';
+            elAlbum.className = 'media-album font-secondary';
             elAlbum.textContent = album;
             elSongInfo.appendChild(elAlbum);
         }
