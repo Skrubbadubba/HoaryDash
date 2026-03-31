@@ -89,7 +89,7 @@
 </style>
 {{end}}
 
-{{$theme := .Theme}}
+{{$theme := .Screen.Theme}}
 <div class="tiled-container">
     {{if enabledByDefault .Screen.Dateclock.Enabled}}
         <div class="tiled-clock">
@@ -116,23 +116,20 @@
 
         <div class="tiled-cards" id="tiled-group-{{$gi}}">
             {{range $group.Cards}}
-                {{$cardDict := (dict 
-                "Theme" $theme 
-                "Entity" .)}}
                 {{if domainIn .EntityID "weather"}}
-                    {{template "weather-widget" $cardDict}}
+                    {{template "weather-widget" .}}
                 {{else if domainIn .EntityID "media_player"}}
-                    {{template "media-widget" $cardDict}}
+                    {{template "media-widget" .}}
                 {{else if domainIn .EntityID "todo"}}
-                    {{template "todo-widget" $cardDict}}
+                    {{template "todo-widget" .}}
                 {{else if domainIn .EntityID "sensor" "binary_sensor"}}
-                    {{template "sensor" $cardDict}}
+                    {{template "sensor" .}}
                 {{else if domainIn .EntityID "switch" "input_boolean"}}
-                    {{template "toggle" $cardDict}}
+                    {{template "toggle" .}}
                 {{else if domainIn .EntityID "light" "fan"}}
-                    {{template "adjustable" $cardDict}}
+                    {{template "adjustable" .}}
                 {{else}}
-                    {{template "button" $cardDict}}
+                    {{template "button" .}}
                 {{end}}
             {{end}}
         </div>

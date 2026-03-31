@@ -13,34 +13,26 @@
     -webkit-justify-content: center;
     justify-content: center;
     padding: 1em;
-    margin: 0.3125em;
   }
 
   .sensor-label {
-    color: {{.SecondaryFontColor | default "#ffffff"}};
+    color: rgba(255,255,255,0.6);
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    {{if not .SecondaryFontColor}}
-    opacity: 0.6;
-    {{end}}
     margin-bottom: 0.35em;
     
   }
 
   .sensor-value {
-    color: {{.FontColor | default "#ffffff"}};
     font-size: 1.9em;
     font-weight: 600;
     line-height: 1;
   }
 
   .sensor-unit {
-    color: {{.SecondaryFontColor | default "#ffffff"}};
     font-size: 0.85em;
-    {{if not .SecondaryFontColor}}
     opacity: 0.5;
-    {{end}}
     margin-top: 0.25rem;
   }
 </style>
@@ -48,10 +40,14 @@
 {{end}}
 
 {{define "_sensor"}}
-<div class="sensor card" id="sensor-{{.EntityID}}">
-    <div class="sensor-label">{{.Label}}</div>
-    <div class="sensor-value">—</div>
-    <div class="sensor-unit">{{.Unit}}</div>
+<div class="sensor card" id="sensor-{{.EntityID}}"
+{{if .FontSize}}
+  style="font-size: {{.FontSize}}px;"
+{{end}}
+>
+    <div class="sensor-label font-secondary">{{.Label}}</div>
+    <div class="sensor-value font-primary">—</div>
+    <div class="sensor-unit font-secondary">{{.Unit}}</div>
 </div>
 <script>
 component(function(root) {
@@ -68,6 +64,6 @@ component(function(root) {
 {{end}}
 
 {{define "sensor"}}
-  {{template "_sensor-style" .Theme}}
-  {{template "_sensor" .Entity}}
+  {{template "_sensor-style"}}
+  {{template "_sensor" .}}
 {{end}}

@@ -17,6 +17,13 @@
         align-items: center;
         overflow: hidden;
     }
+    body .font-primary {
+        color: {{.Theme.FontColor | default "#ffffff" | css}};
+    }
+
+    body .font-secondary {
+        color: {{.Theme.FontColor | default "#ffffffa2" | css}};
+    }
 
     html, body {
         margin: 0;

@@ -345,10 +345,10 @@ component(function(wrapper) {
 
 {{define "adjustable"}}
   {{if once "adjustable-chevron-style"}}
-    {{template "_adjustable-chevron-style" .Theme}}
+    {{template "_adjustable-chevron-style"}}
   {{end}}
-  {{template "_toggle-open" .Entity}}
-  {{template "_adjustable-chevron" .Entity}}
+  {{template "_toggle-open" .}}
+  {{template "_adjustable-chevron" .}}
   </div>
-  {{template "_toggle-script" .Entity}}
+  {{template "_toggle-script" .}}
 {{end}}

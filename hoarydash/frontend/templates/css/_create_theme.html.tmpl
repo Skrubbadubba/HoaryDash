@@ -11,34 +11,43 @@
         {{if .Background}}
         background: {{.Background}};
         {{end}}
-        {{if .FontColor}}
-        color: {{.FontColor | default "#ffffff" | css}};
-        {{end}}
+        
     }
     
-    #{{$prefix}}.icon {
-        {{if .IconColor}}
-        fill: {{.IconColor | default "#e5e5e5" | css}}
-        {{end}}
+    {{if .IconColor}}
+    #{{$prefix}} .icon {
+        fill: {{.IconColor}}
     }
+    {{end}}
+
+    {{if .FontColor}}
+    #{{$prefix}} .font-primary {
+        color: {{.FontColor}};
+    }
+    {{end}}
+    {{if .SecondaryFontColor}}
+    #{{$prefix}} .font-secondary {
+        color: {{.SecondaryFontColor}};
+    }
+    {{end}}
 
     {{if .Sensors}}
-    #{{$prefix}}.sensor.card {
+    #{{$prefix}} .sensor.card {
         {{template "create-card-theme" .Sensors}}
     }
+    {{end}}
     {{if .Cards}}
-    #{{$prefix}}.card {
+    #{{$prefix}} .card {
         {{template "create-card-theme" .Cards}}
     }
     {{end}}
-    {{end}}
     {{if .Entities}}
-    #{{$prefix}}.entity.card {
+    #{{$prefix}} .entity.card {
         {{template "create-card-theme" .Entities}}
     }
     {{end}}
     {{if .Widgets}}
-    #{{$prefix}}.widget.card {
+    #{{$prefix}} .widget.card {
         {{template "create-card-theme" .Widgets}}
     }
     {{end}}

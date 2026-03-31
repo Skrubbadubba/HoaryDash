@@ -50,8 +50,6 @@
   }
 
   .ha-button-label {
-    color: {{.SecondaryFontColor | default "#ffffff"}};
-    {{if not .SecondaryFontColor}}opacity: 0.6;{{end}}
     font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -65,8 +63,11 @@
 {{end}}
 {{end}}
 {{define "_button"}}
-<div class="ha-button entity card">
-  <button class="ha-button-body" id="ha-btn-{{.EntityID}}" title="{{.Label}}">
+<div class="ha-button entity card"
+{{if .FontSize}}
+  style="font-size: {{.FontSize}}px;"
+{{end}}>
+  <button class="ha-button-body" title="{{.Label}}">
     <div class="ha-button-content">
     {{if .Icon}}
       <span class="ha-button-icon">
@@ -77,7 +78,7 @@
         {{end}}
       </span>
      {{end}}
-      <span class="ha-button-label entity-label">{{.Label}}</span>
+      <span class="ha-button-label entity-label font-primary">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>
@@ -113,6 +114,6 @@
   </script>
 {{end}}
 {{define "button"}}
-  {{template "_button-style" .Theme}}
-  {{template "_button" .Entity}}
+  {{template "_button-style"}}
+  {{template "_button" .}}
 {{end}}

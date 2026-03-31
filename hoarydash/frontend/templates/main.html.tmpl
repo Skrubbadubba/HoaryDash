@@ -52,9 +52,8 @@
         {{template "isdev"}}
     {{end}}
     {{$config := .Config}}
-    {{$theme := .Dashboard.Theme}}
     {{template "base-style" .}}
-    {{template "btn-style" $theme}}
+    {{template "btn-style" .Dashboard.Theme}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
@@ -200,7 +199,6 @@
             {{/* <p>{{json .}}</p> */}}
             <div class="layout-container" style="{{css $extraPad}}">
                 {{$layoutDict := (dict 
-                    "Theme" $theme
                     "Config" $config
                     "Screen" $screen
                 )}}
