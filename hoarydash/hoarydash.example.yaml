@@ -59,6 +59,8 @@ dashboards:
               - entity_id: sensor.living_room_humidity
                 label: Humidity
                 unit: "%"
+            theme:
+              border_color: '#eb5c14'
           - name: Lights
             cards:
               - entity_id: light.ceiling

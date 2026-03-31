@@ -296,6 +296,8 @@ screens:
             unit: °C
           - entity_id: light.ceiling
             label: Ceiling
+        theme:
+          border_color: '#eb5c14'
       - name: Media
         cards:
           - entity_id: media_player.spotify
@@ -311,13 +313,13 @@ Card type is inferred from the `entity_id` domain, exactly as in the centered la
 
 ---
 
-## Theme
+## Theming
 
 The theme controls colours, borders, backgrounds, and font sizes. `cards` is the base default — `entities`, `sensors`, and `widgets` each inherit from `cards` and can override individual properties.
 
 ```yaml
 theme:
-  background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
   font_color: "#e0f7fa"
   secondary_font_color: "#80cbc4"
   icon_color: "#4dd0e1"
@@ -328,29 +330,33 @@ theme:
     border_color: "rgba(255, 255, 255, 0.12)"
     border_radius: "0.75em"
     background: "rgba(255, 255, 255, 0.08)"
+    font_size: 14
 
   entities:
     background: "rgba(255, 255, 255, 0.06)"
 
   sensors:
     borders: false
+    font_size: 20
 ```
 
-A current limitation is that there are no per-screen theming, meaning if you set sensors with a transparent backgrounds, they will appear so on every screen, which might look good on the centered layout but not so much on tiled.
 
-### Dashboard-level theme fields
+### Common theme fields
+
+A `theme` field with these keys can be applied to either the entire dashboard or per screen.
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `background_gradient` | CSS value | Background of the entire page. Any valid CSS `background` value |
-| `body_background` | CSS value | Fallback solid background colour |
+| `background` | CSS value | Background of the entire page. Any valid CSS `background` value. Note that radial gradients are not supported on old browsers |
 | `font_color` | CSS color | Primary text colour |
 | `secondary_font_color` | CSS color | Secondary/muted text colour |
 | `icon_color` | CSS color | Icon tint colour |
 | `button_background` | CSS color | Background for entity control buttons |
-| `base_font_size` | number | Base font size in px. Everything scales from this |
+| `font_size` | number | Base font size in px. Everything scales from this |
 
 ### Card theme fields (cards / entities / sensors / widgets)
+
+Entities, sensors and widgets are all types of `Cards`. They all share the same schema, as follows:
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -359,6 +365,12 @@ A current limitation is that there are no per-screen theming, meaning if you set
 | `border_radius` | CSS value | Corner rounding, e.g. `0.75em` |
 | `background` | CSS value | Card background colour or gradient |
 | `font_size` | CSS value | Font size for cards in this section, e.g. `18px` |
+
+### Card group theming
+
+On the _tiled_ layout, a group can have its own theme, which follows the `card`theme schema.
+
+Theming is currently a work in process. The fact that layouts (centered and tiled) have different schemas for specifying what cards to show makes it complicated. The hope is that in the future, any dashboard, screen, group of cards, indivudial card, and any other future component can be themed individually.
 
 ---
 
