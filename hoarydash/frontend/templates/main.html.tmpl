@@ -12,9 +12,11 @@
         var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
         var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
+            {{if .Config.FullyKiosk}}
             fullyKiosk: {
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
+            {{end}}
             entity_ids: [
                 {{/* Duplicates are fine so just loop over every possible entity definition */}}
                 {{range .Dashboard.Screens}}
@@ -274,8 +276,7 @@
     {{end}}
     </div>
     <script>
-    (function() {
-        var container = document.querySelector('.screens');
+    component(function(container) {
         var currentIndex = 0;
 
         window.navigateTo = function(index) {
@@ -309,7 +310,7 @@
             }
         });
         {{end}}
-    }());
+    });
     </script>
 
 
@@ -317,7 +318,11 @@
         {{template "screenonlock"}}
     {{end}}
     {{if or (enabledByDefault .Dashboard.Screenonlock) (enabledByDefault .Dashboard.Nightlight.Enabled)}}
-    {{template "screenonlock-script" $config}}
+        {{if $config.FullyKiosk}}
+            {{template "screenonlock-script-fully" $config.FullyKiosk}}
+        {{else if disabledByDefault $config.WallPanel}}
+            {{template "screenonlock-script-wallpanel" $config.WallPanel}}
+        {{end}}
     {{end}}
     {{/* <p>{{json .Dashboard.Nightlight}}</p> */}}
     {{if enabledByDefault .Dashboard.Nightlight.Enabled}}

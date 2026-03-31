@@ -170,9 +170,10 @@ type Config struct {
 		Locale   string
 		Timezone string
 	}
-	FullyKiosk struct {
+	FullyKiosk *struct {
 		ScreensaverTimeout int `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
+	WallPanel     *bool
 	HomeAssistant struct {
 		URL   string
 		TOKEN string

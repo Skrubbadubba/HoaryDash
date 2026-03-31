@@ -23,11 +23,12 @@
     {{icon "eye"}}
 </button>
 {{end}}
-{{define "screenonlock-script"}}
+{{define "screenonlock-script-fully"}}
 <script>
-    (function() {
-    var previousTimer = '{{ .FullyKiosk.ScreensaverTimeout }}';
+component(function(screenOnBtn) {
+    var previousTimer = '{{ .ScreensaverTimeout }}';
     var screenOnBtn = document.getElementById('screenon-btn');
+
 
     function getTimer() {
         if (typeof fully !== 'undefined') {
@@ -47,7 +48,7 @@
 
     function setScreensaverOff() {
         if (typeof fully !== 'undefined') {
-            fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : '{{ .FullyKiosk.ScreensaverTimeout }}');
+            fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : '{{ .ScreensaverTimeout }}');
         }
         screenOnBtn.classList.remove('active');
     }
@@ -73,6 +74,88 @@
     window.setScreensaverOn    = setScreensaverOn;
     window.setScreensaverOff   = setScreensaverOff;
     window.screensaverIsOn     = isScreenAlwaysOn;
-    }());
+});
+</script>
+{{end}}
+{{define "screenonlock-script-wallpanel"}}
+<script>
+component(function(screenOnBtn) {
+    console.log("=====================is this even running!?!?!?======================");
+    var previousTimer = 0;
+    var wakeInterval = null;
+    console.log("brtn", screenOnBtn)
+
+    function postWPApi(body, func) {
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:2971/api/command', true);
+            xhr.onreadystatechange = xhr.onreadystatechange = function() {
+                if (true) {
+                    func(xhr.status);
+                }
+                {{/* screenOnBtn.textContent = xhr.readyState + ":" + xhr.status + ":" + isScreenAlwaysOn(); */}}
+            };
+            xhr.send(JSON.stringify(body));
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function wake(func) {
+        postWPApi({wake: true, wakeTime: 999999}, func)
+    }
+
+    function releaseWake(func) {
+        postWPApi({wake: false}, func)
+    }
+
+    function setScreensaverOn() {
+        releaseWake(function(){
+            if (wakeInterval) {
+                clearInterval(wakeInterval);
+                wakeInterval = null;
+            }
+            localStorage.setItem("wp_keepawake", "false");
+            screenOnBtn.classList.remove('active');
+        })
+    }
+        
+
+    function setScreensaverOff() {
+        wake(function() {
+            wakeInterval = setInterval(function() {
+                wake();
+            }, 999998);
+            localStorage.setItem("wp_keepawake", "true");
+            screenOnBtn.classList.add('active');
+            })
+        }
+
+    function isScreenAlwaysOn() {
+        {{/* screenOnBtn.textContent = localStorage.getItem("wp_keepawake"); */}}
+        return localStorage.getItem("wp_keepawake") === "true";
+    }
+
+    screenOnBtn.addEventListener('click', function() {
+        console.log("hello?")
+        if (isScreenAlwaysOn()) {
+            setScreensaverOn();
+        } else {
+            setScreensaverOff();
+        }
+    });
+
+    // Restore state on load
+    if (isScreenAlwaysOn()) {
+        screenOnBtn.classList.add('active');
+        setScreensaverOff();
+    } else {
+        screenOnBtn.classList.remove('active');
+    }
+
+    window.setScreensaverOn    = setScreensaverOn;
+    window.setScreensaverOff   = setScreensaverOff;
+    window.screensaverIsOn     = isScreenAlwaysOn;
+
+});
 </script>
 {{end}}
