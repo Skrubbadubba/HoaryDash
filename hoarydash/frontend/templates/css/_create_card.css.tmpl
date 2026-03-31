@@ -11,5 +11,7 @@ background-color: {{.Background | css}};
 {{if .BorderRadius}}
 border-radius: {{.BorderRadius | css}};
 {{end}}
-
+{{if .FontSize}}
+font-size: {{.FontSize}}px;
+{{end}}
 {{end}}

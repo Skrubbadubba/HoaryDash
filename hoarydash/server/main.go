@@ -81,22 +81,12 @@ type Screen struct {
 	Groups []struct {
 		Name  string
 		Icon  string
+		Theme CardTheme
 		Cards []Card
 	}
 	Theme Theme
 }
 
-type Widget struct {
-	EntityID        string `yaml:"entity_id"`
-	FontSize        string `yaml:"font_size"` // Per widget override
-	InternalBorders *bool  `yaml:"internal_borders"`
-	// Weather-specific
-	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
-	ForecastTimes    *int              `yaml:"forecast_times"`
-	// Media-specific
-	ShowVolume *bool
-	ShowAlbum  *bool
-}
 type Card struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string

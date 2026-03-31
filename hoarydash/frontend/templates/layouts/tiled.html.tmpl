@@ -89,7 +89,7 @@
 </style>
 {{end}}
 
-{{$theme := .Screen.Theme}}
+{{$screen := .Screen}}
 <div class="tiled-container">
     {{if enabledByDefault .Screen.Dateclock.Enabled}}
         <div class="tiled-clock">
@@ -101,7 +101,14 @@
     {{end}}
 
     {{range $gi, $group := .Screen.Groups}}
-    <div class="tiled-group">
+    {{if $group.Theme}}
+        <style>
+            #screen-{{$screen.Name}}-container #group-{{$group.Name}} .card {
+                {{template "create-card-theme" $group.Theme}}
+            }
+        </style>
+    {{end}}
+    <div class="tiled-group" id="group-{{$group.Name}}">
         {{if or $group.Name $group.Icon}}
         <div class="tiled-group-header">
             {{if $group.Icon}}
