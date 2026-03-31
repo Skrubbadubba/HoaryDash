@@ -187,7 +187,12 @@
     {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
-        {{$id := concat "screen-" .Name "-container-" $i}}
+        {{$id := ""}}
+        {{if .Name}}
+            {{$id = concat "screen-" .Name}}
+        {{else}}
+            {{$id = concat "screen-" $i}}
+        {{end}}
         {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
         <div id="{{$id}}" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
@@ -278,12 +283,13 @@
     <script>
     component(function(container) {
         var currentIndex = 0;
-
         window.navigateTo = function(index) {
             var screens = container.querySelectorAll('.screen');
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
-            container.scrollLeft = index * container.offsetWidth;
+            screenEl = screens[currentIndex];
+            console.log("screenEl: ", screenEl)
+            window.location.hash = screenEl.id;
             var items = document.querySelectorAll('.navbar-item');
             for (var i = 0; i < items.length; i++) {
                 if (i === index) {
