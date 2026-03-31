@@ -30,27 +30,29 @@ type Dashboard struct {
 		Color          template.CSS
 		OverrideColors bool `yaml:"override_colors"`
 	}
-	Theme struct {
-		BodyBackground     template.CSS `yaml:"body_background"`
-		BackgroundGradient template.CSS `yaml:"background_gradient"`
-		Cards              CardTheme    // Default for widgets, entities and sensors
-		Entities           CardTheme
-		Sensors            CardTheme
-		Widgets            CardTheme
-		ButtonBackground   template.CSS `yaml:"button_background"`
-		FontColor          template.CSS `yaml:"font_color"`
-		SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-		IconColor          template.CSS `yaml:"icon_color"`
-		BaseFontSize       template.CSS `yaml:"base_font_size"`
-	}
-	ShowHints *bool `yaml:"show_hints"`
-	Swipe     *bool
-	Navbar    struct {
+	Theme        Theme
+	BaseFontSize int   `yaml:"base_font_size"`
+	ShowHints    *bool `yaml:"show_hints"`
+	Swipe        *bool
+	Navbar       struct {
 		Enabled  bool
 		Position string
 		Style    string
 	}
 	Screens []Screen
+}
+
+type Theme struct {
+	Background         template.CSS
+	Cards              CardTheme // Default for widgets, entities and sensors
+	Entities           CardTheme
+	Sensors            CardTheme
+	Widgets            CardTheme
+	ButtonBackground   template.CSS `yaml:"button_background"`
+	FontColor          template.CSS `yaml:"font_color"`
+	SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
+	IconColor          template.CSS `yaml:"icon_color"`
+	FontSize           template.CSS `yaml:"font_size"`
 }
 
 type Screen struct {
@@ -81,6 +83,7 @@ type Screen struct {
 		Icon  string
 		Cards []Card
 	}
+	Theme Theme
 }
 
 type Widget struct {
@@ -374,6 +377,13 @@ func BuildDash() {
 				}
 			}
 			return result, nil
+		},
+		"concat": func(strings ...string) string {
+			var out string
+			for _, str := range strings {
+				out += str
+			}
+			return out
 		},
 		"prevScreen": func(d Dashboard, i int) *Screen {
 			if i > 0 {

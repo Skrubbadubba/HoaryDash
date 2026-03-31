@@ -1,11 +1,10 @@
 {{define "base-style"}}
 <style>
     :root {
-        font-size: {{.Theme.BaseFontSize | default "18"}}px;
+        font-size: {{.BaseFontSize | default "18"}}px;
     }
     body {
-        background-color: {{.Theme.BodyBackground | default "#000000" | css}};
-        background: {{.Theme.BackgroundGradient}};
+        background: {{.Theme.Background | default "#000000" | css}};
         color: {{.Theme.FontColor | default "#ffffff" | css}};
         font-family: "Outfit", sans-serif;
         display: -webkit-flex;

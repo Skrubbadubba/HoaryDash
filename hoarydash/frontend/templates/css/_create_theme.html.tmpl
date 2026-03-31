@@ -1,0 +1,47 @@
+{{define "create-theme"}}
+{{$prefix := "undefined"}}
+{{if .Prefix}}
+    {{$prefix = .Prefix}}
+{{end}}
+<style>
+    #{{$prefix}} {
+        {{if .FontSize}}
+        font-size: {{.FontSize}}px;
+        {{end}}
+        {{if .Background}}
+        background: {{.Background}};
+        {{end}}
+        {{if .FontColor}}
+        color: {{.FontColor | default "#ffffff" | css}};
+        {{end}}
+    }
+    
+    #{{$prefix}}.icon {
+        {{if .IconColor}}
+        fill: {{.IconColor | default "#e5e5e5" | css}}
+        {{end}}
+    }
+
+    {{if .Sensors}}
+    #{{$prefix}}.sensor.card {
+        {{template "create-card-theme" .Sensors}}
+    }
+    {{if .Cards}}
+    #{{$prefix}}.card {
+        {{template "create-card-theme" .Cards}}
+    }
+    {{end}}
+    {{end}}
+    {{if .Entities}}
+    #{{$prefix}}.entity.card {
+        {{template "create-card-theme" .Entities}}
+    }
+    {{end}}
+    {{if .Widgets}}
+    #{{$prefix}}.widget.card {
+        {{template "create-card-theme" .Widgets}}
+    }
+    {{end}}
+
+</style>
+{{end}}
