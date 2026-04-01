@@ -1,4 +1,12 @@
-# v0.9.0
+# Patch v0.9.1
+
+- Removed debug code that overwrote the eye icon on the screenonlock button
+
+---
+
+## Previous Minor Release
+
+### v0.9.0
 
 - Support for Wallpanel:
 Use it by:

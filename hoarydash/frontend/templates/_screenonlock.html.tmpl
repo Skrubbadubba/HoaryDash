@@ -80,10 +80,8 @@ component(function(screenOnBtn) {
 {{define "screenonlock-script-wallpanel"}}
 <script>
 component(function(screenOnBtn) {
-    console.log("=====================is this even running!?!?!?======================");
     var previousTimer = 0;
     var wakeInterval = null;
-    console.log("brtn", screenOnBtn)
 
     function postWPApi(body, func) {
         try {
@@ -93,7 +91,7 @@ component(function(screenOnBtn) {
                 if (true) {
                     func();
                 }
-                screenOnBtn.textContent = xhr.readyState + ":" + xhr.status + ":" + isScreenAlwaysOn();
+                {{/* screenOnBtn.textContent = xhr.readyState + ":" + xhr.status + ":" + isScreenAlwaysOn(); */}}
             };
             xhr.send(JSON.stringify(body));
             return true;
@@ -137,7 +135,6 @@ component(function(screenOnBtn) {
     }
 
     function isScreenAlwaysOn() {
-        {{/* screenOnBtn.textContent = localStorage.getItem("wp_keepawake"); */}}
         return localStorage.getItem("wp_keepawake") === "true";
     }
 
