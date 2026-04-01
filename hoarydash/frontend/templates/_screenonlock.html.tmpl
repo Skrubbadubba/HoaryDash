@@ -37,7 +37,7 @@ component(function(screenOnBtn) {
         return previousTimer;
     }
 
-    function setScreensaverOn() {
+    function setScreensaverOff() {
         var current = getTimer();
         if (current != 0) { previousTimer = current; }
         if (typeof fully !== 'undefined') {
@@ -46,7 +46,7 @@ component(function(screenOnBtn) {
         screenOnBtn.classList.add('active');
     }
 
-    function setScreensaverOff() {
+    function setScreensaverOn() {
         if (typeof fully !== 'undefined') {
             fully.setStringSetting("timeToScreensaverV2", previousTimer != 0 ? previousTimer : '{{ .ScreensaverTimeout }}');
         }
@@ -59,9 +59,9 @@ component(function(screenOnBtn) {
 
     screenOnBtn.addEventListener('click', function() {
         if (isScreenAlwaysOn()) {
-            setScreensaverOff();
-        } else {
             setScreensaverOn();
+        } else {
+            setScreensaverOff();
         }
     });
 
@@ -91,9 +91,9 @@ component(function(screenOnBtn) {
             xhr.open('POST', 'http://localhost:2971/api/command', true);
             xhr.onreadystatechange = xhr.onreadystatechange = function() {
                 if (true) {
-                    func(xhr.status);
+                    func();
                 }
-                {{/* screenOnBtn.textContent = xhr.readyState + ":" + xhr.status + ":" + isScreenAlwaysOn(); */}}
+                screenOnBtn.textContent = xhr.readyState + ":" + xhr.status + ":" + isScreenAlwaysOn();
             };
             xhr.send(JSON.stringify(body));
             return true;
@@ -108,7 +108,7 @@ component(function(screenOnBtn) {
         postWPApi({wake: false}, func)
     }
 
-    function setScreensaverOn() {
+    function setScreensaverOn(callback) {
         releaseWake(function(){
             if (wakeInterval) {
                 clearInterval(wakeInterval);
@@ -116,19 +116,25 @@ component(function(screenOnBtn) {
             }
             localStorage.setItem("wp_keepawake", "false");
             screenOnBtn.classList.remove('active');
+            if (callback) callback();
         })
     }
         
 
-    function setScreensaverOff() {
+    function setScreensaverOff(callback) {
+        if (wakeInterval) {
+            clearInterval(wakeInterval);
+            wakeInterval = null;
+        }
         wake(function() {
             wakeInterval = setInterval(function() {
-                wake();
+                wake(function(){});  // pass empty func so XHR doesn't break
             }, 999998);
             localStorage.setItem("wp_keepawake", "true");
             screenOnBtn.classList.add('active');
-            })
-        }
+            if (callback) callback();
+        });
+    }
 
     function isScreenAlwaysOn() {
         {{/* screenOnBtn.textContent = localStorage.getItem("wp_keepawake"); */}}

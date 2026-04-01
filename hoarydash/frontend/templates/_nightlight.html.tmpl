@@ -152,8 +152,8 @@
             panel.className = 'visible';
             applyBrightness(currentBrightness);
             screensaverWasOn = window.screensaverIsOn();
-            window.setScreensaverOn();
-            } 
+            window.setScreensaverOff();
+        } 
         else {
             document.body.className = '';    
             btn.classList.remove('active');
@@ -164,7 +164,7 @@
                 dateclock.style = null;
             }
             if (screensaverWasOn) { return; }
-            window.setScreensaverOff();
+            window.setScreensaverOn();
         }
     });
 
