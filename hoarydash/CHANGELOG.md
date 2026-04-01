@@ -8,4 +8,5 @@ wallpanel: true
 at the top level. Make sure to not have a fully kiosk entry, it will take preceedence. This is used by the screenonlock button btw.
 
 - Screen navigation now happens by changing the hash in the url to id of screen.
+
 You could use this to for example control which screen is active from home assistant, by using fully kiosk commands to navigate to for example `http://homeassistant.local:4567/dash/#screen-tiles`.
