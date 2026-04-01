@@ -12,9 +12,11 @@
         var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
         var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
         window.CONFIG = {
+            {{if .Config.FullyKiosk}}
             fullyKiosk: {
                 screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
             },
+            {{end}}
             entity_ids: [
                 {{/* Duplicates are fine so just loop over every possible entity definition */}}
                 {{range .Dashboard.Screens}}
@@ -185,7 +187,12 @@
     {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
-        {{$id := concat "screen-" .Name "-container-" $i}}
+        {{$id := ""}}
+        {{if .Name}}
+            {{$id = concat "screen-" .Name}}
+        {{else}}
+            {{$id = concat "screen-" $i}}
+        {{end}}
         {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
         <div id="{{$id}}" class="screen" style="order: {{.Position}};">
             {{if $showHints}}
@@ -274,15 +281,15 @@
     {{end}}
     </div>
     <script>
-    (function() {
-        var container = document.querySelector('.screens');
+    component(function(container) {
         var currentIndex = 0;
-
         window.navigateTo = function(index) {
             var screens = container.querySelectorAll('.screen');
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
-            container.scrollLeft = index * container.offsetWidth;
+            screenEl = screens[currentIndex];
+            console.log("screenEl: ", screenEl)
+            window.location.hash = screenEl.id;
             var items = document.querySelectorAll('.navbar-item');
             for (var i = 0; i < items.length; i++) {
                 if (i === index) {
@@ -309,7 +316,7 @@
             }
         });
         {{end}}
-    }());
+    });
     </script>
 
 
@@ -317,7 +324,11 @@
         {{template "screenonlock"}}
     {{end}}
     {{if or (enabledByDefault .Dashboard.Screenonlock) (enabledByDefault .Dashboard.Nightlight.Enabled)}}
-    {{template "screenonlock-script" $config}}
+        {{if $config.FullyKiosk}}
+            {{template "screenonlock-script-fully" $config.FullyKiosk}}
+        {{else if disabledByDefault $config.WallPanel}}
+            {{template "screenonlock-script-wallpanel" $config.WallPanel}}
+        {{end}}
     {{end}}
     {{/* <p>{{json .Dashboard.Nightlight}}</p> */}}
     {{if enabledByDefault .Dashboard.Nightlight.Enabled}}

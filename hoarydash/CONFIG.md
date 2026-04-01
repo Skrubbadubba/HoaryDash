@@ -51,6 +51,12 @@ Each key under `dashboards` becomes an endpoint. `dashboards.dash` is served at 
 |-----|------|---------|-------------|
 | `screensaver_timeout` | int | `60` | Seconds of inactivity before Fully Kiosk activates the screensaver |
 
+### `wallpanel`
+
+`bool`
+
+> Note `fully_kiosk` takes precedence. If you want to use wallpanel, make sure to omit `fully_kiosk` entierely.
+
 ### `home_assistant`
 
 | Key | Type | Description |
