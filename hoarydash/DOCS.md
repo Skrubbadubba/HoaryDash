@@ -35,21 +35,27 @@ dashboards:
       enabled: true
       override_colors: true
     sensors:
-      - entity_id: sensor.living_room_temperature # Or whatever you have
-        label: Temperature
-        unit: °C
+      style:
+        borders: false
+        background: transparent
+      cards:
+        - entity_id: sensor.living_room_temperature # Or whatever you have
+          label: Temperature
+          unit: °C
     entities:
-      - entity_id: button.doorbell
-        label: Ring doorbell
-        icon: 🔔
-      - entity_id: light.ceiling
-        label: Ceiling light
-        icon: 💡
+      cards:
+        - entity_id: button.doorbell
+          label: Ring doorbell
+          icon: 🔔
+        - entity_id: light.ceiling
+          label: Ceiling light
+          icon: 💡
     widgets:
-      - entity_id: weather.home
-        internal_borders: false
-        forecast_interval: hourly
-        forecast_times: 5
+      cards:
+        - entity_id: weather.home
+          internal_borders: false
+          forecast_interval: hourly
+          forecast_times: 5
     # Example of light theme
     # theme:
     #   background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"

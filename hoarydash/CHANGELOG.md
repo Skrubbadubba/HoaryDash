@@ -1,20 +1,58 @@
-# Patch v0.9.1
+# v0.10.0: Media Browser 🎵
 
-- Removed debug code that overwrote the eye icon on the screenonlock button
+This release comes with a 2 main updates:
 
----
+- A media browser
+- Standardisation of cards
 
-## Previous Minor Release
+If you know your media player supports browsing media, you can enable a button which brings up a browser modal like so:
 
-### v0.9.0
-
-- Support for Wallpanel:
-Use it by:
 ```yaml
-wallpanel: true
+- entity_id: media_player.spotify
+  show_browser: true
 ```
-at the top level. Make sure to not have a fully kiosk entry, it will take preceedence. This is used by the screenonlock button btw.
 
-- Screen navigation now happens by changing the hash in the url to id of screen.
+## Breaking changes
 
-You could use this to for example control which screen is active from home assistant, by using fully kiosk commands to navigate to for example `http://homeassistant.local:4567/dash/#screen-tiles`.
+Screen positions have been deprecated. The list of screens will appear as they are ordered in the yaml.
+
+With how cards now have been standardised, changes to yaml for the centered layout has to be made. In short, change:
+
+```yaml
+entities:
+  - entity_id: light.ceiling
+    label: Ceiling
+    icon: lightbulb
+  - entity_id: switch.fan
+    label: Fan
+sensors:
+  - entity_id: sensor.living_room_temperature
+    label: Temperature
+    unit: °C
+```
+
+to:
+
+```yaml
+entities:
+  cards:
+    - entity_id: light.ceiling
+      label: Ceiling
+      icon: lightbulb
+    - entity_id: switch.fan
+      label: Fan
+sensors:
+  cards:
+    - entity_id: sensor.living_room_temperature
+      label: Temperature
+      unit: °C
+```
+
+See [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md#card-group-schema#cards) for a full explanation
+
+## Features
+
+- Media browser button
+- Cards individually stylable
+- All groups/zones of cards follow a standard format, allowing them to be styled together, see [card styling](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md#card-group-schema)
+- Media widget now fully uses icons instead of emojis

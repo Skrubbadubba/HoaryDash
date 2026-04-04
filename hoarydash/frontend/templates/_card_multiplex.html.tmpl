@@ -1,0 +1,27 @@
+{{define "card-multiplex"}}
+    {{$uid := concat .EntityID "-" (uid) | replace "." "-"}}
+    {{if .Style}}
+        <style>
+            #{{$uid}} .card {
+                {{template "create-card-theme" .Style}}
+            }
+        </style>
+    {{end}}
+    <div id="{{$uid}}" class="card-wrapper">
+        {{if domainIn .EntityID "weather"}}
+            {{template "weather-widget" .}}
+        {{else if domainIn .EntityID "media_player"}}
+            {{template "media-widget" .}}
+        {{else if domainIn .EntityID "todo"}}
+            {{template "todo-widget" .}}
+        {{else if domainIn .EntityID "sensor" "binary_sensor"}}
+            {{template "sensor" .}}
+        {{else if domainIn .EntityID "switch" "input_boolean"}}
+            {{template "toggle" .}}
+        {{else if domainIn .EntityID "light" "fan"}}
+            {{template "adjustable" .}}
+        {{else}}
+            {{template "button" .}}
+        {{end}}
+    </div>
+{{end}}

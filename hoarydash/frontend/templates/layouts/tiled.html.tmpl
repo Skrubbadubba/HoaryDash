@@ -83,8 +83,9 @@
         max-width: 100%;
     }
 
-    .tiled-cards > * {
+    .tiled-cards > .card-wrapper {
         margin: 0 0.5em 0.5em 0;
+        height: fit-content;
     }
 </style>
 {{end}}
@@ -101,10 +102,10 @@
     {{end}}
 
     {{range $gi, $group := .Screen.Groups}}
-    {{if $group.Theme}}
+    {{if $group.Style}}
         <style>
-            #screen-{{$screen.Name}}-container #group-{{$group.Name}} .card {
-                {{template "create-card-theme" $group.Theme}}
+            #screen-{{$screen.Name}} #group-{{$group.Name}} .card {
+                {{template "create-card-theme" $group.Style}}
             }
         </style>
     {{end}}
@@ -123,21 +124,7 @@
 
         <div class="tiled-cards" id="tiled-group-{{$gi}}">
             {{range $group.Cards}}
-                {{if domainIn .EntityID "weather"}}
-                    {{template "weather-widget" .}}
-                {{else if domainIn .EntityID "media_player"}}
-                    {{template "media-widget" .}}
-                {{else if domainIn .EntityID "todo"}}
-                    {{template "todo-widget" .}}
-                {{else if domainIn .EntityID "sensor" "binary_sensor"}}
-                    {{template "sensor" .}}
-                {{else if domainIn .EntityID "switch" "input_boolean"}}
-                    {{template "toggle" .}}
-                {{else if domainIn .EntityID "light" "fan"}}
-                    {{template "adjustable" .}}
-                {{else}}
-                    {{template "button" .}}
-                {{end}}
+                {{template "card-multiplex" .}}
             {{end}}
         </div>
 

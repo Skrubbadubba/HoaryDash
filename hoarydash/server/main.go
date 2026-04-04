@@ -43,10 +43,11 @@ type Dashboard struct {
 
 type Theme struct {
 	Background         template.CSS
-	Cards              CardTheme // Default for widgets, entities and sensors
-	Entities           CardTheme
-	Sensors            CardTheme
-	Widgets            CardTheme
+	OpaqueBackground   template.CSS `yaml:"opaque_background"`
+	Cards              CardStyle    // Default for widgets, entities and sensors
+	Entities           CardStyle
+	Sensors            CardStyle
+	Widgets            CardStyle
 	ButtonBackground   template.CSS `yaml:"button_background"`
 	FontColor          template.CSS `yaml:"font_color"`
 	SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
@@ -55,7 +56,6 @@ type Theme struct {
 }
 
 type Screen struct {
-	Position   int
 	Layout     string
 	Navigation *string
 	Name       string
@@ -67,9 +67,9 @@ type Screen struct {
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
 	// Centered-layout specific
-	Widgets  []Card
-	Sensors  []Card
-	Entities []Card
+	Widgets  CardGroup
+	Sensors  CardGroup
+	Entities CardGroup
 	Order    struct {
 		Entities int
 		Widgets  int
@@ -78,10 +78,9 @@ type Screen struct {
 
 	// Tiled-layout specific
 	Groups []struct {
-		Name  string
-		Icon  string
-		Theme CardTheme
-		Cards []Card
+		Name      string
+		Icon      string
+		CardGroup `yaml:",inline"`
 	}
 	Theme Theme
 }
@@ -91,16 +90,22 @@ type Card struct {
 	Label    string
 	Icon     string
 	Unit     string
+	Style    CardStyle
 	// Widget specific
-	FontSize        string `yaml:"font_size"`
-	InternalBorders *bool  `yaml:"internal_borders"`
+	InternalBorders *bool `yaml:"internal_borders"`
 	// Weather-specific
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`
 	Hour12           *bool
 	// Media-specific
-	ShowVolume *bool `yaml:"show_volume"`
-	ShowAlbum  *bool `yaml:"show_album"`
+	ShowVolume  *bool `yaml:"show_volume"`
+	ShowAlbum   *bool `yaml:"show_album"`
+	ShowBrowser *bool `yaml:"show_browser"`
+}
+
+type CardGroup struct {
+	Style CardStyle
+	Cards []Card
 }
 
 type ForecastInterval string
@@ -158,7 +163,7 @@ func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-type CardTheme struct {
+type CardStyle struct {
 	Borders      *bool
 	BorderColor  template.CSS `yaml:"border_color"`
 	BorderRadius template.CSS `yaml:"border_radius"`
@@ -219,6 +224,8 @@ func makeOnceFunc() func(string) bool {
 	}
 }
 
+var uid = 0
+
 func BuildDash() {
 	cfg, err := parseYaml()
 	if err != nil {
@@ -250,7 +257,7 @@ func BuildDash() {
 		"css": func(val any) template.CSS {
 			return template.CSS(fmt.Sprintf("%v", val))
 		},
-		"mergeTheme": func(specific CardTheme, base CardTheme) CardTheme {
+		"mergeTheme": func(specific CardStyle, base CardStyle) CardStyle {
 			result := specific
 			if result.BorderColor == "" {
 				result.BorderColor = base.BorderColor
@@ -388,6 +395,13 @@ func BuildDash() {
 			return nil
 		},
 		"once": makeOnceFunc(),
+		"uid": func() int {
+			uid++
+			return uid
+		},
+		"replace": func(old string, new string, s string) string {
+			return strings.ReplaceAll(s, old, new)
+		},
 	}
 
 	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")

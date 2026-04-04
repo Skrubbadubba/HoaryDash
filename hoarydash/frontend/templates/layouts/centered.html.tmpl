@@ -19,25 +19,16 @@
         overflow-x: hidden;
         overflow-y: auto;
     }
-    .center-container {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 1em;
-    }
-    .center-container > div {
-        margin: 0 2rem 0 2rem;
-    }
+    
+    {{/* .main-container .card-wrapper {
+        height: fit-content;
+    } */}}
 </style>
 {{end}}
 {{$theme := .Screen.Theme}}
 <div class="main-container">
     {{if .Screen.Entities}}
-        {{if once "entities-style"}}
+        {{if once "centered-entities-style"}}
         <style>
             .entities-container {
                 display: -webkit-flex;
@@ -50,35 +41,46 @@
                 align-items: stretch;
                 max-width: 75vw;
             }
-            .entities-container > .card {
+            .entities-container > .card-wrapper {
                 margin: 5px;
             }
         </style>
         {{end}}
+        {{if .Screen.Entities.Style}}
+            <style>
+                #screen-{{.Screen.Name}} .entities-container .card {
+                    {{template "create-card-theme" .Screen.Entities.Style}}
+                }
+            </style>
+        {{end}}
         <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
-        
-        {{range .Screen.Entities}}
-            {{if domainIn .EntityID "switch" "input_boolean"}}
-                {{template "toggle" .}}
-            {{else if domainIn .EntityID "light" "fan"}}
-                {{template "adjustable" .}}
-            {{else if domainIn .EntityID }}
-                {{template "button" .}}
-            {{else}}
-                {{template "button" .}}
-            {{end}}
+        {{range .Screen.Entities.Cards}}
+            {{template "card-multiplex" .}}
         {{end}}
         </div>
-        <script>
-            component(function(container) {
-                normalizeHeight(container)
-            });
-        </script>
+
     {{else}}
         {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>
     {{end}}
 
+    {{if once "centered-center-style"}}
+        <style>
+            .center-container {
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: flex;
+                -webkit-box-align: center;
+                -webkit-align-items: center;
+                align-items: center;
+                width: 100%;
+                margin-bottom: 1em;
+            }
+            .center-container > .card-wrapper {
+                margin: 0 2rem 0 2rem;
+            }
+        </style>
+    {{end}}
     <div class="center-container" style="order: {{.Screen.Order.Widgets}}">
         {{if enabledByDefault .Screen.Dateclock.Enabled}}
             {{template "dateclock" (dict
@@ -89,12 +91,12 @@
 
         {{if .Screen.Widgets}}
             <div style="flex-grow:1;"></div>
-            {{if once "widgets-style"}}
+            {{if once "centered-widgets-style"}}
             <style>
                 .widgets-container {
                     display: flex;
                     flex-direction: column;
-                    width: 19em;
+                    max-width: 38vw;
                     min-height: 0;
                 }
                 .widgets-container > div {
@@ -103,22 +105,23 @@
                 }
                 </style>
             {{end}}
-                <div class="widgets-container">
-                {{range .Screen.Widgets}}
-                    {{if eq (domain .EntityID) "weather"}}
-                        {{template "weather-widget" .}}
-                    {{else if eq (domain .EntityID) "media_player"}}
-                        {{template "media-widget" .}}
-                    {{else if eq (domain .EntityID) "todo"}}
-                        {{template "todo-widget" .}}
-                    {{end}}
-                {{end}}
-                </div>
+            {{if .Screen.Widgets.Style}}
+                <style>
+                    #screen-{{.Screen.Name}} .widgets-container .card {
+                        {{template "create-card-theme" .Screen.Widgets.Style}}
+                    }
+                </style>
+            {{end}}
+            <div class="widgets-container">
+            {{range .Screen.Widgets.Cards}}
+                {{template "card-multiplex" .}}
+            {{end}}
+            </div>
         {{end}}
     </div>
 
     {{if .Screen.Sensors}}
-        {{if once "sensors-style"}}
+        {{if once "centered-sensors-style"}}
         <style>
             .sensors-container {
                 display: flex;
@@ -129,12 +132,29 @@
                 flex-wrap: wrap;
                 align-items: center;
             }
+            .sensors-container .card-wrapper {
+                display:flex;
+                justify-content:center;
+            }
+            .sensors-container .card.sensor {
+                height: fit-content;
+                width: fit-content;
+                align-self: center;
+                height: 100%;
+                width: 100%;
+            }
         </style>
         {{end}}
+        {{if .Screen.Sensors.Style}}
+            <style>
+                #screen-{{.Screen.Name}} .sensors-container .card {
+                    {{template "create-card-theme" .Screen.Sensors.Style}}
+                }
+            </style>
+        {{end}}
         <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
-        {{$screenName := .Screen.Name}}
-        {{range .Screen.Sensors}}
-            {{template "sensor" .}}
+        {{range .Screen.Sensors.Cards}}
+            {{template "card-multiplex" .}}
         {{end}}
         </div>
         <script>
