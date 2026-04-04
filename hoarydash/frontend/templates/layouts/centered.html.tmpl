@@ -46,8 +46,14 @@
             }
         </style>
         {{end}}
+        {{if .Screen.Entities.Style}}
+            <style>
+                #screen-{{.Screen.Name}} .entities-container .card {
+                    {{template "create-card-theme" .Screen.Entities.Style}}
+                }
+            </style>
+        {{end}}
         <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
-        
         {{range .Screen.Entities.Cards}}
             {{template "card-multiplex" .}}
         {{end}}
@@ -99,11 +105,18 @@
                 }
                 </style>
             {{end}}
-                <div class="widgets-container">
-                {{range .Screen.Widgets.Cards}}
-                    {{template "card-multiplex" .}}
-                {{end}}
-                </div>
+            {{if .Screen.Widgets.Style}}
+                <style>
+                    #screen-{{.Screen.Name}} .widgets-container .card {
+                        {{template "create-card-theme" .Screen.Widgets.Style}}
+                    }
+                </style>
+            {{end}}
+            <div class="widgets-container">
+            {{range .Screen.Widgets.Cards}}
+                {{template "card-multiplex" .}}
+            {{end}}
+            </div>
         {{end}}
     </div>
 
@@ -126,9 +139,18 @@
             .sensors-container .card.sensor {
                 height: fit-content;
                 width: fit-content;
-                align-self: center
+                align-self: center;
+                height: 100%;
+                width: 100%;
             }
         </style>
+        {{end}}
+        {{if .Screen.Sensors.Style}}
+            <style>
+                #screen-{{.Screen.Name}} .sensors-container .card {
+                    {{template "create-card-theme" .Screen.Sensors.Style}}
+                }
+            </style>
         {{end}}
         <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
         {{range .Screen.Sensors.Cards}}
