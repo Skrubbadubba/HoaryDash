@@ -55,8 +55,7 @@ type Theme struct {
 }
 
 type Screen struct {
-	Position   int
-	Layout     string
+		Layout     string
 	Navigation *string
 	Name       string
 	Icon       *string

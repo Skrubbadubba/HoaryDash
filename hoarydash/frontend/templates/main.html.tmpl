@@ -196,7 +196,7 @@
             {{$id = concat "screen-" $i}}
         {{end}}
         {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
-        <div id="{{$id}}" class="screen" style="order: {{.Position}};">
+        <div id="{{$id}}" class="screen">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
                 <div class="swipe-hint left">
@@ -284,24 +284,30 @@
     </div>
     <script>
     component(function(container) {
+        var screens = container.querySelectorAll('.screen');
         var currentIndex = 0;
+        for (var i = 0; i < screens.length; i++) {
+            if (screens[i].id == window.location.hash.replace("#", "")) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        function dispatchNavigate() {
+            window.dispatchEvent(new CustomEvent("screen-navigate", { detail: { index: currentIndex } }));
+        }
+
+        dispatchNavigate();
         window.navigateTo = function(index) {
-            var screens = container.querySelectorAll('.screen');
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
             screenEl = screens[currentIndex];
-            console.log("screenEl: ", screenEl)
+            console.log("screenEl: ", screenEl);
             window.location.hash = screenEl.id;
-            var items = document.querySelectorAll('.navbar-item');
-            for (var i = 0; i < items.length; i++) {
-                if (i === index) {
-                    items[i].className = 'navbar-item active';
-                } else {
-                    items[i].className = 'navbar-item';
-                }
-            }
+            dispatchNavigate();
         };
 
+        
         {{if enabledByDefault .Dashboard.Swipe}}
         var mc = new Hammer.Manager(document.body);
         mc.add(new Hammer.Swipe({
