@@ -51,9 +51,11 @@
     button:focus { outline: none; }
 
     .card {
+        height: 100%;
+        width: 100%;
         border-radius: {{.Theme.Cards.BorderRadius | default "0.5em"}};
         {{if enabledByDefault .Theme.Cards.Borders}}
-        border: 0.125em solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
+        border: 0.125rem solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
         {{end}}
         background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
     }
