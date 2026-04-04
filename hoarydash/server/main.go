@@ -92,8 +92,7 @@ type Card struct {
 	Unit     string
 	Style    CardStyle
 	// Widget specific
-	FontSize        string `yaml:"font_size"`
-	InternalBorders *bool  `yaml:"internal_borders"`
+		InternalBorders *bool  `yaml:"internal_borders"`
 	// Weather-specific
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`

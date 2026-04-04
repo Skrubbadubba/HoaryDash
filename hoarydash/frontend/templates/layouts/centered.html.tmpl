@@ -48,7 +48,7 @@
         {{end}}
         <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
         
-        {{range .Screen.Entities}}
+        {{range .Screen.Entities.Cards}}
             {{template "card-multiplex" .}}
         {{end}}
         </div>
@@ -100,7 +100,7 @@
                 </style>
             {{end}}
                 <div class="widgets-container">
-                {{range .Screen.Widgets}}
+                {{range .Screen.Widgets.Cards}}
                     {{template "card-multiplex" .}}
                 {{end}}
                 </div>
@@ -131,8 +131,7 @@
         </style>
         {{end}}
         <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
-        {{$screenName := .Screen.Name}}
-        {{range .Screen.Sensors}}
+        {{range .Screen.Sensors.Cards}}
             {{template "card-multiplex" .}}
         {{end}}
         </div>

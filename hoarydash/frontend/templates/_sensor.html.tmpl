@@ -40,11 +40,7 @@
 {{end}}
 
 {{define "_sensor"}}
-<div class="sensor card" id="sensor-{{.EntityID}}"
-{{if .FontSize}}
-  style="font-size: {{.FontSize}}px;"
-{{end}}
->
+<div class="sensor card">
     <div class="sensor-label font-secondary">{{.Label}}</div>
     <div class="sensor-value font-primary">—</div>
     <div class="sensor-unit font-secondary">{{.Unit}}</div>

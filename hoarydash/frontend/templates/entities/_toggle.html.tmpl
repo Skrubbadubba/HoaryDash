@@ -104,10 +104,7 @@
 </style>
 {{end}}
 {{define "_toggle-open"}}
-<div class="ha-toggle entity card off"
-{{if .FontSize}}
-  style="font-size: {{.FontSize}}px;"
-{{end}}>
+<div class="ha-toggle entity card off">
   <button class="ha-toggle-body" title="{{.Label}}">
     <div class="ha-toggle-left">
       {{if .Icon}}
@@ -123,8 +120,6 @@
     </div>
     <div class="ha-toggle-pill"></div>
   </button>
-
-
 {{end}}
 {{define "_toggle-script"}}
 <script>

@@ -20,9 +20,9 @@
             entity_ids: [
                 {{/* Duplicates are fine so just loop over every possible entity definition */}}
                 {{range .Dashboard.Screens}}
-                    {{range .Sensors}}"{{.EntityID}}",{{end}}
-                    {{range .Entities}}"{{.EntityID}}",{{end}}
-                    {{range .Widgets}}"{{.EntityID}}",{{end}} 
+                    {{range .Sensors.Cards}}"{{.EntityID}}",{{end}}
+                    {{range .Entities.Cards}}"{{.EntityID}}",{{end}}
+                    {{range .Widgets.Cards}}"{{.EntityID}}",{{end}} 
                     {{range .Groups}}{{range .Cards}} "{{.EntityID}}",{{end}}{{end}}
                 {{end}}
                 ],
@@ -50,6 +50,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 </head>
 <body>
+    {{/* <p>{{json .Dashboard.Screens}}</p> */}}
     {{if .IsDev}}
         {{template "isdev"}}
     {{end}}
@@ -105,6 +106,7 @@
         }
     </script>
     <div class="screens">
+        
     <style>
         .screens {
             display: -webkit-box;
