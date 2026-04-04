@@ -56,3 +56,7 @@ See [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CO
 - Cards individually stylable
 - All groups/zones of cards follow a standard format, allowing them to be styled together, see [card styling](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md#card-group-schema)
 - Media widget now fully uses icons instead of emojis
+
+## Fixes
+
+- The navbar now shows the correct current screen on page load
