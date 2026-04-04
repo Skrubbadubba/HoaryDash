@@ -98,8 +98,9 @@ type Card struct {
 	ForecastTimes    *int              `yaml:"forecast_times"`
 	Hour12           *bool
 	// Media-specific
-	ShowVolume *bool `yaml:"show_volume"`
-	ShowAlbum  *bool `yaml:"show_album"`
+	ShowVolume  *bool `yaml:"show_volume"`
+	ShowAlbum   *bool `yaml:"show_album"`
+	ShowBrowser *bool `yaml:"show_browser"`
 }
 
 type CardGroup struct {
