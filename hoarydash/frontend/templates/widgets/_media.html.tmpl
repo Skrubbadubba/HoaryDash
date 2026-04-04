@@ -4,7 +4,6 @@
     .media-container {
         overflow: hidden;
         font-family: inherit;
-        width: 21em;
     }
 
     .media-top-row {
@@ -350,7 +349,7 @@ component(function(wrapper) {
         idle.className = 'media-idle';
         idle.textContent = 'Idle';
         elSongInfo.appendChild(idle);
-        elPlay.textContent = '▶';
+        elPlay.textContent = '{{icon "play"}}';
         if (elCover.querySelector('img')) {
             elCover.removeChild(elCover.querySelector('img'));
         }

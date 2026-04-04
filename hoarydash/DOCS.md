@@ -81,7 +81,7 @@ home_assistant:
   token: "your_long_lived_token_here"
 ```
 
-Find more example [themes](./themes.example.yaml)
+Find more example [themes](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/themes.example.yaml)
 
 Save the file. The dashboard will regenerate automatically — no restart needed. Restart the addon if it doesn't work
 

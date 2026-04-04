@@ -1,4 +1,14 @@
-# v0.10.0: Media Browser 🎵
+# v0.10.1
+
+- Fixes screen padding around the navabr
+- Fixes width of navbar items
+- Width of widgets on centered layout looks better
+
+---
+
+**Previous minor release:**
+
+## v0.10.0: Media Browser 🎵
 
 This release comes with a 2 main updates:
 
@@ -12,7 +22,7 @@ If you know your media player supports browsing media, you can enable a button w
   show_browser: true
 ```
 
-## Breaking changes
+### Breaking changes
 
 Screen positions have been deprecated. The list of screens will appear as they are ordered in the yaml.
 
@@ -50,13 +60,13 @@ sensors:
 
 See [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md#card-group-schema#cards) for a full explanation
 
-## Features
+### Features
 
 - Media browser button
 - Cards individually stylable
 - All groups/zones of cards follow a standard format, allowing them to be styled together, see [card styling](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md#card-group-schema)
 - Media widget now fully uses icons instead of emojis
 
-## Fixes
+### Fixes
 
 - The navbar now shows the correct current screen on page load

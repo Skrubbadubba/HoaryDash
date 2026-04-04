@@ -15,7 +15,10 @@
 </nav>
 <script>
 component(function(navbar) {
-    normalizeWidth(navbar)
+    // Needed because absolute positioned elements are apprantly
+    // not layed until a second paint
+    requestAnimationFrame(function() {normalizeWidth(navbar)});
+
     var items = navbar.querySelectorAll('.navbar-item');
     window.addEventListener('screen-navigate', function(e) {
         console.log("screen navigated event! ", e)

@@ -182,10 +182,11 @@
     </style>
     {{$extraPad := ""}}
     {{if .Dashboard.Navbar.Enabled}}
-        {{if eq .Dashboard.Navbar.Position "bottom"}}{{$extraPad = "padding-bottom: 5.5em;"}}{{end}}
-        {{if eq .Dashboard.Navbar.Position "top"}}{{$extraPad = "padding-top: 6em;"}}{{end}}
-        {{if eq .Dashboard.Navbar.Position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
-        {{if eq .Dashboard.Navbar.Position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
+        {{$position := .Dashboard.Navbar.Position | default "bottom"}}
+        {{if eq $position "bottom"}}{{$extraPad = "padding-bottom: 4.5em;"}}{{end}}
+        {{if eq $position "top"}}{{$extraPad = "padding-top: 5em;"}}{{end}}
+        {{if eq $position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
+        {{if eq $position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
     {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
