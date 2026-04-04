@@ -43,7 +43,8 @@ type Dashboard struct {
 
 type Theme struct {
 	Background         template.CSS
-	Cards              CardStyle // Default for widgets, entities and sensors
+	OpaqueBackground   template.CSS `yaml:"opaque_background"`
+	Cards              CardStyle    // Default for widgets, entities and sensors
 	Entities           CardStyle
 	Sensors            CardStyle
 	Widgets            CardStyle
@@ -55,7 +56,7 @@ type Theme struct {
 }
 
 type Screen struct {
-		Layout     string
+	Layout     string
 	Navigation *string
 	Name       string
 	Icon       *string
@@ -66,9 +67,9 @@ type Screen struct {
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
 	// Centered-layout specific
-	Widgets  []Card
-	Sensors  []Card
-	Entities []Card
+	Widgets  CardGroup
+	Sensors  CardGroup
+	Entities CardGroup
 	Order    struct {
 		Entities int
 		Widgets  int
@@ -91,7 +92,7 @@ type Card struct {
 	Unit     string
 	Style    CardStyle
 	// Widget specific
-		InternalBorders *bool  `yaml:"internal_borders"`
+	InternalBorders *bool `yaml:"internal_borders"`
 	// Weather-specific
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`

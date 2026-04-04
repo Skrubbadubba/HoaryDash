@@ -246,7 +246,11 @@
             <button class="media-ctrl-btn play font-primary" title="Play-Pause">▶</button>
             <button class="media-ctrl-btn forward font-primary" title="Next">⏭</button>
         </div>
+        <div class="media-browse">
+            <button class="media-browser-button">{{icon "browse"}}</button>
+        </div>
     </div>
+    {{template "media-browser" .}}
 </div>
 
 <script>
@@ -265,8 +269,12 @@ component(function(wrapper) {
     var elBack = wrapper.querySelector('.media-ctrl-btn.back');
     var elForward = wrapper.querySelector('.media-ctrl-btn.forward');
     var elVolSlider = wrapper.querySelector('.media-vol-slider');
+    var elBrowseBtn = wrapper.querySelector('.media-browser-button');
+    console.log("browser button: ", elBrowseBtn)
+    var elMediaBrowser = wrapper.querySelector('.mbrowser-container');
+    console.log("browser: ", elMediaBrowser)
 
-    function callService(service) {
+    function callMediaService(service) {
         return window.haSend({
             type: 'call_service',
             domain: 'media_player',
@@ -285,9 +293,9 @@ component(function(wrapper) {
         });
     }
 
-    elPlay.onclick = function () { callService('media_play_pause'); };
-    elBack.onclick = function () { callService('media_previous_track'); };
-    elForward.onclick = function () { callService('media_next_track'); };
+    elPlay.onclick = function () { callMediaService('media_play_pause'); };
+    elBack.onclick = function () { callMediaService('media_previous_track'); };
+    elForward.onclick = function () { callMediaService('media_next_track'); };
 
     var volDragging = false;
 
@@ -309,6 +317,11 @@ component(function(wrapper) {
             }, 150);
         };
     }
+
+    
+    elBrowseBtn.onclick = function() {
+        if (elMediaBrowser) { elMediaBrowser.mediaBrowserOpen(); console.log("tried running open on: ", elMediaBrowser) }
+    };
 
     function getOrCreate(id, tag, className) {
         var el = document.getElementById(id);

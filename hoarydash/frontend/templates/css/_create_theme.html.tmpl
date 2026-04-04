@@ -31,14 +31,19 @@
     }
     {{end}}
 
-    {{if .Sensors}}
-    #{{$prefix}} .sensor.card {
-        {{template "create-card-theme" .Sensors}}
-    }
-    {{end}}
     {{if .Cards}}
     #{{$prefix}} .card {
         {{template "create-card-theme" .Cards}}
+    }
+    {{end}}
+    {{if .OpaqueBackground}}
+    #{{$prefix}} .opaque {
+        background-color: {{.OpaqueBackground | css}};
+    }
+    {{end}}
+    {{if .Sensors}}
+    #{{$prefix}} .sensor.card {
+        {{template "create-card-theme" .Sensors}}
     }
     {{end}}
     {{if .Entities}}
