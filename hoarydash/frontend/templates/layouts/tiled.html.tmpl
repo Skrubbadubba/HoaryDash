@@ -102,10 +102,10 @@
     {{end}}
 
     {{range $gi, $group := .Screen.Groups}}
-    {{if $group.Theme}}
+    {{if $group.Style}}
         <style>
-            #screen-{{$screen.Name}}-container #group-{{$group.Name}} .card {
-                {{template "create-card-theme" $group.Theme}}
+            #screen-{{$screen.Name}} #group-{{$group.Name}} .card {
+                {{template "create-card-theme" $group.Style}}
             }
         </style>
     {{end}}

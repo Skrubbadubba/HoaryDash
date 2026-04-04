@@ -78,10 +78,9 @@ type Screen struct {
 
 	// Tiled-layout specific
 	Groups []struct {
-		Name  string
-		Icon  string
-		Theme CardStyle
-		Cards []Card
+		Name      string
+		Icon      string
+		CardGroup `yaml:",inline"`
 	}
 	Theme Theme
 }
@@ -102,6 +101,11 @@ type Card struct {
 	// Media-specific
 	ShowVolume *bool `yaml:"show_volume"`
 	ShowAlbum  *bool `yaml:"show_album"`
+}
+
+type CardGroup struct {
+	Style CardStyle
+	Cards []Card
 }
 
 type ForecastInterval string
