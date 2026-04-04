@@ -35,10 +35,11 @@
     #{{$prefix}} .card {
         {{template "create-card-theme" .Cards}}
     }
-    {{end}}
-    {{if .OpaqueBackground}}
-    #{{$prefix}} .opaque {
-        background-color: {{.OpaqueBackground | css}};
+    #{{$prefix}} .card-opaque {
+        {{template "create-card-theme" .Cards}}
+        {{if .OpaqueBackground}}
+            background-color: {{.OpaqueBackground | css}};
+        {{end}}
     }
     {{end}}
     {{if .Sensors}}
