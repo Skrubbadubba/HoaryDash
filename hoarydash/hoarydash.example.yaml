@@ -28,28 +28,32 @@ dashboards:
           show_seconds: true
           capitalise_day: true
         entities:
-          - entity_id: light.ceiling
-            label: Ceiling
-            icon: lightbulb
-          - entity_id: switch.fan
-            label: Fan
+          cards:
+            - entity_id: light.ceiling
+              label: Ceiling
+              icon: lightbulb
+            - entity_id: switch.fan
+              label: Fan
         widgets:
-          - entity_id: weather.home
-            forecast_interval: twice_daily
-            forecast_times: 5
-          - entity_id: media_player.spotify
-            show_album: true
+          style:
+              borders: false
+              background: transparent
+          cards:
+            - entity_id: weather.home
+              forecast_interval: twice_daily
+              forecast_times: 5
+              internal_borders: false
+            - entity_id: media_player.spotify
+              show_album: true
+              internal_borders: false
         sensors:
-          - entity_id: sensor.living_room_temperature
-            label: Temperature
-            unit: °C
-        theme:
-          widgets:
+          style:
             borders: false
-            background: "rgba(0, 0, 0, 0)"
-          sensors:
-            borders: false
-            background: "rgba(0, 0, 0, 0)"
+            background: transparent
+          cards:
+            - entity_id: sensor.living_room_temperature
+              label: Temperature
+              unit: °C
 
       - name: Tiles
         icon: view-grid
@@ -66,7 +70,7 @@ dashboards:
               - entity_id: sensor.living_room_humidity
                 label: Humidity
                 unit: "%"
-            theme:
+            style:
               border_color: '#eb5c14'
           - name: Lights
             cards:
