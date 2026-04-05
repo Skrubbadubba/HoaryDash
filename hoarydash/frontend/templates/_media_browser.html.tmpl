@@ -425,6 +425,20 @@ component(function(wrapper) {
     }
 
     function playItem(item) {
+        {{if .Spotifyplus}}
+            window.haSend({
+            type: 'call_service',
+            domain: 'spotifyplus',
+            service: 'player_media_play_context',
+            service_data: {
+                context_uri: stack[stack.length - 1].id,
+                offset_uri: item.media_content_id,
+                entity_id: entityId
+            }
+        }).catch(function(err) {
+            console.error('spotify play failed:', err);
+        });
+        {{else}}
         window.haSend({
             type: 'call_service',
             domain: 'media_player',
@@ -437,6 +451,7 @@ component(function(wrapper) {
         }).catch(function(err) {
             console.error('media play failed:', err);
         });
+        {{end}}
         close();
     }
 
