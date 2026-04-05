@@ -194,6 +194,7 @@ type Yaml struct {
 type TemplateData struct {
 	Dashboard
 	Config
+	Name  string
 	IsDev bool
 }
 
@@ -443,7 +444,7 @@ func BuildDash() {
 		check(err, "Created/opened output file")
 		defer out.Close()
 		// fmt.Printf("Parsed yaml:\n%+v\n", cfg)
-		data := TemplateData{dash, cfg.Config, isDev}
+		data := TemplateData{dash, cfg.Config, name, isDev}
 		// fmt.Printf("Template data:\n%+v\n", data)
 		err = dashTmpl.ExecuteTemplate(out, "main.html.tmpl", data)
 		out.Sync()
