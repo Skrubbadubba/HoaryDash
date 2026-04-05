@@ -1,0 +1,9 @@
+synthwave:
+  background: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
+  font_color: "#f8f0ff"
+  secondary_font_color: "#cc88ff"
+  icon_color: "#ff44cc"
+  cards:
+    borders: true
+    border_color: "rgba(255, 0, 255, 0.2)"
+    background: "rgba(255, 0, 255, 0.12)"

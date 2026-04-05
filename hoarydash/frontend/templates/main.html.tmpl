@@ -56,6 +56,7 @@
     {{end}}
     {{$config := .Config}}
     {{template "base-style" .}}
+    {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
     {{template "btn-style" .Dashboard.Theme}}
     <script>
         function component(script) {
@@ -196,7 +197,7 @@
         {{else}}
             {{$id = concat "screen-" $i}}
         {{end}}
-        {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
+        {{template "create-theme" (merge $screen.Theme (dict "Prefix" (concat "#" $id)))}}
         <div id="{{$id}}" class="screen">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}

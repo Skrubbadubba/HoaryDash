@@ -4,7 +4,7 @@
     {{$prefix = .Prefix}}
 {{end}}
 <style>
-    #{{$prefix}} {
+    {{$prefix}} {
         {{if .FontSize}}
         font-size: {{.FontSize}}px;
         {{end}}
@@ -15,27 +15,27 @@
     }
     
     {{if .IconColor}}
-    #{{$prefix}} .icon {
+    {{$prefix}} .icon {
         fill: {{.IconColor}}
     }
     {{end}}
 
     {{if .FontColor}}
-    #{{$prefix}} .font-primary {
+    {{$prefix}} .font-primary {
         color: {{.FontColor}};
     }
     {{end}}
     {{if .SecondaryFontColor}}
-    #{{$prefix}} .font-secondary {
+    {{$prefix}} .font-secondary {
         color: {{.SecondaryFontColor}};
     }
     {{end}}
 
     {{if .Cards}}
-    #{{$prefix}} .card {
+    {{$prefix}} .card {
         {{template "create-card-theme" .Cards}}
     }
-    #{{$prefix}} .card-opaque {
+    {{$prefix}} .card-opaque {
         {{template "create-card-theme" .Cards}}
         {{if .OpaqueBackground}}
             background-color: {{.OpaqueBackground | css}};
@@ -43,17 +43,17 @@
     }
     {{end}}
     {{if .Sensors}}
-    #{{$prefix}} .sensor.card {
+    {{$prefix}} .sensor.card {
         {{template "create-card-theme" .Sensors}}
     }
     {{end}}
     {{if .Entities}}
-    #{{$prefix}} .entity.card {
+    {{$prefix}} .entity.card {
         {{template "create-card-theme" .Entities}}
     }
     {{end}}
     {{if .Widgets}}
-    #{{$prefix}} .widget.card {
+    {{$prefix}} .widget.card {
         {{template "create-card-theme" .Widgets}}
     }
     {{end}}
