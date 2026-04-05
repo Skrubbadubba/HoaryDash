@@ -158,6 +158,7 @@
         opacity: 0.85;
         -webkit-tap-highlight-color: transparent;
         color: #c0d8f0;
+        padding: 0 0.3em;
     }
 
     .media-ctrl-btn:active {
@@ -166,8 +167,6 @@
 
     .media-ctrl-btn.play {
         font-size: 1.7em;
-        padding-left: 0.2em;
-        padding-right: 0.2em;
         opacity: 1;
     }
 
@@ -252,9 +251,11 @@
         </div>
         {{ end }}
         <div class="media-play-controls">
+            <button class="media-ctrl-btn shuffle font-secondary hide" title="shuffle">{{icon "shuffle"}}</button>
             <button class="media-ctrl-btn back font-primary" title="Previous">{{icon "skip-backward"}}</button>
             <button class="media-ctrl-btn play font-primary" title="Play-Pause">{{icon "play"}}</button>
             <button class="media-ctrl-btn forward font-primary" title="Next">{{icon "skip-forward"}}</button>
+            <button class="media-ctrl-btn repeat font-secondary hide" title="repeat">{{icon "repeat"}}</button>
         </div>
 
     </div>
@@ -278,32 +279,58 @@ component(function(wrapper) {
     var elPlay = wrapper.querySelector('.media-ctrl-btn.play');
     var elBack = wrapper.querySelector('.media-ctrl-btn.back');
     var elForward = wrapper.querySelector('.media-ctrl-btn.forward');
+    var elShuffle = wrapper.querySelector('.media-ctrl-btn.shuffle');
+    var elRepeat = wrapper.querySelector('.media-ctrl-btn.repeat');
     var elVolSlider = wrapper.querySelector('.media-vol-slider');
     var elBrowseBtn = wrapper.querySelector('.media-browser-button');
     var elMediaBrowser = wrapper.querySelector('.mbrowser-container');
 
-    function callMediaService(service) {
-        return window.haSend({
+    var shuffle, repeat;
+
+    function callMediaService(service, data) {
+        var msg = {
             type: 'call_service',
             domain: 'media_player',
             service: service,
             target: { entity_id: entityId }
-        });
+        }
+        if (data) {
+            msg["service_data"] = data
+        }
+        return window.haSend(msg);
     }
 
     function setVolume(vol) {
-        return window.haSend({
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'volume_set',
-            target: { entity_id: entityId },
-            service_data: { volume_level: vol }
-        });
+        return callMediaService('volume_set', { volume_level: vol })
+    }
+
+    function toggleShuffle() {
+        return callMediaService('shuffle_set', {shuffle: !cachedAttributes.shuffle})
+    }
+
+    function cycleRepeat() {
+        var newRepeat
+        switch (cachedAttributes.repeat) {
+            case "off":
+                newRepeat = "all"
+                break;
+            case "all":
+                newRepeat = "one"
+                break;
+            case "one":
+                newRepeat = "off"
+                break;
+            default:
+                break;
+        }
+        return callMediaService('repeat_set', {repeat: newRepeat})
     }
 
     elPlay.onclick = function () { callMediaService('media_play_pause'); };
     elBack.onclick = function () { callMediaService('media_previous_track'); };
     elForward.onclick = function () { callMediaService('media_next_track'); };
+    elShuffle.onclick = toggleShuffle;
+    elRepeat.onclick = cycleRepeat;
 
     var volDragging = false;
 
@@ -361,9 +388,33 @@ component(function(wrapper) {
     }
 
     function renderActive(state, attributes) {
-        {{/* console.log("ran renderActive with state and attrs: ", state, attributes) */}}
+        console.log("ran renderActive with state and attrs: ", state, attributes)
         elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
         elSongInfo.innerHTML = '';
+
+        var shuffle = attributes.hasOwnProperty("shuffle") ? attributes.shuffle : undefined;
+        var repeat = attributes.hasOwnProperty("repeat") ? attributes.repeat : undefined;
+
+        if (shuffle !== undefined) {
+            elShuffle.classList.remove("hide");
+            elShuffle.innerHTML = shuffle ? {{icon "shuffle"}} : {{icon "shuffle-disabled"}}
+        }
+        if (repeat !== undefined) {
+            elRepeat.classList.remove("hide");
+            switch (repeat) {
+                case "off":
+                    elRepeat.innerHTML = {{icon "repeat-off"}}
+                    break;
+                case "one":
+                    elRepeat.innerHTML = {{icon "repeat-once"}}
+                    break;
+                case "all":
+                    elRepeat.innerHTML = {{icon "repeat"}}
+                    break;
+                default:
+                    break;
+            }
+        }
 
         var song = attributes.media_title || '';
         var artist = attributes.media_artist || '';
