@@ -43,7 +43,7 @@ I have a bunch of features planned. The idea is to make a feature rich configura
 
 - [x] More complex widgets
 - [x] Multiple screens per dashboard
-- [ ] A browse media modal
+- [x] A browse media modal
 - [ ] Fullscreen-widget layouts (such as a full screen just for media)
 - [ ] System for preset themes, allowing easy switch between them
 - [ ] Controllable HA entities via mqtt such as current screen and theme
@@ -51,6 +51,10 @@ I have a bunch of features planned. The idea is to make a feature rich configura
 - [ ] Calendar widget
 - [ ] Custom cards (altought not sure if thats a good idea)
 - [ ] A logo
+- [ ] Prepopulating dashboard with information from HA
+    - [ ] Fill all entity icons based on domain, device type, or attribute
+    - [ ] Fill label with friendly name
+    - [ ] Configure timezone and language based on HA configuration
 
 ## Why
 
