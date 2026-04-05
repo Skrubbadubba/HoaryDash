@@ -1,6 +1,8 @@
-# v0.10.3
+# v0.10.4
 
-- Fixes opaque cards not getting their styles from the global theme
+- Fixes idle media stating showing svg as text
+
+MB I need to stop with these misses
 
 ---
 

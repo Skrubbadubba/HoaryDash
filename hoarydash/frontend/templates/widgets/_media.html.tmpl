@@ -349,7 +349,7 @@ component(function(wrapper) {
         idle.className = 'media-idle';
         idle.textContent = 'Idle';
         elSongInfo.appendChild(idle);
-        elPlay.textContent = '{{icon "play"}}';
+        elPlay.innerHTML = '{{icon "play"}}';
         if (elCover.querySelector('img')) {
             elCover.removeChild(elCover.querySelector('img'));
         }
