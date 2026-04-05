@@ -67,9 +67,9 @@ type Screen struct {
 		ShowSeconds   bool `yaml:"show_seconds"`
 	}
 	// Centered-layout specific
-	Widgets  CardGroup
-	Sensors  CardGroup
-	Entities CardGroup
+	Widgets  *CardGroup
+	Sensors  *CardGroup
+	Entities *CardGroup
 	Order    struct {
 		Entities int
 		Widgets  int

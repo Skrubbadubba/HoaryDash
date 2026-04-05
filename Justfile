@@ -41,7 +41,7 @@ ship version:
     echo "Done. Run 'git push && git push --tags' to publish."
     echo "Then delete your branch with: git branch -D $BRANCH"
 
-hotfix version:
+patch version:
     #!/usr/bin/env bash
     set -euo pipefail
     if git diff --quiet hoarydash/CHANGELOG.md && git diff --cached --quiet hoarydash/CHANGELOG.md; then

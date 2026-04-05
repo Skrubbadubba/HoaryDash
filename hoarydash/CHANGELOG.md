@@ -1,8 +1,6 @@
-# v0.10.1
+# v0.10.2
 
-- Fixes screen padding around the navabr
-- Fixes width of navbar items
-- Width of widgets on centered layout looks better
+- Fixes dateclock position on centered layout when there are no widgets
 
 ---
 
