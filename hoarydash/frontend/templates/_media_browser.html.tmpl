@@ -437,7 +437,10 @@ component(function(wrapper) {
     }
     
     {{if .Queue}}
-    function queueItem(item) {
+    function queueItem(item, tries) {
+        if (!tries) { tries = 0; }
+        if (tries > 4) { return; }
+
         var msg;
         msg = {
             type: 'call_service',
@@ -451,7 +454,12 @@ component(function(wrapper) {
             }
         }
         window.haSend(msg).catch(function(err) {
-            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} play failed:', err);
+            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} enqueue failed:', err);
+            fetchLevel(item.media_content_id, item.media_content_type).then(function(data) {
+                for (entry of data.children) {
+                    queueItem(entry, tries + 1);
+                }
+            })
         });
         close();
     }
