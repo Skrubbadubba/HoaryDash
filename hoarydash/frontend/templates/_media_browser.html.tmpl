@@ -202,7 +202,7 @@
         text-overflow: ellipsis;
     }
 
-    .mbrowser-row-play {
+    .mbrowser-row button {
         background: none;
         border: none;
         cursor: pointer;
@@ -344,6 +344,17 @@ component(function(wrapper) {
                 row.appendChild(title);
 
                 if (item.can_play) {
+                    {{if .Queue}}
+                        var queueBtn = document.createElement('button');
+                        queueBtn.className = 'mbrowser-row-queue font-primary';
+                        queueBtn.innerHTML = '{{icon "playlist-plus"}}';
+                        queueBtn.title = 'queue';
+                        queueBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            queueItem(item);
+                        };
+                        row.appendChild(queueBtn);
+                    {{end}}
                     var playBtn = document.createElement('button');
                     playBtn.className = 'mbrowser-row-play font-primary';
                     playBtn.innerHTML = '{{icon "play-circle"}}';
@@ -353,6 +364,7 @@ component(function(wrapper) {
                         playItem(item);
                     };
                     row.appendChild(playBtn);
+                    
                 }
 
                 if (item.can_expand) {
@@ -423,10 +435,32 @@ component(function(wrapper) {
                 console.error('media browse back failed:', err);
             });
     }
+    
+    {{if .Queue}}
+    function queueItem(item) {
+        var msg;
+        msg = {
+            type: 'call_service',
+            domain: 'media_player',
+            service: 'play_media',
+            target: { entity_id: entityId },
+            service_data: {
+                media_content_id: item.media_content_id,
+                media_content_type: item.media_content_type,
+                enqueue: "add"
+            }
+        }
+        window.haSend(msg).catch(function(err) {
+            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} play failed:', err);
+        });
+        close();
+    }
+    {{end}}
 
     function playItem(item) {
+        var msg;
         {{if .Spotifyplus}}
-            window.haSend({
+        msg = {
             type: 'call_service',
             domain: 'spotifyplus',
             service: 'player_media_play_context',
@@ -435,23 +469,22 @@ component(function(wrapper) {
                 offset_uri: item.media_content_id,
                 entity_id: entityId
             }
-        }).catch(function(err) {
-            console.error('spotify play failed:', err);
-        });
+        }
         {{else}}
-        window.haSend({
+        msg = {
             type: 'call_service',
             domain: 'media_player',
             service: 'play_media',
             target: { entity_id: entityId },
             service_data: {
                 media_content_id: item.media_content_id,
-                media_content_type: item.media_content_type
+                media_content_type: item.media_content_type,
             }
-        }).catch(function(err) {
-            console.error('media play failed:', err);
-        });
+        }
         {{end}}
+        window.haSend(msg).catch(function(err) {
+            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} play failed:', err);
+        });
         close();
     }
 

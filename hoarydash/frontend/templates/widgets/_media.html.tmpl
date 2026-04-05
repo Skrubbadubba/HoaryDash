@@ -307,6 +307,7 @@ component(function(wrapper) {
 
     var volDragging = false;
 
+    {{if .ShowVolume}}
     if (elVolSlider) {
         elVolSlider.ontouchstart = function() { volDragging = true; };
         elVolSlider.onmousedown  = function() { volDragging = true; };
@@ -325,12 +326,15 @@ component(function(wrapper) {
             }, 150);
         };
     }
+    {{end}}
 
+    {{if .ShowBrowser}}
     if (elBrowseBtn) {
         elBrowseBtn.onclick = function() {
             if (elMediaBrowser) { elMediaBrowser.mediaBrowserOpen(); console.log("tried running open on: ", elMediaBrowser) }
         };
     }
+    {{end}}
 
     function getOrCreate(id, tag, className) {
         var el = document.getElementById(id);

@@ -89,6 +89,7 @@ type Card struct {
 	ShowAlbum   *bool `yaml:"show_album"`
 	ShowBrowser *bool `yaml:"show_browser"`
 	Spotifyplus *bool
+	Queue       *bool
 }
 
 type CardGroup struct {
