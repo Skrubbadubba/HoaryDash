@@ -57,7 +57,10 @@
         {{if enabledByDefault .Theme.Cards.Borders}}
         border: 0.125rem solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
         {{end}}
-        background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}}
+        background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}};
+    }
+    .card-opaque {
+        background-color: {{.Theme.OpaqueBackground | default "rgb(18,18,18)" | css}};
     }
     .icon {
         height: 1em;

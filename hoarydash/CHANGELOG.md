@@ -1,6 +1,6 @@
-# v0.10.2
+# v0.10.3
 
-- Fixes dateclock position on centered layout when there are no widgets
+- Fixes opaque cards not getting their styles from the global theme
 
 ---
 
