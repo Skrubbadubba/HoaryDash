@@ -12,9 +12,11 @@ import (
 type Theme struct {
 	// Surfaces
 	Background       template.CSS `yaml:"background"`
-	OpaqueBackground template.CSS `yaml:"opaque_background"`
 	Surface          template.CSS `yaml:"surface"`
-	SurfaceAccent    template.CSS `yaml:"surface_accent"`
+	SurfaceOpaque    template.CSS `yaml:"surface_opaque"`
+	SurfaceProminent template.CSS `yaml:"surface_prominent"`
+	SurfaceAlt       template.CSS `yaml:"surface_alt"`
+	Highlight        template.CSS `yaml:"highlight"`
 
 	// Text + icons
 	OnSurface       template.CSS `yaml:"on_surface"`
@@ -82,8 +84,11 @@ func newDefaultModal() *CardStyle {
 
 var defaultTheme = Theme{
 	Background:       "#0f0f0f",
-	OpaqueBackground: "#1a1a1a",
 	Surface:          "rgba(18,18,18,0.75)",
+	SurfaceOpaque:    "#1a1a1a",
+	SurfaceProminent: "rgba(57, 57, 57, 0.85)",
+	SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
+	Highlight:        "rgba(255, 255, 255, 0.12)",
 	OnSurface:        "#ffffff",
 	OnSurfaceMuted:   "#dbdbdb",
 	OnSurfaceSubtle:  "#989898",
@@ -107,12 +112,12 @@ func mergeTheme(base, override Theme) Theme {
 	return result
 }
 
-func resolveTheme(named ThemesMap, ref ThemeRef) (Theme, error) {
+func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {
 		if namedTheme, ok := named[ref.Name]; ok {
-			return namedTheme, nil
+			return &namedTheme, nil
 		}
-		return Theme{}, fmt.Errorf("Theme %q not found", ref.Name)
+		return nil, fmt.Errorf("Theme %q not found", ref.Name)
 	}
 	return ref.Theme, nil
 }

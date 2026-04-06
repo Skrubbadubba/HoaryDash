@@ -26,8 +26,8 @@
         
     * {
         {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
-        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
         {{else}}
         -webkit-transition: none;
         transition: none;
@@ -37,8 +37,52 @@
         padding: 0;
         -webkit-tap-highlight-color: transparent;
     }
+
+    *::before, *::after {
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
+    }
+
+    .transition-fast, .transition-fast *::after, .transition-fast *::before {
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
+        transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
+    }
     
     button:focus { outline: none; }
+
+    .btn {
+            width: 4.5em;
+            height: 4.5em;
+            border: none;
+            border-radius: 1em;
+            cursor: pointer;
+            outline: none;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            z-index: 50;
+        }
+    .btn svg {
+        width: 2.33em;
+        height: 2.33em;
+    }
+    .btn:active {
+        -webkit-transform: scale(0.88);
+        transform: scale(0.88);
+    }
 
     .card, .card-opaque {
         height: 100%;

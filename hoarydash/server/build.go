@@ -42,6 +42,15 @@ func makeOnceFunc() func(string) bool {
 	}
 }
 
+func makeGlobals(globals map[string]any) func(string) (any, error) {
+	return func(key string) (any, error) {
+		if val, ok := globals[key]; ok {
+			return val, nil
+		}
+		return nil, fmt.Errorf("Global value '%s' not found", key)
+	}
+}
+
 var uid = 0
 
 var funcMap = template.FuncMap{
@@ -187,7 +196,8 @@ var funcMap = template.FuncMap{
 		}
 		return nil
 	},
-	"once": makeOnceFunc(),
+	"once":    makeOnceFunc(),
+	"globals": makeGlobals(make(map[string]any)),
 	"uid": func() int {
 		uid++
 		return uid
@@ -256,9 +266,18 @@ func BuildDash() {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
 			return
 		}
-		dash.Theme = mergeTheme(defaultTheme, resolvedTheme)
+		dereffedTheme := Theme{}
+		if resolvedTheme != nil {
+			dereffedTheme = *resolvedTheme
+		}
+		dash.Theme = mergeTheme(defaultTheme, dereffedTheme)
 
 		funcMap["once"] = makeOnceFunc()
+
+		globals := map[string]any{
+			"Animations": dash.Animations,
+		}
+		funcMap["globals"] = makeGlobals(globals)
 		dashTmpl, err := tmpl.Clone()
 		if err != nil {
 			log.Printf("Could not clone template for %s: %v", name, err)

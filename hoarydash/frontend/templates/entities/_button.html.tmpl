@@ -27,9 +27,7 @@
     width: 100%;
     color: inherit;
     font: inherit;
-    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    }
+  }
     
   .ha-button-content {
     display: flex;
@@ -62,7 +60,7 @@
 {{end}}
 {{end}}
 {{define "_button"}}
-<div class="ha-button entity card">
+<div class="ha-button entity card transition-fast">
   <button class="ha-button-body" title="{{.Label}}">
     <div class="ha-button-content">
     {{if .Icon}}
@@ -74,7 +72,7 @@
         {{end}}
       </span>
      {{end}}
-      <span class="ha-button-label entity-label interactive">{{.Label}}</span>
+      <span class="ha-button-label entity-label on-surface">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>

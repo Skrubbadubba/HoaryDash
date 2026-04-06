@@ -27,8 +27,6 @@
     width: 100%;
     color: inherit;
     font: inherit;
-    -webkit-transition: opacity 0.15s ease, -webkit-transform 0.15s ease;
-    transition: opacity 0.15s ease, transform 0.15s ease;
   }
   .ha-toggle-body:active {
     -webkit-transform: scale(0.95);
@@ -48,8 +46,6 @@
   .ha-toggle-icon {
     font-size: 1.6em;
     line-height: 1;
-    -webkit-transition: opacity 0.2s ease;
-    transition: opacity 0.2s ease;
     margin-right: 4px;
   }
   .ha-toggle.off .ha-toggle-icon {
@@ -73,8 +69,6 @@
     -webkit-flex-shrink: 0;
     flex-shrink: 0;
     pointer-events: none;
-    -webkit-transition: background 0.2s ease, border-color 0.2s ease, -webkit-box-shadow 0.2s ease;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     margin-left: 0.5em;
     margin-right: 0.1em;
   }
@@ -86,18 +80,16 @@
     width: 0.75em;
     height: 0.75em;
     border-radius: 50%;
-    -webkit-transition: top 0.18s ease, background 0.18s ease;
-    transition: top 0.18s ease, background 0.18s ease;
   }
 
   .ha-toggle.on .ha-toggle-pill::after {
-    top: 0.1875em;
+    transform: translateY(-1em);
   }
 </style>
 {{end}}
 {{define "_toggle-open"}}
 <div class="ha-toggle entity card off">
-  <button class="ha-toggle-body" title="{{.Label}}">
+  <button class="ha-toggle-body transition-fast" title="{{.Label}}">
     <div class="ha-toggle-left">
       {{if .Icon}}
       <span class="ha-toggle-icon interactive">

@@ -56,12 +56,12 @@ type Screen struct {
 		CardGroup `yaml:",inline"`
 	}
 	ThemeRef ThemeRef `yaml:"theme"`
-	Theme    Theme    `yaml:"_"`
+	Theme    *Theme   `yaml:"_"`
 }
 
 type ThemeRef struct {
 	Name  string // set if user wrote `theme: aurora`
-	Theme Theme  // set if user wrote `theme: background: ...`
+	Theme *Theme // set if user wrote `theme: background: ...`
 }
 
 func (t *ThemeRef) UnmarshalYAML(value *yaml.Node) error {

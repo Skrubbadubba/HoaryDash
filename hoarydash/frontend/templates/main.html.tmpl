@@ -57,7 +57,6 @@
     {{$config := .Config}}
     {{template "base-style" .}}
     {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
-    {{template "btn-style" .Dashboard.Theme}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
@@ -281,7 +280,7 @@
             {{if eq .Dashboard.Navbar.Style "rectangle"}}
                 {{template "navbar-rectangle-style" .Dashboard.Navbar}}
             {{else}}
-                {{template "navbar-default-style"}}
+                {{template "navbar-default-style" .Dashboard.Theme}}
             {{end}}
         </div>
     {{end}}

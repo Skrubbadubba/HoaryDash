@@ -1,8 +1,8 @@
 {{define "navbar"}}
-<nav class="navbar accent-muted-bg">
+<nav class="navbar surface-alt">
     {{range $i, $screen := .}}
-    <div class="navbar-item{{if eq $i 0}} active{{end}}" onclick="window.navigateTo({{$i}})">
-        <div class="navbar-icon accent-muted">
+    <div class="navbar-item{{if eq $i 0}} highlight active{{end}}" onclick="window.navigateTo({{$i}})">
+        <div class="navbar-icon accent">
             {{if $screen.Icon}}
                 {{icon $screen.Icon}}
             {{else}}
@@ -26,7 +26,7 @@ component(function(navbar) {
         for (var i = 0; i < items.length; i++) {
             console.log("loop in navbar items: ", i, items[i])
             if (i === e.detail.index) {
-                items[i].className = 'navbar-item active';
+                items[i].className = 'navbar-item active highlight';
             } else {
                 items[i].className = 'navbar-item';
             }
