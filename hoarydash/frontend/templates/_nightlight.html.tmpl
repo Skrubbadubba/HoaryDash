@@ -27,7 +27,7 @@
         right: 24px;
         width: 60px;
         {{if .Nightlight.OverrideColors}}
-            background-color: {{.Theme.ButtonBackground | default "#333" | css}};
+            background-color: {{.Theme.InteractiveMuted | default "#333" | css}};
         {{else}}
             background-color: #333;
         {{end}}
@@ -118,7 +118,7 @@
         <div id="slider-thumb"></div>
     </div>
 </div>
-<button id="nightlight-btn" class="btn" title="Nightlight">
+<button id="nightlight-btn" class="btn surface-accent interactive" title="Nightlight">
     {{icon "candle"}}
 </button>
 

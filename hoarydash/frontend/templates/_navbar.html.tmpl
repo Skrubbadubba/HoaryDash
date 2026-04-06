@@ -1,15 +1,15 @@
 {{define "navbar"}}
-<nav class="navbar">
+<nav class="navbar accent-muted-bg">
     {{range $i, $screen := .}}
     <div class="navbar-item{{if eq $i 0}} active{{end}}" onclick="window.navigateTo({{$i}})">
-        <div class="navbar-icon">
+        <div class="navbar-icon accent-muted">
             {{if $screen.Icon}}
                 {{icon $screen.Icon}}
             {{else}}
                 {{icon "circle-medium"}}
             {{end}}
         </div>
-        <div class="navbar-label">{{$screen.Name}}</div>
+        <div class="navbar-label on-surface-muted">{{$screen.Name}}</div>
     </div>
     {{end}}
 </nav>

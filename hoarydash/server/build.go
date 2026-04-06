@@ -243,10 +243,20 @@ func BuildDash() {
 	// we do an initial loop
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
-		for i := range dash.Screens {
-			dash.Screens[i].Theme = resolveTheme(allNamed, dash.ThemeRef, dash.Screens[i].ThemeRef)
+		for i, screen := range dash.Screens {
+			resolvedTheme, err := resolveTheme(allNamed, screen.ThemeRef)
+			if err != nil {
+				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
+				return
+			}
+			dash.Screens[i].Theme = resolvedTheme
 		}
-		dash.Theme = resolveTheme(allNamed, dash.ThemeRef)
+		resolvedTheme, err := resolveTheme(allNamed, dash.ThemeRef)
+		if err != nil {
+			log.Printf("Error reading theme for dashboard %s: %v", name, err)
+			return
+		}
+		dash.Theme = mergeTheme(defaultTheme, resolvedTheme)
 
 		funcMap["once"] = makeOnceFunc()
 		dashTmpl, err := tmpl.Clone()

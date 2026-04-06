@@ -197,7 +197,9 @@
         {{else}}
             {{$id = concat "screen-" $i}}
         {{end}}
-        {{template "create-theme" (merge $screen.Theme (dict "Prefix" (concat "#" $id)))}}
+        {{if $screen.Theme}}
+            {{template "create-theme" (merge $screen.Theme (dict "Prefix" (concat "#" $id)))}}
+        {{end}}
         <div id="{{$id}}" class="screen">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
@@ -277,9 +279,9 @@
         <div class="navbar-container navbar-{{.Dashboard.Navbar.Position | default "bottom"}} navbar-{{$orientation}}">
             {{template "navbar" .Dashboard.Screens}}
             {{if eq .Dashboard.Navbar.Style "rectangle"}}
-                {{template "navbar-rectangle-style" (merge .Dashboard.Theme .Dashboard.Navbar)}}
+                {{template "navbar-rectangle-style" .Dashboard.Navbar}}
             {{else}}
-                {{template "navbar-default-style" .Dashboard.Theme}}
+                {{template "navbar-default-style"}}
             {{end}}
         </div>
     {{end}}

@@ -68,8 +68,7 @@
     width: 1.25em;
     height: 2.25em;
     border-radius: 0.625em;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.14);
+    border: 1px solid;
     position: relative;
     -webkit-flex-shrink: 0;
     flex-shrink: 0;
@@ -87,19 +86,12 @@
     width: 0.75em;
     height: 0.75em;
     border-radius: 50%;
-    background: rgba(200,220,240,0.38);
     -webkit-transition: top 0.18s ease, background 0.18s ease;
     transition: top 0.18s ease, background 0.18s ease;
   }
-  .ha-toggle.on .ha-toggle-pill {
-    background: rgba(90,210,120,0.3);
-    border-color: rgba(90,220,120,0.52);
-    -webkit-box-shadow: 0 0 8px rgba(70,200,100,0.22);
-    box-shadow: 0 0 8px rgba(70,200,100,0.22);
-  }
+
   .ha-toggle.on .ha-toggle-pill::after {
     top: 0.1875em;
-    background: #7ae894;
   }
 </style>
 {{end}}
@@ -108,7 +100,7 @@
   <button class="ha-toggle-body" title="{{.Label}}">
     <div class="ha-toggle-left">
       {{if .Icon}}
-      <span class="ha-toggle-icon">
+      <span class="ha-toggle-icon interactive">
         {{if isEmoji .Icon}}
             {{.Icon}}
         {{else}}
@@ -116,9 +108,9 @@
         {{end}}
       </span>
       {{end}}
-      <span class="ha-toggle-label entity-label font-primary">{{.Label}}</span>
+      <span class="ha-toggle-label entity-label on-surface">{{.Label}}</span>
     </div>
-    <div class="ha-toggle-pill"></div>
+    <div class="ha-toggle-pill state-bg state-border"></div>
   </button>
 {{end}}
 {{define "_toggle-script"}}

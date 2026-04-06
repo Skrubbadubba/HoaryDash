@@ -65,16 +65,11 @@
         margin:0 0.15em;
     }
 
-    .todo-btn.complete {
-        background: rgba(80, 200, 120, 0.2);
-        fill: #4caf50;
-    }
     .todo-btn.complete svg {
         fill: #4caf50;
     }
 
     .todo-btn.delete {
-        background: rgba(255, 80, 80, 0.2);
         margin: 0 0.4em;
     }
     .todo-btn.delete svg {
@@ -206,15 +201,15 @@
     {{end}}>
         <div class="todo-info">
             <span class="todo-icon"></span>
-            <span class="todo-name font-primary">Todos</span>
+            <span class="todo-name on-surface">Todos</span>
             <span> - </span>
-            <span class="todo-statistic font-secondary">0/0</span>
+            <span class="todo-statistic on-surface-muted">0/0</span>
         </div>
-        <div class="todo-controls font-primary">
-            <button class="todo-btn complete">
+        <div class="todo-controls on-surface">
+            <button class="todo-btn complete positive-bg">
                 <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
-            <button class="todo-btn delete">
+            <button class="todo-btn delete negative-bg">
                 <span style="margin-top: 0.3em">{{icon "delete"}}</span><span class="divider"></span><span>Done</span>
             </button>
         </div>

@@ -66,7 +66,7 @@
   <button class="ha-button-body" title="{{.Label}}">
     <div class="ha-button-content">
     {{if .Icon}}
-      <span class="ha-button-icon">
+      <span class="ha-button-icon interactive-muted">
         {{if isEmoji .Icon}}
             {{.Icon}}
         {{else}}
@@ -74,7 +74,7 @@
         {{end}}
       </span>
      {{end}}
-      <span class="ha-button-label entity-label font-primary">{{.Label}}</span>
+      <span class="ha-button-label entity-label interactive">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>

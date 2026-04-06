@@ -235,7 +235,7 @@
     <div class="mbrowser-backdrop"></div>
     <div class="mbrowser-modal card-opaque modal">
         <div class="mbrowser-header">
-            <button class="mbrowser-back font-primary" disabled>{{icon "chevron-left"}}</button>
+            <button class="mbrowser-back on-surface" disabled>{{icon "chevron-left"}}</button>
             <div class="mbrowser-breadcrumbs"></div>
         </div>
         <div class="mbrowser-list"></div>
@@ -296,13 +296,13 @@ component(function(wrapper) {
         for (var i = 0; i < stack.length; i++) {
             if (i > 0) {
                 var sep = document.createElement('span');
-                sep.className = 'mbrowser-crumb-sep font-secondary';
+                sep.className = 'mbrowser-crumb-sep on-surface-muted';
                 sep.textContent = '›';
                 elCrumbs.appendChild(sep);
             }
             var crumb = document.createElement('span');
             crumb.className = 'mbrowser-crumb' +
-                (i === stack.length - 1 ? ' active font-primary' : ' font-secondary');
+                (i === stack.length - 1 ? ' active on-surface' : ' on-surface-muted');
             crumb.textContent = stack[i].title;
             elCrumbs.appendChild(crumb);
         }
@@ -314,7 +314,7 @@ component(function(wrapper) {
 
         if (!children || children.length === 0) {
             var empty = document.createElement('div');
-            empty.className = 'mbrowser-empty font-secondary';
+            empty.className = 'mbrowser-empty on-surface-muted';
             empty.textContent = 'Nothing here';
             elList.appendChild(empty);
             return;
@@ -337,7 +337,7 @@ component(function(wrapper) {
                 }
 
                 var title = document.createElement('span');
-                title.className = 'mbrowser-row-title font-primary';
+                title.className = 'mbrowser-row-title on-surface';
                 title.textContent = item.title || '—';
 
                 row.appendChild(thumb);
@@ -346,7 +346,7 @@ component(function(wrapper) {
                 if (item.can_play) {
                     {{if .Queue}}
                         var queueBtn = document.createElement('button');
-                        queueBtn.className = 'mbrowser-row-queue font-primary';
+                        queueBtn.className = 'mbrowser-row-queue on-surface';
                         queueBtn.innerHTML = '{{icon "playlist-plus"}}';
                         queueBtn.title = 'queue';
                         queueBtn.onclick = function(e) {
@@ -356,7 +356,7 @@ component(function(wrapper) {
                         row.appendChild(queueBtn);
                     {{end}}
                     var playBtn = document.createElement('button');
-                    playBtn.className = 'mbrowser-row-play font-primary';
+                    playBtn.className = 'mbrowser-row-play on-surface';
                     playBtn.innerHTML = '{{icon "play-circle"}}';
                     playBtn.title = 'Play';
                     playBtn.onclick = function(e) {

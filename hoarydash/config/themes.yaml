@@ -1,8 +1,169 @@
+light:
+  background: "#f9f5d7"
+  surface: "#fbf1c7"
+  opaque_background: "#f0e8c8"
+  on_surface: "#3c3836"
+  on_surface_muted: "#7c6f64"
+  on_surface_subtle: "#a89984"
+  accent: "#458588"
+  accent_muted: "#6fa8ab"
+  interactive: "#458588"
+  interactive_muted: "#6fa8ab"
+  positive: "#79740e"
+  negative: "#9d0006"
+  border: "#d5c4a1"
+  cards:
+    borders: true
+    border_color: "#d5c4a1"
+    background: "#fbf1c7"
+
+gruvbox-dark:
+  background: "#282828"
+  surface: "#3c3836"
+  opaque_background: "#1d2021"
+  on_surface: "#ebdbb2"
+  on_surface_muted: "#a89984"
+  on_surface_subtle: "#7c6f64"
+  accent: "#fabd2f"
+  accent_muted: "#d79921"
+  interactive: "#83a598"
+  interactive_muted: "#458588"
+  positive: "#b8bb26"
+  negative: "#fb4934"
+  border: "#504945"
+  cards:
+    borders: true
+    border_color: "#504945"
+    background: "#3c3836"
+
+gruvbox-light:
+  background: "#fbf1c7"
+  surface: "#ebdbb2"
+  opaque_background: "#f2e5bc"
+  on_surface: "#282828"
+  on_surface_muted: "#665c54"
+  on_surface_subtle: "#928374"
+  accent: "#d65d0e"
+  accent_muted: "#af3a03"
+  interactive: "#076678"
+  interactive_muted: "#458588"
+  positive: "#79740e"
+  negative: "#9d0006"
+  border: "#bdae93"
+  cards:
+    borders: true
+    border_color: "#bdae93"
+    background: "#ebdbb2"
+
+sepia:
+  background: "#f4ecd8"
+  surface: "#fdf6e3"
+  opaque_background: "#ede0c8"
+  on_surface: "#433422"
+  on_surface_muted: "#8b6f47"
+  on_surface_subtle: "#b8956a"
+  accent: "#a0522d"
+  accent_muted: "#c47a45"
+  interactive: "#6f4e37"
+  interactive_muted: "#8b6f47"
+  positive: "#5a7a3a"
+  negative: "#8b2500"
+  border: "#d4b896"
+  cards:
+    borders: true
+    border_color: "#d4b896"
+    background: "#fdf6e3"
+
+nord:
+  background: "#2e3440"
+  surface: "#3b4252"
+  opaque_background: "#242831"
+  on_surface: "#eceff4"
+  on_surface_muted: "#9099aa"
+  on_surface_subtle: "#616e88"
+  accent: "#88c0d0"
+  accent_muted: "#5e81ac"
+  interactive: "#81a1c1"
+  interactive_muted: "#4c566a"
+  positive: "#a3be8c"
+  negative: "#bf616a"
+  border: "#434c5e"
+  cards:
+    borders: true
+    border_color: "#434c5e"
+    background: "#3b4252"
+
+aurora:
+  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+  surface: "rgba(255, 255, 255, 0.08)"
+  opaque_background: "#0f1929"
+  on_surface: "#e0f7fa"
+  on_surface_muted: "#80cbc4"
+  on_surface_subtle: "#4db6ac"
+  accent: "#4dd0e1"
+  accent_muted: "#26c6da"
+  interactive: "#4dd0e1"
+  interactive_muted: "rgba(77, 208, 225, 0.5)"
+  positive: "#80cbc4"
+  negative: "#ef9a9a"
+  border: "rgba(255, 255, 255, 0.12)"
+  cards:
+    borders: true
+    border_color: "rgba(255, 255, 255, 0.12)"
+    background: "rgba(255, 255, 255, 0.08)"
+
+sunset:
+  background: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
+  surface: "rgba(255, 100, 30, 0.15)"
+  opaque_background: "#1a0a00"
+  on_surface: "#fff3e0"
+  on_surface_muted: "#ffab76"
+  on_surface_subtle: "#ff8a50"
+  accent: "#ff7043"
+  accent_muted: "#ff8a65"
+  interactive: "#ff7043"
+  interactive_muted: "rgba(255, 112, 67, 0.5)"
+  positive: "#aed581"
+  negative: "#ef5350"
+  border: "rgba(255, 100, 30, 0.25)"
+  cards:
+    borders: true
+    border_color: "rgba(255, 100, 30, 0.25)"
+    background: "rgba(255, 100, 30, 0.15)"
+
+forest:
+  background: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
+  surface: "rgba(100, 200, 100, 0.10)"
+  opaque_background: "#0a1e0e"
+  on_surface: "#e8f5e9"
+  on_surface_muted: "#81c784"
+  on_surface_subtle: "#4caf50"
+  accent: "#66bb6a"
+  accent_muted: "#81c784"
+  interactive: "#66bb6a"
+  interactive_muted: "rgba(102, 187, 106, 0.5)"
+  positive: "#aed581"
+  negative: "#ef9a9a"
+  border: "rgba(100, 200, 100, 0.18)"
+  cards:
+    borders: true
+    border_color: "rgba(100, 200, 100, 0.18)"
+    background: "rgba(100, 200, 100, 0.10)"
+
 synthwave:
   background: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
-  font_color: "#f8f0ff"
-  secondary_font_color: "#cc88ff"
-  icon_color: "#ff44cc"
+  surface: "rgba(255, 0, 255, 0.12)"
+  opaque_background: "#1a0030"
+  on_surface: "#f8f0ff"
+  on_surface_muted: "#cc88ff"
+  on_surface_subtle: "#aa44ff"
+  accent: "#ff44cc"
+  accent_muted: "#cc2299"
+  interactive: "#ff44cc"
+  interactive_muted: "rgba(255, 68, 204, 0.5)"
+  positive: "#44ffcc"
+  negative: "#ff4466"
+  border: "rgba(255, 0, 255, 0.2)"
   cards:
     borders: true
     border_color: "rgba(255, 0, 255, 0.2)"

@@ -204,6 +204,7 @@
         width: 1.8em;
         height: 1.8em;
         border-radius: 50%;
+        border: none;
         background: #949494;
         cursor: pointer;
     }
@@ -213,6 +214,7 @@
         width: 1.8em;
         height: 1.8em;
         border-radius: 50%;
+        border: none;
         background: #949494;
         cursor: pointer;
     }
@@ -228,15 +230,15 @@
     <div class="media-top-row">
         <div class="media-info">
             <div class="media-cover">
-                <div class="media-cover-placeholder">{{icon "music"}}</div>
+                <div class="media-cover-placeholder accent">{{icon "music"}}</div>
             </div>
             <div class="media-song-info">
-                <span class="media-idle font-secondary">Idle</span>
+                <span class="media-idle on-surface-muted">Idle</span>
             </div>
         </div>
         {{if .ShowBrowser}}
         <div class="media-browse">
-            <button class="media-browser-button">{{icon "play-box-multiple"}}</button>
+            <button class="media-browser-button on-surface-muted">{{icon "play-box-multiple"}}</button>
         </div>
         {{end}}
     </div>
@@ -246,16 +248,16 @@
     {{end}}>
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
-            <span class="media-vol-icon">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider font-primary" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>
+            <input class="media-vol-slider interactive-muted-bg" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls">
-            <button class="media-ctrl-btn shuffle font-secondary hide" title="shuffle">{{icon "shuffle"}}</button>
-            <button class="media-ctrl-btn back font-primary" title="Previous">{{icon "skip-backward"}}</button>
-            <button class="media-ctrl-btn play font-primary" title="Play-Pause">{{icon "play"}}</button>
-            <button class="media-ctrl-btn forward font-primary" title="Next">{{icon "skip-forward"}}</button>
-            <button class="media-ctrl-btn repeat font-secondary hide" title="repeat">{{icon "repeat"}}</button>
+            <button class="media-ctrl-btn shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
+            <button class="media-ctrl-btn back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
+            <button class="media-ctrl-btn play on-surface" title="Play-Pause">{{icon "play"}}</button>
+            <button class="media-ctrl-btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
+            <button class="media-ctrl-btn repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
         </div>
 
     </div>
@@ -426,13 +428,13 @@ component(function(wrapper) {
         }
 
         var elSong = document.createElement('span');
-        elSong.className = 'media-song font-primary';
+        elSong.className = 'media-song on-surface';
         elSong.textContent = song || '—';
         elSongInfo.appendChild(elSong);
 
         if (artist) {
             var elArtist = document.createElement('span');
-            elArtist.className = 'media-artist font-secondary';
+            elArtist.className = 'media-artist on-surface-muted';
             elArtist.textContent = artist;
             elSongInfo.appendChild(elArtist);
         }
@@ -440,7 +442,7 @@ component(function(wrapper) {
         {{ if disabledByDefault .ShowAlbum}}
         if (album) {
             var elAlbum = document.createElement('span');
-            elAlbum.className = 'media-album font-secondary';
+            elAlbum.className = 'media-album on-surface-muted';
             elAlbum.textContent = album;
             elSongInfo.appendChild(elAlbum);
         }

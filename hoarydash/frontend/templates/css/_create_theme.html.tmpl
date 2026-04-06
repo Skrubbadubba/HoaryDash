@@ -1,62 +1,276 @@
-{{define "create-theme"}}
-{{$prefix := "undefined"}}
-{{if .Prefix}}
-    {{$prefix = .Prefix}}
+{{define "_before"}}
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    z-index: -1;
+    top: 0;
+    right: 0;
 {{end}}
+{{define "create-theme"}}
+{{$p := .Prefix}}
 <style>
-    {{$prefix}} {
-        {{if .FontSize}}
-        font-size: {{.FontSize}}px;
-        {{end}}
-        {{if .Background}}
-        background: {{.Background}};
-        {{end}}
-        
-    }
-    
-    {{if .IconColor}}
-    {{$prefix}} .icon {
-        fill: {{.IconColor}}
-    }
-    {{end}}
 
-    {{if .FontColor}}
-    {{$prefix}} .font-primary {
-        color: {{.FontColor}};
-    }
-    {{end}}
-    {{if .SecondaryFontColor}}
-    {{$prefix}} .font-secondary {
-        color: {{.SecondaryFontColor}};
-    }
-    {{end}}
+{{/* Base layout */}}
+{{if or .FontSize .Background}}
+{{$p}} {
+    {{if .FontSize}}font-size: {{.FontSize}}px;{{end}}
+    {{if .Background}}background: {{.Background | css}};{{end}}
+}
+{{end}}
 
-    {{if .Cards}}
-    {{$prefix}} .card {
-        {{template "create-card-theme" .Cards}}
-    }
-    {{$prefix}} .card-opaque {
-        {{template "create-card-theme" .Cards}}
-        {{if .OpaqueBackground}}
-            background-color: {{.OpaqueBackground | css}};
-        {{end}}
-    }
-    {{end}}
-    {{if .Sensors}}
-    {{$prefix}} .sensor.card {
-        {{template "create-card-theme" .Sensors}}
-    }
-    {{end}}
-    {{if .Entities}}
-    {{$prefix}} .entity.card {
-        {{template "create-card-theme" .Entities}}
-    }
-    {{end}}
-    {{if .Widgets}}
-    {{$prefix}} .widget.card {
-        {{template "create-card-theme" .Widgets}}
-    }
-    {{end}}
+{{/* Semantic utility classes */}}
+{{if .Surface}}
+{{$p}} .surface {
+    background-color: {{.Surface | css}};
+}
+{{end}}
 
+{{if .SurfaceAccent}}
+{{$p}} .surface-accent {
+    background-color: {{.SurfaceAccent | css}};
+}
+{{end}}
+
+{{if .OnSurface}}
+{{$p}} .on-surface {
+    color: {{.OnSurface | css}};
+    fill: {{.OnSurface | css}};
+}
+{{end}}
+
+{{if .OnSurfaceMuted}}
+{{$p}} .on-surface-muted {
+    color: {{.OnSurfaceMuted | css}};
+    fill: {{.OnSurfaceMuted | css}};
+}
+{{else if .OnSurface}}
+{{$p}} .on-surface-muted {
+    color: {{.OnSurface | css}};
+    fill: {{.OnSurface | css}};
+    opacity: 0.6;
+}
+{{end}}
+
+{{if .OnSurfaceSubtle}}
+{{$p}} .on-surface-subtle {
+    color: {{.OnSurfaceSubtle | css}};
+    fill: {{.OnSurfaceSubtle | css}};
+}
+{{else if .OnSurface}}
+{{$p}} .on-surface-subtle {
+    color: {{.OnSurface | css}};
+    fill: {{.OnSurface | css}};
+    opacity: 0.35;
+}
+{{end}}
+
+{{if .OnBackground}}
+{{$p}} .on-bg {
+    color: {{.OnBackground | css}};
+    fill: {{.OnBackground | css}};
+}
+{{else if .OnSurface}}
+{{$p}} .on-bg {
+    color: {{.OnSurface | css}};
+    fill: {{.OnSurface | css}};
+    opacity: 0.8;
+}
+{{end}}
+
+{{if .Accent}}
+{{$p}} .accent {
+    color: {{.Accent | css}};
+    fill: {{.Accent | css}};
+}
+{{$p}} .accent-bg {
+    background-color: {{.Accent | css}};
+}
+{{end}}
+
+{{if .AccentMuted}}
+{{$p}} .accent-muted {
+    color: {{.AccentMuted | css}};
+    fill: {{.AccentMuted | css}};
+}
+{{else if .Accent}}
+{{$p}} .accent-muted {
+    color: {{.Accent | css}};
+    fill: {{.Accent | css}};
+    opacity: 0.5;
+}
+{{end}}
+
+{{if .Interactive}}
+{{$p}} .interactive {
+    color: {{.Interactive | css}};
+    fill: {{.Interactive | css}};
+}
+{{$p}} .interactive-bg {
+    background-color: {{.Interactive | css}};
+}
+{{$p}} input[type=range]::-webkit-slider-thumb,{{$p}} input[type=range]::-moz-range-thumb {
+    background-color: {{.Interactive | css}};
+}
+{{end}}
+
+{{if .InteractiveMuted}}
+{{$p}} .interactive-muted {
+    color: {{.InteractiveMuted | css}};
+    fill: {{.InteractiveMuted | css}};
+}
+{{$p}} .interactive-muted-bg {
+    background-color: {{.InteractiveMuted | css}};
+}
+{{else if .Interactive}}
+{{$p}} .interactive-muted {
+    color: {{.Interactive | css}};
+    fill: {{.Interactive | css}};
+    opacity: 0.6;
+}
+{{$p}} .interactive-muted-bg {
+    position: relative;
+    z-index:0;
+}
+{{$p}} .interactive-muted-bg::before {
+    background-color: {{.Interactive | css}};
+    opacity: 0.6;
+    {{template "_before"}}
+}
+{{end}}
+
+{{if or .StateOff .StateOn .StateDisabled}}
+{{$p}} .state-bg {
+    z-index: 0;
+    position: relative;
+}
+{{$p}} .state-bg::before {
+    {{template "_before"}}
+    opacity: 0.35;
+}
+{{end}}
+{{if .StateOn}}
+{{$p}} .state.on, {{$p}} .on .state {
+    color: {{.StateOn | css}};
+    fill: {{.StateOn | css}};
+}
+{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before {
+    background-color: {{.StateOn | css}};
+}
+{{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after {
+    background-color: {{.StateOn | css}};
+}
+{{$p}} .state-border.on, {{$p}} .on .state-border {
+    border-color: {{.StateOn | css}};
+}
+{{end}}
+
+{{if .StateOff}}
+{{$p}} .state.off, {{$p}} .off .state {
+    color: {{.StateOff | css}};
+    fill: {{.StateOff | css}};
+}
+{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before {
+    background-color: {{.StateOff | css}};
+}
+{{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after {
+    background-color: {{.StateOff | css}};
+}
+{{$p}} .state-border.off, {{$p}} .off .state-border {
+    border-color: {{.StateOff | css}};
+}
+{{end}}
+
+{{if .StateDisabled}}
+{{$p}} .state.disabled, {{$p}} .disabled .state {
+    color: {{.StateDisabled | css}};
+    fill: {{.StateDisabled | css}};
+}
+{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before {
+    background-color: {{.StateDisabled | css}};
+}
+{{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after {
+    background-color: {{.StateDisabled | css}};
+}
+{{$p}} .state-border.disabled, {{$p}} .disabled .state-border {
+    border-color: {{.StateDisabled | css}};
+}
+{{end}}
+
+{{if .Positive}}
+{{$p}} .positive {
+    color: {{.Positive | css}};
+    fill: {{.Positive | css}};
+}
+{{$p}} .positive-bg {
+    position: relative;
+}
+{{$p}} .positive-bg::before {
+    background-color: {{.Positive | css}};
+    opacity: 0.5;
+    {{template "_before"}}
+}
+{{end}}
+
+{{if .Negative}}
+{{$p}} .negative {
+    color: {{.Negative | css}};
+    fill: {{.Negative | css}};
+}
+{{$p}} .negative-bg {
+    position: relative;
+}
+{{$p}} .negative-bg::before {
+    background-color: {{.Negative | css}};
+    opacity: 0.5;
+    {{template "_before"}}
+}
+{{end}}
+
+{{/* Structural card overrides — only emitted when fields are present */}}
+{{if .Cards}}
+{{$p}} .card, {{$p}} .card-opaque {
+    {{template "create-card-theme" .Cards}}
+}
+{{else}}
+{{$p}} .card {
+    background-color: {{.Surface | css}};
+}
+{{$p}} .card-opaque {
+    background-color: {{.OpaqueBackground | css}};
+}
+{{$p}} .card, {{$p}} .card-opaque {
+    border-color: {{.SurfaceAccent | css}}
+}
+{{end}}
+
+{{if .Entities}}
+{{$p}} .entity.card {
+    {{template "create-card-theme" .Entities}}
+}
+{{end}}
+
+{{if .Sensors}}
+{{$p}} .sensor.card {
+    {{template "create-card-theme" .Sensors}}
+}
+{{end}}
+
+{{if .Widgets}}
+{{$p}} .widget.card {
+    {{template "create-card-theme" .Widgets}}
+}
+{{end}}
+
+{{if .Modal}}
+{{$p}} .modal {
+    {{template "create-card-theme" .Modal}}
+}
+{{else if .OpaqueBackground}}
+{{$p}} .modal {
+    background-color: {{.OpaqueBackground}}
+}
+{{end}}
 </style>
 {{end}}

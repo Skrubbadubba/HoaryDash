@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"os"
 
@@ -9,18 +10,45 @@ import (
 )
 
 type Theme struct {
-	Background         template.CSS
-	OpaqueBackground   template.CSS `yaml:"opaque_background"`
-	Cards              CardStyle    // Default for widgets, entities and sensors
-	Entities           CardStyle
-	Sensors            CardStyle
-	Widgets            CardStyle
-	ButtonBackground   template.CSS `yaml:"button_background"`
-	FontColor          template.CSS `yaml:"font_color"`
-	SecondaryFontColor template.CSS `yaml:"secondary_font_color"`
-	IconColor          template.CSS `yaml:"icon_color"`
-	DisabledIconColor  template.CSS `yaml:"disabled_icon_color"`
-	FontSize           int          `yaml:"font_size"`
+	// Surfaces
+	Background       template.CSS `yaml:"background"`
+	OpaqueBackground template.CSS `yaml:"opaque_background"`
+	Surface          template.CSS `yaml:"surface"`
+	SurfaceAccent    template.CSS `yaml:"surface_accent"`
+
+	// Text + icons
+	OnSurface       template.CSS `yaml:"on_surface"`
+	OnSurfaceMuted  template.CSS `yaml:"on_surface_muted"`
+	OnSurfaceSubtle template.CSS `yaml:"on_surface_subtle"`
+	OnBackground    template.CSS `yaml:"on_background"`
+
+	// Accent
+	Accent      template.CSS `yaml:"accent"`
+	AccentMuted template.CSS `yaml:"accent_muted"`
+
+	// Interactive elements (buttons, sliders)
+	Interactive         template.CSS `yaml:"interactive"`
+	InteractiveMuted    template.CSS `yaml:"interactive_muted"`
+	InteractiveDisabled template.CSS `yaml:"interactive_disabled"`
+
+	// State
+	StateOn       template.CSS `yaml:"state_on"`
+	StateOff      template.CSS `yaml:"state_off"`
+	StateDisabled template.CSS `yaml:"state_disabled"`
+
+	// Semantic states
+	Positive template.CSS `yaml:"positive"`
+	Negative template.CSS `yaml:"negative"`
+
+	// Font size
+	FontSize int `yaml:"font_size"`
+
+	// Structural styles
+	Cards    *CardStyle
+	Entities *CardStyle
+	Sensors  *CardStyle
+	Widgets  *CardStyle
+	Modals   *CardStyle
 }
 
 type CardStyle struct {
@@ -36,20 +64,39 @@ func newTrue() *bool {
 	return &b
 }
 
-var defaultTheme = Theme{
-	Background:         "#000000",
-	OpaqueBackground:   "#0f0f0f",
-	FontColor:          "#ffffff",
-	SecondaryFontColor: "#ffffffa2",
-	IconColor:          "hsl(0, 0%, 90%)",
-	DisabledIconColor:  "hsla(0, 0%, 90%, )",
-	FontSize:           18,
-	Cards: CardStyle{
+func newDefaultCard() *CardStyle {
+	style := CardStyle{
 		Borders:      newTrue(),
 		BorderColor:  "rgba(130,185,255,0.15)",
 		BorderRadius: "0.5em",
 		Background:   "rgba(18,18,18,0.75)",
-	},
+	}
+	return &style
+}
+
+func newDefaultModal() *CardStyle {
+	style := newDefaultCard()
+	style.Background = "rgb1(20,20,20)"
+	return style
+}
+
+var defaultTheme = Theme{
+	Background:       "#0f0f0f",
+	OpaqueBackground: "#1a1a1a",
+	Surface:          "rgba(18,18,18,0.75)",
+	OnSurface:        "#ffffff",
+	OnSurfaceMuted:   "#dbdbdb",
+	OnSurfaceSubtle:  "#989898",
+	Accent:           "hsl(210, 90%, 65%)",
+	Interactive:      "hsl(210, 90%, 65%)",
+	StateOn:          "hsl(134, 60%, 45%)",
+	StateOff:         "rgba(200,220,240,0.38)",
+	StateDisabled:    "rgba(220, 240, 250, 0.25)",
+	Positive:         "hsl(140, 60%, 55%)",
+	Negative:         "hsl(0, 70%, 55%)",
+	FontSize:         18,
+	Cards:            newDefaultCard(),
+	Modals:           newDefaultModal(),
 }
 
 type ThemesMap map[string]Theme
@@ -60,17 +107,14 @@ func mergeTheme(base, override Theme) Theme {
 	return result
 }
 
-func resolveTheme(named ThemesMap, layers ...ThemeRef) Theme {
-	result := defaultTheme
-	for _, ref := range layers {
-		if ref.Name != "" {
-			if namedTheme, ok := named[ref.Name]; ok {
-				result = mergeTheme(result, namedTheme)
-			}
+func resolveTheme(named ThemesMap, ref ThemeRef) (Theme, error) {
+	if ref.Name != "" {
+		if namedTheme, ok := named[ref.Name]; ok {
+			return namedTheme, nil
 		}
-		result = mergeTheme(result, ref.Theme)
+		return Theme{}, fmt.Errorf("Theme %q not found", ref.Name)
 	}
-	return result
+	return ref.Theme, nil
 }
 
 func parseThemes() (*ThemesMap, error) {
