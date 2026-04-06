@@ -38,7 +38,7 @@
         -webkit-tap-highlight-color: transparent;
     }
 
-    *::before, *::after {
+    *::before, *::after, *::-webkit-slider-thumb, *::-moz-range-thumb {
         {{if enabledByDefault .Animations}}
         -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
         transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
@@ -48,7 +48,7 @@
         {{end}}
     }
 
-    .transition-fast, .transition-fast *::after, .transition-fast *::before {
+    .transition-fast, .transition-fast *::after, .transition-fast *::before, .transition-fast *::-webkit-slider-thumb, .transition-fast *::-moz-range-thumb {
         {{if enabledByDefault .Animations}}
         -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
         transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
