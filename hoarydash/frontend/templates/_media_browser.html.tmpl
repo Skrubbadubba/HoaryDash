@@ -408,7 +408,8 @@ component(function(wrapper) {
                 stack.push({
                     title: (data && data.title) ? data.title : (item.title || 'Media'),
                     id:    item.media_content_id,
-                    type:  item.media_content_type
+                    type:  item.media_content_type,
+                    canPlay: item.can_play,
                 });
                 elBack.disabled = false;
                 renderCrumbs();
@@ -467,18 +468,6 @@ component(function(wrapper) {
 
     function playItem(item) {
         var msg;
-        {{if .Spotifyplus}}
-        msg = {
-            type: 'call_service',
-            domain: 'spotifyplus',
-            service: 'player_media_play_context',
-            service_data: {
-                context_uri: stack[stack.length - 1].id,
-                offset_uri: item.media_content_id,
-                entity_id: entityId
-            }
-        }
-        {{else}}
         msg = {
             type: 'call_service',
             domain: 'media_player',
@@ -489,7 +478,27 @@ component(function(wrapper) {
                 media_content_type: item.media_content_type,
             }
         }
+        {{if .Spotifyplus}}
+        var spMsg;
+        spMsg = {
+            type: 'call_service',
+            domain: 'spotifyplus',
+            service: 'player_media_play_context',
+            service_data: {
+                entity_id: entityId
+                }
+            }
+        if (item.can_expand) {
+            spMsg.service_data.context_uri = item.media_content_id;
+            msg = spMsg
+        } else if (stack[stack.length - 1].canPlay) {
+            spMsg.service_data.context_uri = stack[stack.length - 1].id;
+            spMsg.service_data.offset_uri = item.media_content_id;
+            msg = spMsg
+        }
         {{end}}
+        
+        console.log("trying to send: ", msg)
         window.haSend(msg).catch(function(err) {
             console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} play failed:', err);
         });
@@ -507,7 +516,8 @@ component(function(wrapper) {
                 stack.push({
                     title: (data && data.title) ? data.title : 'Media',
                     id:    null,
-                    type:  null
+                    type:  null,
+                    canPlay: null,
                 });
                 renderCrumbs();
                 renderList(data ? data.children : []);
