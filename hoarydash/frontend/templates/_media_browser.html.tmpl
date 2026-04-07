@@ -230,7 +230,7 @@
     }
 </style>
 {{end}}
-
+{{template "media-controller" .}}
 <div class="mbrowser-container">
     <div class="mbrowser-backdrop"></div>
     <div class="mbrowser-modal card-opaque modal">
@@ -251,6 +251,8 @@ component(function(wrapper) {
     var elBack      = wrapper.querySelector('.mbrowser-back');
     var elCrumbs    = wrapper.querySelector('.mbrowser-breadcrumbs');
     var elList      = wrapper.querySelector('.mbrowser-list');
+
+    var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
 
     /*
      * Stack entries: { title, id, type }
@@ -351,7 +353,8 @@ component(function(wrapper) {
                         queueBtn.title = 'queue';
                         queueBtn.onclick = function(e) {
                             e.stopPropagation();
-                            queueItem(item);
+                            ctrl.queueItem(item);
+                            close();
                         };
                         row.appendChild(queueBtn);
                     {{end}}
@@ -361,7 +364,8 @@ component(function(wrapper) {
                     playBtn.title = 'Play';
                     playBtn.onclick = function(e) {
                         e.stopPropagation();
-                        playItem(item);
+                        ctrl.playItem(item);
+                        close();
                     };
                     row.appendChild(playBtn);
                     
@@ -370,7 +374,7 @@ component(function(wrapper) {
                 if (item.can_expand) {
                     row.onclick = function() { navigateTo(item); };
                 } else if (item.can_play) {
-                    row.onclick = function() { playItem(item); };
+                    row.onclick = function() { ctrl.playItem(item); close(); };
                 } else {
                     row.style.cursor = 'default';
                     row.style.opacity = '0.45';
@@ -381,29 +385,11 @@ component(function(wrapper) {
         }
     }
 
-    function fetchLevel(id, type) {
-        var msg = {
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'browse_media',
-            target: { entity_id: entityId },
-            return_response: true
-        };
-        if (id !== null && id !== undefined) {
-            msg.service_data = {
-                media_content_id: id,
-                media_content_type: type
-            };
-        }
-        return window.haSend(msg).then(function(result) {
-            console.log("called browser media, got: ", result)
-            return result && result["response"] && result["response"][entityId] ? result["response"][entityId] : result;
-        });
-    }
+    
 
     function navigateTo(item) {
         elList.innerHTML = '';
-        fetchLevel(item.media_content_id, item.media_content_type)
+        ctrl.browse(item.media_content_id, item.media_content_type)
             .then(function(data) {
                 stack.push({
                     title: (data && data.title) ? data.title : (item.title || 'Media'),
@@ -426,7 +412,7 @@ component(function(wrapper) {
         stack.pop();
         var parent = stack[stack.length - 1];
         elList.innerHTML = '';
-        fetchLevel(parent.id, parent.type)
+        ctrl.browse(parent.id, parent.type)
             .then(function(data) {
                 elBack.disabled = stack.length <= 1;
                 renderCrumbs();
@@ -436,74 +422,6 @@ component(function(wrapper) {
                 console.error('media browse back failed:', err);
             });
     }
-    
-    {{if .Queue}}
-    function queueItem(item, tries) {
-        if (!tries) { tries = 0; }
-        if (tries > 4) { return; }
-
-        var msg;
-        msg = {
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'play_media',
-            target: { entity_id: entityId },
-            service_data: {
-                media_content_id: item.media_content_id,
-                media_content_type: item.media_content_type,
-                enqueue: "add"
-            }
-        }
-        window.haSend(msg).catch(function(err) {
-            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} enqueue failed:', err);
-            fetchLevel(item.media_content_id, item.media_content_type).then(function(data) {
-                for (entry of data.children) {
-                    queueItem(entry, tries + 1);
-                }
-            })
-        });
-        close();
-    }
-    {{end}}
-
-    function playItem(item) {
-        var msg;
-        msg = {
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'play_media',
-            target: { entity_id: entityId },
-            service_data: {
-                media_content_id: item.media_content_id,
-                media_content_type: item.media_content_type,
-            }
-        }
-        {{if .Spotifyplus}}
-        var spMsg;
-        spMsg = {
-            type: 'call_service',
-            domain: 'spotifyplus',
-            service: 'player_media_play_context',
-            service_data: {
-                entity_id: entityId
-                }
-            }
-        if (item.can_expand) {
-            spMsg.service_data.context_uri = item.media_content_id;
-            msg = spMsg
-        } else if (stack[stack.length - 1].canPlay) {
-            spMsg.service_data.context_uri = stack[stack.length - 1].id;
-            spMsg.service_data.offset_uri = item.media_content_id;
-            msg = spMsg
-        }
-        {{end}}
-        
-        console.log("trying to send: ", msg)
-        window.haSend(msg).catch(function(err) {
-            console.error('{{if .Spotifyplus}}spotify{{else}}media{{end}} play failed:', err);
-        });
-        close();
-    }
 
     function open() {
         stack = [];
@@ -511,7 +429,7 @@ component(function(wrapper) {
         elCrumbs.innerHTML = '';
         elList.innerHTML = '';
         wrapper.className = 'mbrowser-container open';
-        fetchLevel(null, null)
+        ctrl.browse(null, null)
             .then(function(data) {
                 stack.push({
                     title: (data && data.title) ? data.title : 'Media',
