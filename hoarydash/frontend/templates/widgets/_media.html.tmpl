@@ -234,7 +234,7 @@
                 <div class="media-cover-placeholder accent">{{icon "music"}}</div>
             </div>
             <div class="media-song-info">
-                <span class="media-idle on-surface-muted">Idle</span>
+                <span class="media-idle on-surface-subtle">Idle</span>
             </div>
         </div>
         {{if .ShowBrowser}}
@@ -287,7 +287,6 @@ component(function(wrapper) {
 
     var ctrl = makeMediaController(entityId);
 
-
     elPlay.onclick = ctrl.playPause;
     elBack.onclick = ctrl.prev;
     elForward.onclick = ctrl.next;
@@ -327,23 +326,13 @@ component(function(wrapper) {
     }
     {{end}}
 
-    function getOrCreate(id, tag, className) {
-        var el = document.getElementById(id);
-        if (!el) {
-            el = document.createElement(tag);
-            el.id = id;
-            if (className) { el.className = className; }
-            elSongInfo.appendChild(el);
-        }
-        return el;
-    }
-
     function renderIdle() {
         elSongInfo.innerHTML = '';
         var idle = document.createElement('span');
-        idle.className = 'media-idle';
+        idle.className = 'media-idle on-surface-subtle';
         idle.textContent = 'Idle';
         elSongInfo.appendChild(idle);
+        elIdle = idle;
         elPlay.innerHTML = '{{icon "play"}}';
         if (elCover.querySelector('img')) {
             elCover.removeChild(elCover.querySelector('img'));
@@ -351,81 +340,70 @@ component(function(wrapper) {
         elPlaceholder.style.display = '';
     }
 
-    function renderActive(state, attributes) {
-        {{/* console.log("ran renderActive with state and attrs: ", state, attributes) */}}
-        elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
-        elSongInfo.innerHTML = '';
-
-        var shuffle = attributes.hasOwnProperty("shuffle") ? attributes.shuffle : undefined;
-        var repeat = attributes.hasOwnProperty("repeat") ? attributes.repeat : undefined;
-
-        if (shuffle !== undefined) {
-            elShuffle.classList.remove("hide");
-            elShuffle.innerHTML = shuffle ? {{icon "shuffle"}} : {{icon "shuffle-disabled"}}
-        }
-        if (repeat !== undefined) {
-            elRepeat.classList.remove("hide");
-            switch (repeat) {
-                case "off":
-                    elRepeat.innerHTML = {{icon "repeat-off"}}
-                    break;
-                case "one":
-                    elRepeat.innerHTML = {{icon "repeat-once"}}
-                    break;
-                case "all":
-                    elRepeat.innerHTML = {{icon "repeat"}}
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (ctrl.isMuted()) {
-            elVol.innerHTML = {{icon "volume-mute"}};
-            elVolSlider.classList.add("interactive-disabled-bg");
-            elVolSlider.classList.add("interactive-disabled");
-            elVolSlider.classList.remove("interactive-muted-bg");
-            elVolSlider.classList.remove("interactive");
+    // Render idle
+    ctrl.onUpdate("state", function(state, _) {
+        if (state === undefined || state === null || state === "idle") {
+            renderIdle();
         } else {
-            elVol.innerHTML = {{icon "volume-high"}} 
-            elVolSlider.classList.remove("interactive-disabled-bg");
-            elVolSlider.classList.remove("interactive-disabled");
-            elVolSlider.classList.add("interactive-muted-bg");
-            elVolSlider.classList.add("interactive");
+            elIdle.remove();
         }
 
-        var song = attributes.media_title || '';
-        var artist = attributes.media_artist || '';
-        var album = attributes.media_album_name || '';
+    })
+
+    // Render pause/play button
+    ctrl.onUpdate("state", function(state, _) {
+        elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
+    });
+
+    // Render song info
+    ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
+        var song = attrs.media_title || '';
+        var artist = attrs.media_artist || '';
 
         if (!song && !artist) {
             renderIdle();
             return;
         }
 
-        var elSong = document.createElement('span');
-        elSong.className = 'media-song on-surface';
+        var elSong = elSongInfo.querySelector('.media-song');
+        if (!elSong) {
+            elSong = document.createElement('span');
+            elSong.className = 'media-song on-surface';
+            elSongInfo.appendChild(elSong);
+        }
         elSong.textContent = song || '—';
-        elSongInfo.appendChild(elSong);
 
+        var elArtist = elSongInfo.querySelector('.media-artist');
         if (artist) {
-            var elArtist = document.createElement('span');
-            elArtist.className = 'media-artist on-surface-muted';
+            if (!elArtist) {
+                elArtist = document.createElement('span');
+                elArtist.className = 'media-artist on-surface-muted';
+                elSongInfo.appendChild(elArtist);
+            }
             elArtist.textContent = artist;
-            elSongInfo.appendChild(elArtist);
+        } else if (elArtist) {
+            elSongInfo.removeChild(elArtist);
         }
 
-        {{ if disabledByDefault .ShowAlbum}}
+        {{if disabledByDefault .ShowAlbum}}
+        var album = attrs.media_album_name || '';
+        var elAlbum = elSongInfo.querySelector('.media-album');
         if (album) {
-            var elAlbum = document.createElement('span');
-            elAlbum.className = 'media-album on-surface-muted';
+            if (!elAlbum) {
+                elAlbum = document.createElement('span');
+                elAlbum.className = 'media-album on-surface-subtle';
+                elSongInfo.appendChild(elAlbum);
+            }
             elAlbum.textContent = album;
-            elSongInfo.appendChild(elAlbum);
+        } else if (elAlbum) {
+            elSongInfo.removeChild(elAlbum);
         }
-        {{ end }}
+        {{end}}
+    });
 
-
-        var picPath = attributes.entity_picture;
+    // Render thumbnail
+    ctrl.onUpdate(['entity_picture'], function(state, attrs) {
+        var picPath = attrs.entity_picture;
         var existingImg = elCover.querySelector('img');
         if (picPath) {
             var imgSrc = window.CONFIG.haUrl + picPath;
@@ -444,35 +422,42 @@ component(function(wrapper) {
             if (existingImg) { elCover.removeChild(existingImg); }
             elPlaceholder.style.display = '';
         }
+    });
 
-        if (!volDragging && elVolSlider && attributes.volume_level !== undefined) {
-            elVolSlider.value = attributes.volume_level;
-        }
-    }
-
-
-    function renderCurrent(state, attributes) {
-        if (state === 'playing' || state === 'paused' || state === 'buffering') {
-            renderActive(state, attributes);
+    // Render volume/mute
+    {{if enabledByDefault .ShowVolume}}
+    ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+        var muted = (attrs.is_volume_muted) || (attrs.volume_level === 0);
+        if (muted) {
+            elVol.innerHTML = '{{icon "volume-mute"}}';
+            elVolSlider.classList.add('interactive-disabled-bg', 'interactive-disabled');
+            elVolSlider.classList.remove('interactive-muted-bg', 'interactive');
         } else {
-            renderIdle();
+            elVol.innerHTML = '{{icon "volume-high"}}';
+            elVolSlider.classList.remove('interactive-disabled-bg', 'interactive-disabled');
+            elVolSlider.classList.add('interactive-muted-bg', 'interactive');
         }
-    }
+        if (!volDragging && attrs.volume_level !== undefined) {
+            elVolSlider.value = attrs.volume_level;
+        }
+    });
+    {{end}}
 
-    function fetchCurrent() {
-        return window.haSend({ type: 'get_states' }).then(function (result) {
-            for (var i = 0; i < result.length; i++) {
-                if (result[i].entity_id === entityId) {
-                    cachedState = result[i].state;
-                    cachedAttributes = result[i].attributes || {};
-                    renderCurrent(cachedState, cachedAttributes);
-                    return;
-                }
+    // Render shuffle/repeat
+    ctrl.onUpdate(['shuffle', 'repeat'], function(state, attrs) {
+        if (attrs.shuffle !== undefined) {
+            elShuffle.classList.remove('hide');
+            elShuffle.innerHTML = attrs.shuffle ? '{{icon "shuffle"}}' : '{{icon "shuffle-disabled"}}';
+        }
+        if (attrs.repeat !== undefined) {
+            elRepeat.classList.remove('hide');
+            switch (attrs.repeat) {
+                case 'off':  elRepeat.innerHTML = '{{icon "repeat-off"}}';  break;
+                case 'one':  elRepeat.innerHTML = '{{icon "repeat-once"}}'; break;
+                case 'all':  elRepeat.innerHTML = '{{icon "repeat"}}';      break;
             }
-        });
-    }
-
-    ctrl.onUpdate(renderCurrent);
+        }
+    });
 
 });
 </script>

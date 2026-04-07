@@ -2,47 +2,96 @@
 {{if once "media-controller"}}
 <script>
     function makeMediaController(entityId) {
+        if (window.controllers && 
+            window.controllers.hasOwnProperty(entityId)) { 
+                console.log("controller for", entityId, "already exists, returning");
+                return window.controllers[entityId]
+            }
+
         var cachedState = null;
         var cachedAttributes = {};
         var updateListeners = [];
     
+        function handleUpdate(newState, newAttributes) {
+            var stateChanged = (newState !== undefined && newState !== cachedState);
+            var changedAttrs = diffAttributes(newAttributes);
+
+            updateCache(newState, newAttributes);
+
+            if (cachedState === null) return;
+
+            notifyListeners(stateChanged, changedAttrs);
+        }
+        
+        function diffAttributes(newAttributes) {
+            var diff = {};
+            if (!newAttributes) return diff;
+            
+            for (var k in newAttributes) {
+                if (newAttributes.hasOwnProperty(k) && newAttributes[k] !== cachedAttributes[k]) {
+                    diff[k] = true;
+                }
+            }
+            return diff;
+        }
+
+        function updateCache(newState, newAttributes) {
+            if (newState !== undefined) { 
+                cachedState = newState; 
+            }
+            if (!newAttributes) return;
+            
+            for (var k in newAttributes) {
+                if (newAttributes.hasOwnProperty(k)) {
+                    cachedAttributes[k] = newAttributes[k];
+                }
+            }
+        }
+
+        function notifyListeners(stateChanged, changedAttrs) {
+            for (var i = 0; i < updateListeners.length; i++) {
+                var entry = updateListeners[i];
+                if (hasRelevantChange(entry.watch, stateChanged, changedAttrs)) {
+                    entry.cb(cachedState, cachedAttributes);
+                }
+            }
+        }
+        
+        function hasRelevantChange(watch, stateChanged, changedAttrs) {
+            if (!watch || watch === "state") return stateChanged;
+            for (var i = 0; i < watch.length; i++) {
+                if (changedAttrs[watch[i]]) return true;
+            }
+            return false;
+        }
+                
+                
         function callService(service, data) {
             var msg = { type: 'call_service', domain: 'media_player',
                         service: service, target: { entity_id: entityId } };
             if (data) { msg.service_data = data; }
             return window.haSend(msg);
         }
-    
-        function notifyListeners() {
-            for (var i = 0; i < updateListeners.length; i++) {
-                updateListeners[i](cachedState, cachedAttributes);
-            }
+        
+
+        function isMuted() {
+            return cachedAttributes.is_volume_muted === true || cachedAttributes.volume_level === 0;
         }
     
-        function mergeUpdate(state, attributes) {
-            if (state !== undefined) { cachedState = state; }
-            if (attributes) {
-                for (var k in attributes) {
-                    if (attributes.hasOwnProperty(k)) { cachedAttributes[k] = attributes[k]; }
-                }
-            }
-            if (cachedState !== null) { notifyListeners(); }
-        }
-    
-        window.entityListeners[entityId] = window.entityListeners[entityId] || [];
         window.entityListeners[entityId].push(function(state, attrs) {
-            mergeUpdate(state, attrs);
+            console.log("media controller recieved: ", state, attrs)
+            handleUpdate(state, attrs);
         });
     
-        return {
-            onUpdate:      function(cb) { updateListeners.push(cb); },
-            playPause:     function() { return callService('media_play_pause'); },
-            prev:          function() { return callService('media_previous_track'); },
-            next:          function() { return callService('media_next_track'); },
-            isMuted:       function() { return cachedAttributes.is_volume_muted || cachedAttributes.volume_level === 0 },
-            toggleMute:    function() { return callService('volume_mute', { is_volume_muted: !isMuted() }); },
-            setVolume:     function(v) { return callService('volume_set', { volume_level: v }); },
-            toggleShuffle: function() { return callService('shuffle_set', { shuffle: !cachedAttributes.shuffle }); },
+        var controller = {
+            onUpdate:      function(watch, cb) { updateListeners.push({ watch: watch, cb: cb }); },
+            playPause:     function()          { return callService('media_play_pause'); },
+            prev:          function()          { return callService('media_previous_track'); },
+            next:          function()          { return callService('media_next_track'); },
+            isMuted,
+            toggleMute:    function()          { return callService('volume_mute', { is_volume_muted: !isMuted() }); },
+            setVolume:     function(v)         { return callService('volume_set', { volume_level: v }); },
+            toggleShuffle: function()          { return callService('shuffle_set', { shuffle: !cachedAttributes.shuffle }); },
             cycleRepeat:   function() {
                 var next = { off: 'all', all: 'one', one: 'off' }[cachedAttributes.repeat] || 'off';
                 return callService('repeat_set', { repeat: next });
@@ -50,6 +99,11 @@
             getState:      function() { return cachedState; },
             getAttributes: function() { return cachedAttributes; },
         };
+
+        if (!window.controllers) window.controllers = {};
+        window.controllers[entityId] = controller;
+
+        return controller
     }
 </script>
 {{end}}
