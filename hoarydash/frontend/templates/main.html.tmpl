@@ -147,12 +147,24 @@
             height: 100%;
             width: 100%;
             overflow-x: hidden;
+            
+        }
+        .layout-padding {
             {{if $showHints}}
-                padding: 1em 3.5em;
+            padding: 1em 3.5em;
             {{else}}
             padding: 1em;
             {{end}}
         }
+        {{if .Dashboard.Navbar.Enabled}}
+        {{$position := .Dashboard.Navbar.Position | default "bottom"}}
+         .navbar-padding {
+            {{if eq $position "bottom"}}padding-bottom: 4.5em;{{end}}
+            {{if eq $position "top"}}padding-top: 5em;{{end}}
+            {{if eq $position "left"}}padding-left: 5.5em;{{end}}
+            {{if eq $position "right"}}padding-right: 5.5em;{{end}}
+        }
+        {{end}}
 
         {{if $showHints}}
         .swipe-hint {
@@ -181,14 +193,6 @@
         }
         {{end}}
     </style>
-    {{$extraPad := ""}}
-    {{if .Dashboard.Navbar.Enabled}}
-        {{$position := .Dashboard.Navbar.Position | default "bottom"}}
-        {{if eq $position "bottom"}}{{$extraPad = "padding-bottom: 4.5em;"}}{{end}}
-        {{if eq $position "top"}}{{$extraPad = "padding-top: 5em;"}}{{end}}
-        {{if eq $position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
-        {{if eq $position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
-    {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
         {{$id := ""}}
@@ -210,13 +214,19 @@
             {{end}}
             {{end}}
             {{/* <p>{{json .}}</p> */}}
-            <div class="layout-container" style="{{css $extraPad}}">
-                {{$layoutDict := (dict 
-                    "Config" $config
-                    "Screen" $screen
-                )}}
-                {{if eq $screen.Layout "tiled"}}
-                    {{template "tiled-layout" $layoutDict}}
+            {{$layoutDict := (dict 
+                "Config" $config
+                "Screen" $screen
+            )}}
+            {{if isFull $screen.Layout}}
+                <div class="layout-container">
+            {{else}}
+                <div class="layout-container layout-padding">
+            {{end}}
+            {{if eq $screen.Layout "tiled"}}
+                {{template "tiled-layout" $layoutDict}}
+                {{else if eq $screen.Layout "media-full"}}
+                    {{template "fullscreen-media-layout" $layoutDict}}
                 {{else}}
                     {{template "centered-layout" $layoutDict}}
                 {{end}}

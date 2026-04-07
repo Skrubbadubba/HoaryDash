@@ -29,11 +29,10 @@ type Dashboard struct {
 }
 
 type Screen struct {
-	Layout     string
-	Navigation *string
-	Name       string
-	Icon       *string
-	Dateclock  struct {
+	Layout    string
+	Name      string
+	Icon      *string
+	Dateclock struct {
 		Enabled       *bool
 		Hour12        bool
 		CapitaliseDay bool `yaml:"capitalise_day"`
@@ -55,6 +54,13 @@ type Screen struct {
 		Icon      string
 		CardGroup `yaml:",inline"`
 	}
+
+	// Fullscreen-layout specific
+	Entity struct {
+		Entity       `yaml:",inline"`
+		MediaOptions `yaml:",inline"`
+		Badge        string
+	}
 	ThemeRef ThemeRef `yaml:"theme"`
 	Theme    *Theme   `yaml:"_"`
 }
@@ -72,19 +78,30 @@ func (t *ThemeRef) UnmarshalYAML(value *yaml.Node) error {
 	return value.Decode(&t.Theme)
 }
 
-type Card struct {
+type Entity struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
-	Icon     string
-	Unit     string
-	Style    CardStyle
+}
+
+type Card struct {
+	Entity `yaml:",inline"`
+	Icon   string
+	Unit   string
+	Style  CardStyle
 	// Widget specific
 	InternalBorders *bool `yaml:"internal_borders"`
 	// Weather-specific
+	WeatherOptions `yaml:",inline"`
+	// Media-specific
+	MediaOptions `yaml:",inline"`
+}
+
+type WeatherOptions struct {
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`
 	Hour12           *bool
-	// Media-specific
+}
+type MediaOptions struct {
 	ShowVolume  *bool `yaml:"show_volume"`
 	ShowAlbum   *bool `yaml:"show_album"`
 	ShowBrowser *bool `yaml:"show_browser"`

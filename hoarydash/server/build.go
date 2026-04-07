@@ -205,6 +205,13 @@ var funcMap = template.FuncMap{
 	"replace": func(old string, new string, s string) string {
 		return strings.ReplaceAll(s, old, new)
 	},
+	"isFull": func(layout string) bool {
+		sArr := strings.Split(layout, "-")
+		if len(sArr) > 1 {
+			return sArr[1] == "full"
+		}
+		return false
+	},
 }
 
 func BuildDash() {

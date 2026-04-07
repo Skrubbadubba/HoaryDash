@@ -15,6 +15,7 @@ type Theme struct {
 	Surface          template.CSS `yaml:"surface"`
 	SurfaceOpaque    template.CSS `yaml:"surface_opaque"`
 	SurfaceProminent template.CSS `yaml:"surface_prominent"`
+	SurfaceSubtle    template.CSS `yaml:"surface_subtle"`
 	SurfaceAlt       template.CSS `yaml:"surface_alt"`
 	Highlight        template.CSS `yaml:"highlight"`
 
@@ -87,6 +88,7 @@ var defaultTheme = Theme{
 	Surface:          "rgba(18,18,18,0.75)",
 	SurfaceOpaque:    "#1a1a1a",
 	SurfaceProminent: "rgba(57, 57, 57, 0.85)",
+	SurfaceSubtle:    "rgba(255,255,255,0.07)",
 	SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
 	Highlight:        "rgba(255, 255, 255, 0.12)",
 	OnSurface:        "#ffffff",

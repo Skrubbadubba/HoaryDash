@@ -111,7 +111,8 @@ nord:
   surface: "rgba(59, 66, 82, 0.7)"              # nord1
   surface_alt: "rgba(46, 52, 64, 0.88)"          # nord0 semi-opaque — receded but still polar
   surface_prominent: "#4c566a"                   # nord3 solid
-  opaque_surface: "#2e3440"                      # nord0
+  surface_opaque: "#2e3440"                      # nord0
+  surface_subtle: "#8fbcbb24"                    # nord7 almost transparent
   on_surface: "#eceff4"                          # nord6
   on_surface_muted: "#9099aa"                    # between nord3 and nord4
   on_surface_subtle: "#616e88"                   # between nord2 and nord3
@@ -136,9 +137,9 @@ nord:
 aurora:
   background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
   surface: "rgba(255, 255, 255, 0.06)"
-  surface_alt: "rgba(28, 24, 41, 0.6)"           # opaque_surface tinted, lets gradient show
+  surface_alt: "rgba(28, 24, 41, 0.6)"           # surface_opaque tinted, lets gradient show
   surface_prominent: "rgba(77, 208, 225, 0.13)"
-  opaque_surface: "#0f1929"
+  surface_opaque: "#0f1929"
   on_surface: "#e0f7fa"
   on_surface_muted: "#80cbc4"
   on_surface_subtle: "#4db6ac"

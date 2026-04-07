@@ -1,4 +1,4 @@
-{{define "dateclock"}}
+{{define "_dateclock"}}
 {{if once "dateclock-style"}}
 <style>
     .dateclock-container {
@@ -11,18 +11,18 @@
         align-items: center;
         pointer-events: none;
         flex-grow: 1;
+        font-size: calc(8vw + 1em);
+        min-width: 7ch;
     }
     .clock {
-        font-size: calc(8vw + 1em);
         font-weight: 600;
         margin-bottom: 0rem;
         letter-spacing: -0.02em;
-        min-width: 7ch;
         text-align: center;
     }
 
     .date {
-        font-size: calc(2vw + 1em);
+        font-size: 0.5em;
         font-weight: 600;
     }
 </style>
@@ -31,6 +31,8 @@
     <div class="clock"></div>
     <div class="date"></div>
 </div>
+{{end}}
+{{define "dateclock-controller"}}
 <script>
     component(function(root) {
     var clockEl = root.querySelector(".clock")
@@ -38,7 +40,7 @@
 
     var locale = window.CONFIG.locale;
     var timezone = window.CONFIG.timezone;
-    var hour12 = {{if .Dateclock.Hour12}}true{{else}}false{{end}};
+    var hour12 = {{if .Hour12}}true{{else}}false{{end}};
 
     function updateTime() {
         var now = new Date();
@@ -46,7 +48,7 @@
         var time = now.toLocaleTimeString(locale, {
             hour: '2-digit',
             minute: '2-digit',
-            {{if .Dateclock.ShowSeconds}}
+            {{if .ShowSeconds}}
                 second: '2-digit',
             {{end}}
             hour12: hour12,
@@ -62,7 +64,7 @@
             dateStyle: 'short',
             timeZone: timezone
         });
-        {{if .Dateclock.CapitaliseDay}}
+        {{if .CapitaliseDay}}
         day = day.charAt(0).toUpperCase() + day.slice(1);
         {{end}}
         var date = now.toLocaleDateString(locale);
@@ -75,4 +77,8 @@
     updateTime();
     });
 </script>
+{{end}}
+{{define "dateclock"}}
+{{template "_dateclock"}}
+{{template "dateclock-controller" .Dateclock}}
 {{end}}
