@@ -1,0 +1,56 @@
+{{define "media-controller"}}
+{{if once "media-controller"}}
+<script>
+    function makeMediaController(entityId) {
+        var cachedState = null;
+        var cachedAttributes = {};
+        var updateListeners = [];
+    
+        function callService(service, data) {
+            var msg = { type: 'call_service', domain: 'media_player',
+                        service: service, target: { entity_id: entityId } };
+            if (data) { msg.service_data = data; }
+            return window.haSend(msg);
+        }
+    
+        function notifyListeners() {
+            for (var i = 0; i < updateListeners.length; i++) {
+                updateListeners[i](cachedState, cachedAttributes);
+            }
+        }
+    
+        function mergeUpdate(state, attributes) {
+            if (state !== undefined) { cachedState = state; }
+            if (attributes) {
+                for (var k in attributes) {
+                    if (attributes.hasOwnProperty(k)) { cachedAttributes[k] = attributes[k]; }
+                }
+            }
+            if (cachedState !== null) { notifyListeners(); }
+        }
+    
+        window.entityListeners[entityId] = window.entityListeners[entityId] || [];
+        window.entityListeners[entityId].push(function(state, attrs) {
+            mergeUpdate(state, attrs);
+        });
+    
+        return {
+            onUpdate:      function(cb) { updateListeners.push(cb); },
+            playPause:     function() { return callService('media_play_pause'); },
+            prev:          function() { return callService('media_previous_track'); },
+            next:          function() { return callService('media_next_track'); },
+            isMuted:       function() { return cachedAttributes.is_volume_muted || cachedAttributes.volume_level === 0 },
+            toggleMute:    function() { return callService('volume_mute', { is_volume_muted: !isMuted() }); },
+            setVolume:     function(v) { return callService('volume_set', { volume_level: v }); },
+            toggleShuffle: function() { return callService('shuffle_set', { shuffle: !cachedAttributes.shuffle }); },
+            cycleRepeat:   function() {
+                var next = { off: 'all', all: 'one', one: 'off' }[cachedAttributes.repeat] || 'off';
+                return callService('repeat_set', { repeat: next });
+            },
+            getState:      function() { return cachedState; },
+            getAttributes: function() { return cachedAttributes; },
+        };
+    }
+</script>
+{{end}}
+{{end}}

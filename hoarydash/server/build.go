@@ -239,6 +239,7 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/controllers/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
 	check(err, "Created template object")
@@ -248,9 +249,9 @@ func BuildDash() {
 		data TemplateData
 	}
 
-	// Clone to give each dashboard its own once func
-	// Needs to be done before any execution, which is why
-	// we do an initial loop
+	// First pass, to enrich template data and create function enclosures for each dashboard.
+	// Function enclosures break if template (along with its funcmap)
+	// is copied after it has been executed
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
 		for i, screen := range dash.Screens {
@@ -278,6 +279,7 @@ func BuildDash() {
 			"Animations": dash.Animations,
 		}
 		funcMap["globals"] = makeGlobals(globals)
+
 		dashTmpl, err := tmpl.Clone()
 		if err != nil {
 			log.Printf("Could not clone template for %s: %v", name, err)

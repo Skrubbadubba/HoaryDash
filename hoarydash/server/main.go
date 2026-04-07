@@ -90,20 +90,26 @@ func main() {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
 
-func getHaDefaults(baseUrl string, token string) (string, string) {
+func defaultHaUrl(baseUrl string) string {
 	if baseUrl == "" {
 		log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
-		baseUrl = "http://homeassistant.local:8123"
+		return "http://homeassistant.local:8123"
 	}
+	return baseUrl
+}
 
+func defaultHaToken(token string) string {
 	if token == "" {
 		log.Print("Getting HA token fron environment")
 		envToken := os.Getenv("HA_TOKEN")
 		if envToken == "" {
 			log.Printf("No HA token could be read")
-			return baseUrl, ""
+			return ""
 		}
-		token = envToken
+		return envToken
 	}
-	return baseUrl, token
+	return token
+}
+func getHaDefaults(baseUrl string, token string) (string, string) {
+	return defaultHaUrl(baseUrl), defaultHaToken(token)
 }

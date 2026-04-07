@@ -226,6 +226,7 @@
     }
 </style>
 {{end}}
+{{template "media-controller"}}
 <div class="media-container widget card">
     <div class="media-top-row">
         <div class="media-info">
@@ -265,14 +266,10 @@
     {{template "media-browser" .}}
     {{end}}
 </div>
-
 <script>
 component(function(wrapper) {
-    var POLL_INTERVAL = 30 * 1000;
     var entityId = {{.EntityID}}
     if (!entityId) { return; }
-
-    var haUrl = window.CONFIG.haUrl || '';
 
     var elIdle = wrapper.querySelector('.media-idle');
     var elSongInfo = wrapper.querySelector('.media-song-info');
@@ -288,66 +285,15 @@ component(function(wrapper) {
     var elBrowseBtn = wrapper.querySelector('.media-browser-button');
     var elMediaBrowser = wrapper.querySelector('.mbrowser-container');
 
-    var shuffle, repeat;
+    var ctrl = makeMediaController(entityId);
 
-    function callMediaService(service, data) {
-        var msg = {
-            type: 'call_service',
-            domain: 'media_player',
-            service: service,
-            target: { entity_id: entityId }
-        }
-        if (data) {
-            msg["service_data"] = data
-        }
-        return window.haSend(msg);
-    }
 
-    function setVolume(vol) {
-        return callMediaService('volume_set', { volume_level: vol })
-    }
-
-    function toggleShuffle() {
-        return callMediaService('shuffle_set', {shuffle: !cachedAttributes.shuffle})
-    }
-
-    function cycleRepeat() {
-        var newRepeat
-        switch (cachedAttributes.repeat) {
-            case "off":
-                newRepeat = "all"
-                break;
-            case "all":
-                newRepeat = "one"
-                break;
-            case "one":
-                newRepeat = "off"
-                break;
-            default:
-                break;
-        }
-        return callMediaService('repeat_set', {repeat: newRepeat})
-    }
-
-    function checkMute(attributes) {
-        return ((attributes.hasOwnProperty("is_volume_mute") && attributes["is_volume_muted"])
-             || attributes.hasOwnProperty("volume_level") && attributes["volume_level"] == 0) 
-    }
-
-    function toggleMute() {
-        if (checkMute(cachedAttributes)) {
-            callMediaService('volume_mute', {is_volume_muted: false})
-        } else {
-            callMediaService('volume_mute', {is_volume_muted: true})
-        }
-    }
-
-    elPlay.onclick = function () { callMediaService('media_play_pause'); };
-    elBack.onclick = function () { callMediaService('media_previous_track'); };
-    elForward.onclick = function () { callMediaService('media_next_track'); };
-    elShuffle.onclick = toggleShuffle;
-    elRepeat.onclick = cycleRepeat;
-    elVol.onclick = toggleMute;
+    elPlay.onclick = ctrl.playPause;
+    elBack.onclick = ctrl.prev;
+    elForward.onclick = ctrl.next;
+    elShuffle.onclick = ctrl.toggleShuffle;
+    elRepeat.onclick = ctrl.cycleRepeat;
+    elVol.onclick = ctrl.toggleMute;
 
     var volDragging = false;
 
@@ -366,7 +312,7 @@ component(function(wrapper) {
             clearTimeout(volDebounce);
             var v = parseFloat(elVolSlider.value);
             volDebounce = setTimeout(function() {
-                setVolume(v);
+                ctrl.setVolume(v);
                 volDragging = false;
             }, 150);
         };
@@ -434,7 +380,7 @@ component(function(wrapper) {
             }
         }
 
-        if (checkMute(attributes)) {
+        if (ctrl.isMuted()) {
             elVol.innerHTML = {{icon "volume-mute"}};
             elVolSlider.classList.add("interactive-disabled-bg");
             elVolSlider.classList.add("interactive-disabled");
@@ -482,7 +428,7 @@ component(function(wrapper) {
         var picPath = attributes.entity_picture;
         var existingImg = elCover.querySelector('img');
         if (picPath) {
-            var imgSrc = '/api/media_cover?path=' + encodeURIComponent(picPath);
+            var imgSrc = window.CONFIG.haUrl + picPath;
             if (existingImg) {
                 if (existingImg.getAttribute('src') !== imgSrc) {
                     existingImg.setAttribute('src', imgSrc);
@@ -504,22 +450,6 @@ component(function(wrapper) {
         }
     }
 
-    var cachedState = null;
-    var cachedAttributes = {};
-
-    function mergeUpdate(state, attributes) {
-        if (state !== undefined) { cachedState = state; }
-        if (attributes !== undefined) {
-            for (var key in attributes) {
-                if (attributes.hasOwnProperty(key)) {
-                    cachedAttributes[key] = attributes[key];
-                }
-            }
-        }
-        if (cachedState !== null) {
-            renderCurrent(cachedState, cachedAttributes);
-        }
-    }
 
     function renderCurrent(state, attributes) {
         if (state === 'playing' || state === 'paused' || state === 'buffering') {
@@ -542,26 +472,8 @@ component(function(wrapper) {
         });
     }
 
-    window.entityListeners[entityId].push(function (state, attributes) {
-        mergeUpdate(state, attributes);
-    });
+    ctrl.onUpdate(renderCurrent);
 
-    var MAX_TRIES = 15;
-    var tries = 0;
-    function tryFetch() {
-        if (tries >= MAX_TRIES) {
-            setTimeout(function () { tries = 0; tryFetch(); }, 3 * 60 * 1000);
-            return;
-        }
-        if (window.haSocketReady) {
-            fetchCurrent().catch(function (err) { console.error('media fetch failed:', err); });
-        } else {
-            ++tries;
-            setTimeout(tryFetch, 1000);
-        }
-    }
-
-    tryFetch();
 });
 </script>
 {{ end }}
