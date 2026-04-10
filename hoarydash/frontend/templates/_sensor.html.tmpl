@@ -45,6 +45,8 @@
     <div class="sensor-value on-surface">—</div>
     <div class="sensor-unit on-surface-muted">{{.Unit}}</div>
 </div>
+{{end}}
+{{define "_sensor-script"}}
 <script>
 component(function(root) {
   var entityId = '{{.EntityID}}';
@@ -62,4 +64,5 @@ component(function(root) {
 {{define "sensor"}}
   {{template "_sensor-style"}}
   {{template "_sensor" .}}
+  {{template "_sensor-script" .}}
 {{end}}

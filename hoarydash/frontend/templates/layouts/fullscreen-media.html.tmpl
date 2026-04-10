@@ -102,7 +102,11 @@
         align-items: flex-end;
     }
 
-    .fml-source-badge {
+    .fml-top-right > * {
+        margin-bottom: 0.65em;
+    }
+
+    .fml-badges {
         display: -webkit-box;
         display: -webkit-flex;
         display: flex;
@@ -112,35 +116,21 @@
         -webkit-box-align: center;
         -webkit-align-items: center;
         align-items: center;
-        padding: 0.35em 0.75em;
+        justify-content: end;
+    }
+
+    .fml-badges > .badge {
+        padding: 0.35em 0.55em;
         border-radius: 2em;
         border: 0.05em solid rgba(255,255,255,0.15);
         background: rgba(255,255,255,0.08);
-        margin-bottom: 0.65em;
+        margin-left: 0.6em;
     }
 
-    .fml-source-icon {
-        -webkit-flex-shrink: 0;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        margin-right: 0.4em;
-    }
-
-    .fml-browse-btn {
-        background: rgba(255,255,255,0.07);
-        border: 0.05em solid rgba(255,255,255,0.12);
-        border-radius: 0.4em;
-        padding: 0.4em 0.8em;
-        cursor: pointer;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        -webkit-tap-highlight-color: transparent;
+    .fml-badges > .badge > * {
         font-size: 1em;
+        font-weight: unset;
+        margin: 0 0.2em;
     }
 
     .fml-browse-btn:active {
@@ -395,15 +385,42 @@
             {{end}}
 
             <div class="fml-top-right">
-                <div class="fml-source-badge surface-subtle on-surface-muted">
-                    <div class="fml-source-icon state on">{{icon .Screen.Entity.Badge}}</div>
-                    <span class="fml-source-name">{{.Screen.Entity.Label }}</span>
+                {{if .Screen.Badges}}
+                <div class="fml-badges">
+                    <div class="fml-badge surface-subtle on-surface-muted badge">
+                        <div class="fml-badge-icon icon">{{icon .Screen.Badges.Badge.Icon}}</div>
+                        <span class="fml-badge-name">{{.Screen.Badges.Badge.Label}}</span>
+                    </div>
+                    {{if .Screen.Badges.Sensors}}
+                    {{range .Screen.Badges.Sensors}}
+                        <div class="fml-sensor surface-subtle on-surface-muted badge">
+                            {{if .Icon}}
+                            <div class="fml-sensor-icon icon">{{icon .Icon}}</div>
+                            {{end}}
+                            {{if .Label}}
+                            <span class="fml-sensor-name">{{.Label}}</span>
+                            {{end}}
+                            <span class="fml-sensor-value sensor-value"></span>
+                            {{if .Unit}}
+                            <span class="fml-sensor-unit">{{.Unit}}</span>
+                            {{end}}
+                        </div>
+                        {{template "_sensor-script" .}}
+                    {{end}}
+                    {{end}}
                 </div>
+                {{end}}
+                <button class="fml-source-btn surface-subtle on-surface-muted badge-btn">
+                    <div class="fml-source-icon icon">{{icon "speaker-multiple"}}</div>
+                    <span class="fml-source-name">{{.Screen.Entity.Label }}</span>
+                </button>
                 {{if .Screen.Entity.ShowBrowser}}
-                <button class="fml-browse-btn surface-subtle on-surface-muted">
+                <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn">
                     {{icon "play-box-multiple"}}
                     <span>Browse</span>
                 </button>
+                <div class="fml-source-browser">{{template "modal"}}</div>
+                <div class="fml-media-browser">{{template "media-browser" .Screen.Entity}}</div>
                 {{end}}
             </div>
         </div>
@@ -441,10 +458,6 @@
                 <span class="fml-progress-duration left">-2:00</span>
             </div>
         </div>
-
-        {{if .Screen.Entity.ShowBrowser}}
-        {{template "media-browser" .Screen.Entity}}
-        {{end}}
     </div>
 </div>
 <script>
@@ -465,11 +478,13 @@ component(function(wrapper) {
     var elShuffle       = wrapper.querySelector('.fml-ctrl-btn.shuffle');
     var elRepeat        = wrapper.querySelector('.fml-ctrl-btn.repeat');
     var elVolSlider     = wrapper.querySelector('.fml-vol-slider');
-    var elMediaBrowser  = wrapper.querySelector('.mbrowser-container');
+    var elMediaBrowser  = wrapper.querySelector('.fml-media-browser .modal-container');
+    var elSourceBrowser = wrapper.querySelector('.fml-source-browser .modal-container');
     var elTimeElapsed   = wrapper.querySelector('.fml-progress-duration.elapsed');
     var elTimeLeft      = wrapper.querySelector('.fml-progress-duration.left');
     var elElapsedBar    = wrapper.querySelector('.fml-progress-bar-elapsed');
     var elProgressInput = wrapper.querySelector('.fml-progress-bar > input');
+    var elSourceBtn     = wrapper.querySelector('.fml-source-btn'); 
 
     // transport buttons
     wrapper.querySelector('.fml-ctrl-btn.back').onclick = ctrl.prev;
@@ -540,12 +555,18 @@ component(function(wrapper) {
         ctrl.seek(parseFloat(elProgressInput.value)); 
     };
 
+    var elSourceBrowserHeader = document.createElement('div')
+    elSourceBrowserHeader.textContent = "Sources"; 
+    elSourceBrowserHeader.classList.add('accent');
+    elSourceBrowserHeader.style.fontSize = '1.8em';
+    elSourceBrowser.querySelector('.modal-header').appendChild(elSourceBrowserHeader);
+    elSourceBtn.onclick = elSourceBrowser.open;
+    
+
     {{if .Screen.Entity.ShowBrowser}}
     var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
     if (elBrowseBtn) {
-        elBrowseBtn.addEventListener('click', function() {
-            elMediaBrowser.mediaBrowserOpen();
-        });
+        elBrowseBtn.onclick = elMediaBrowser.mediaBrowserOpen;
     }
     {{end}}
 
@@ -564,7 +585,7 @@ component(function(wrapper) {
         var pct = (elapsed / duration) * 100;
 
         elTimeElapsed.textContent = formatMin(elapsed);
-        elTimeLeft.textContent = formatMin(left);
+        elTimeLeft.textContent = '-' + formatMin(left);
         elElapsedBar.style.width = pct + '%';
     }
 
@@ -612,6 +633,7 @@ component(function(wrapper) {
 
     // track progress
     ctrl.onUpdate(['media_duration', 'media_position'], function(state, attrs) {
+        if (state !== "playing") return;
         if (progressInterval) {
             clearInterval(progressInterval);
         }
@@ -665,6 +687,28 @@ component(function(wrapper) {
     ctrl.onUpdate(['source'], function(state, attrs) {
         elSourceName.textContent = attrs.source || '–';
     });
+
+    ctrl.onUpdate(['source_list'], function(state, attrs) {
+        var sourcesNodes = []
+        for (source of attrs.source_list) {
+            (function(source) {
+                var node = document.createElement('div');
+                var contentSpan = document.createElement('div');
+
+                contentSpan.textContent = source;
+                contentSpan.classList = "interactive";
+                node.appendChild(contentSpan);
+
+                node.onclick = function() {
+                    console.log("sending set source with source: ", source)
+                    ctrl.setSource(source);
+                    elSourceBrowser.close();
+                }
+                sourcesNodes.push(node);
+            }(source))
+        }
+        elSourceBrowser.renderList(sourcesNodes);
+    })
 
     // volume
     ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {

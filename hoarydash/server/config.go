@@ -61,6 +61,13 @@ type Screen struct {
 		MediaOptions `yaml:",inline"`
 		Badge        string
 	}
+	Badges struct {
+		Sensors []Sensor
+		Badge   struct {
+			Label string
+			Icon  string
+		}
+	}
 	ThemeRef ThemeRef `yaml:"theme"`
 	Theme    *Theme   `yaml:"_"`
 }
@@ -81,11 +88,16 @@ func (t *ThemeRef) UnmarshalYAML(value *yaml.Node) error {
 type Entity struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
+	Icon     string
+}
+
+type Sensor struct {
+	Entity `yaml:",inline"`
+	Unit   string
 }
 
 type Card struct {
 	Entity `yaml:",inline"`
-	Icon   string
 	Unit   string
 	Style  CardStyle
 	// Widget specific

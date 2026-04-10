@@ -157,6 +157,7 @@
     
         var controller = {
             onUpdate:      function(watch, cb) { updateListeners.push({ watch: watch, cb: cb }); },
+            setSource:     function(s)         { return callService('select_source', { source: s })},
             playPause:     function()          { return callService('media_play_pause'); },
             prev:          function()          { return callService('media_previous_track'); },
             next:          function()          { return callService('media_next_track'); },

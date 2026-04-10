@@ -249,6 +249,7 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/controllers/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
+	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/common/*.html.tmpl")
 	check(err, "Created template object")
 
 	type builtDash struct {

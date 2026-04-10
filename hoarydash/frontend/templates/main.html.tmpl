@@ -61,6 +61,10 @@
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
+            while (root.tagName === 'SCRIPT') {
+                console.log("component scripts previous sibling was a script, ioterating back one node")
+                root = root.previousElementSibling
+            }
             script(root);
         };
         function normalizeSize(container) {
