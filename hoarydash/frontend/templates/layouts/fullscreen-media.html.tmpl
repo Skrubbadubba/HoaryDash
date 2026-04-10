@@ -28,8 +28,8 @@
         width: 130%;
         height: 130%;
         object-fit: cover;
-        -webkit-filter: blur(1.8em) brightness(0.45) saturate(1.4);
-        filter: blur(1.8em) brightness(0.45) saturate(1.4);
+        -webkit-filter: blur(2em) brightness(0.65);
+        filter: blur(2em) brightness(0.65);
         display: none;
     }
 
@@ -412,15 +412,15 @@
                 {{end}}
                 <button class="fml-source-btn surface-subtle on-surface-muted badge-btn">
                     <div class="fml-source-icon icon">{{icon "speaker-multiple"}}</div>
-                    <span class="fml-source-name">{{.Screen.Entity.Label }}</span>
+                    <span class="fml-source-name">-</span>
                 </button>
-                {{if .Screen.Entity.ShowBrowser}}
+                {{if .Screen.ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
                 </button>
                 <div class="fml-source-browser">{{template "modal"}}</div>
-                <div class="fml-media-browser">{{template "media-browser" .Screen.Entity}}</div>
+                <div class="fml-media-browser">{{template "media-browser" .Screen}}</div>
                 {{end}}
             </div>
         </div>
@@ -462,10 +462,10 @@
 </div>
 <script>
 component(function(wrapper) {
-    var entityId = '{{.Screen.Entity.EntityID}}';
+    var entityId = '{{.Screen.EntityID}}';
     if (!entityId) { return; }
 
-    var ctrl = makeMediaController(entityId{{if .Screen.Entity.Spotifyplus}}, { spotifyPlus: true }{{end}});
+    var ctrl = makeMediaController(entityId{{if .Screen.Spotifyplus}}, { spotifyPlus: true }{{end}});
     var progressInterval;
     var currentDuration;
 
@@ -563,11 +563,19 @@ component(function(wrapper) {
     elSourceBtn.onclick = elSourceBrowser.open;
     
 
-    {{if .Screen.Entity.ShowBrowser}}
+    {{if .Screen.ShowBrowser}}
     var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
     if (elBrowseBtn) {
         elBrowseBtn.onclick = elMediaBrowser.mediaBrowserOpen;
     }
+    {{end}}
+
+    {{if disabledByDefault .Screen.Rotate}}
+    var backdropRotationDeg = 0;
+    setInterval(function() {
+        elBackdropArt.style.transform = "rotate(" + backdropRotationDeg + "deg)"
+        backdropRotationDeg += 0.1;
+    }, 100);
     {{end}}
 
     function formatMin(seconds) {
@@ -625,7 +633,7 @@ component(function(wrapper) {
         var html = '';
         if (title)  { html += '<span class="fml-song-title on-surface">'  + title  + '</span>'; }
         if (artist) { html += '<span class="fml-song-artist on-surface-muted">' + artist + '</span>'; }
-        {{if .Screen.Entity.ShowAlbum}}
+        {{if .Screen.ShowAlbum}}
         if (album)  { html += '<span class="fml-song-album on-surface-subtle">' + album  + '</span>'; }
         {{end}}
         elSongBlock.innerHTML = html;

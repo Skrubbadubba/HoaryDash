@@ -56,12 +56,9 @@ type Screen struct {
 	}
 
 	// Fullscreen-layout specific
-	Entity struct {
-		Entity       `yaml:",inline"`
-		MediaOptions `yaml:",inline"`
-		Badge        string
-	}
-	Badges struct {
+	EntityID     string `yaml:"entity_id"`
+	MediaOptions `yaml:",inline"`
+	Badges       struct {
 		Sensors []Sensor
 		Badge   struct {
 			Label string
@@ -70,6 +67,7 @@ type Screen struct {
 	}
 	ThemeRef ThemeRef `yaml:"theme"`
 	Theme    *Theme   `yaml:"_"`
+	Rotate   *bool
 }
 
 type ThemeRef struct {
