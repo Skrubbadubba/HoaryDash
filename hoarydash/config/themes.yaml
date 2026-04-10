@@ -4,6 +4,7 @@ light:
   surface_alt: "rgba(213, 196, 161, 0.5)"  # light2, slightly more receded
   surface_prominent: "#d5c4a1"  # light2 solid, clearly distinct
   surface_opaque: "#fbf1c7"     # light0
+  surface_subtle: "rgba(213, 196, 161, 0.25)"
   on_surface: "#3c3836"         # dark1
   on_surface_muted: "#665c54"   # dark3
   on_surface_subtle: "#928374"  # gray_245
@@ -31,6 +32,7 @@ gruvbox-dark:
   surface_alt: "rgba(29, 32, 33, 0.85)"   # dark0_hard, more receded than cards
   surface_prominent: "#504945"  # dark2, solid elevated
   surface_opaque: "#1d2021"     # dark0_hard
+  surface_subtle: "rgba(168, 153, 132, 0.15)"
   on_surface: "#ebdbb2"         # light1
   on_surface_muted: "#a89984"   # light4
   on_surface_subtle: "#7c6f64"  # dark4
@@ -58,6 +60,7 @@ gruvbox-light:
   surface_alt: "rgba(189, 174, 147, 0.45)"  # light3, more muted
   surface_prominent: "#bdae93"  # light3 solid
   surface_opaque: "#f2e5bc"     # light0_soft
+  surface_subtle: "rgba(189, 174, 147, 0.25)"
   on_surface: "#282828"         # dark0
   on_surface_muted: "#665c54"   # dark3
   on_surface_subtle: "#928374"  # gray_245
@@ -85,6 +88,7 @@ sepia:
   surface_alt: "rgba(201, 168, 122, 0.35)"
   surface_prominent: "#c9a87a"
   surface_opaque: "#ede0c8"
+  surface_subtle: "rgba(184, 149, 106, 0.2)"
   on_surface: "#433422"
   on_surface_muted: "#8b6f47"
   on_surface_subtle: "#b8956a"
@@ -140,6 +144,7 @@ aurora:
   surface_alt: "rgba(28, 24, 41, 0.6)"           # surface_opaque tinted, lets gradient show
   surface_prominent: "rgba(77, 208, 225, 0.13)"
   surface_opaque: "#0f1929"
+  surface_subtle: "rgba(77, 208, 225, 0.15)"
   on_surface: "#e0f7fa"
   on_surface_muted: "#80cbc4"
   on_surface_subtle: "#4db6ac"
@@ -167,6 +172,7 @@ sunset:
   surface_alt: "rgba(0, 0, 0, 0.4)"
   surface_prominent: "rgba(255, 112, 67, 0.2)"
   surface_opaque: "#1a0a00"
+  surface_subtle: "rgba(255, 112, 67, 0.12)"
   on_surface: "#fff3e0"
   on_surface_muted: "#ffcc80"
   on_surface_subtle: "#ff8a50"
@@ -194,6 +200,7 @@ forest:
   surface_alt: "rgba(0, 0, 0, 0.38)"
   surface_prominent: "rgba(105, 240, 110, 0.13)"
   surface_opaque: "#0a1e0e"
+  surface_subtle: "rgba(105, 240, 110, 0.12)"
   on_surface: "#e8f5e9"
   on_surface_muted: "#a5d6a7"
   on_surface_subtle: "#66bb6a"
@@ -221,6 +228,7 @@ synthwave:
   surface_alt: "rgba(0, 0, 0, 0.45)"
   surface_prominent: "rgba(255, 68, 204, 0.18)"
   surface_opaque: "#1a0030"
+  surface_subtle: "rgba(255, 68, 204, 0.12)"
   on_surface: "#f8f0ff"
   on_surface_muted: "#cc88ff"
   on_surface_subtle: "#aa44ff"
