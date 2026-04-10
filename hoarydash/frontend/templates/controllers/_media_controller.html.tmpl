@@ -18,6 +18,7 @@
         var updateListeners = [];
     
         function handleUpdate(newState, newAttributes) {
+            console.log("media controller recieved: ", newState, newAttributes)
             var stateChanged = (newState !== undefined && newState !== cachedState);
             var changedAttrs = diffAttributes(newAttributes);
 
@@ -161,6 +162,7 @@
             next:          function()          { return callService('media_next_track'); },
             isMuted,
             toggleMute:    function()          { return callService('volume_mute', { is_volume_muted: !isMuted() }); },
+            seek:          function(p)         { return callService('media_seek', { seek_position: p })},
             setVolume:     function(v)         { return callService('volume_set', { volume_level: v }); },
             toggleShuffle: function()          { return callService('shuffle_set', { shuffle: !cachedAttributes.shuffle }); },
             cycleRepeat:   function() {

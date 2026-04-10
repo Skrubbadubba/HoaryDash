@@ -159,8 +159,8 @@
 {{$p}} .interactive-bg {
     background-color: {{.Interactive | css}};
 }
-{{$p}} input[type=range].interactive::-webkit-slider-thumb,
-{{$p}} input[type=range].interactive::-moz-range-thumb {
+{{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
     background-color: {{.Interactive | css}};
 }
 {{end}}
@@ -170,8 +170,8 @@
     color: {{.InteractiveMuted | css}};
     fill: {{.InteractiveMuted | css}};
 }
-{{$p}} input[type=range].interactive-muted::-webkit-slider-thumb,
-{{$p}} input[type=range].interactive-muted::-moz-range-thumb {
+{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
     background-color: {{.InteractiveMuted | css}};
 }
 {{$p}} .interactive-muted-bg {
@@ -183,8 +183,8 @@
     fill: {{.Interactive | css}};
     opacity: 0.6;
 }
-{{$p}} input[type=range].interactive-muted::-webkit-slider-thumb,
-{{$p}} input[type=range].interactive-muted::-moz-range-thumb {
+{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
     background-color: {{.Interactive | css}};
 }
 {{$p}} .interactive-muted-bg {
@@ -198,8 +198,8 @@
 }
 {{end}}
 
-{{$p}} input[type=range].interactive-disabled::-webkit-slider-thumb,
-{{$p}} input[type=range].interactive-disabled::-moz-range-thumb {
+{{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
     opacity: 0;
 }
 {{if .InteractiveDisabled}}

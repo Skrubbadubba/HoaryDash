@@ -97,5 +97,13 @@
         visibility: hidden;
         pointer-events: none;
     }
+
+    input[type=range].thumb::-webkit-slider-thumb, 
+    input[type=range].thumb::-moz-range-thumb {
+        -webkit-appearance: none;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
 </style>
 {{end}}

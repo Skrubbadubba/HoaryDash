@@ -183,7 +183,7 @@
         align-items: center;
     }
     .media-vol-icon {
-        margin-right: 0.4em;
+        padding: 0 0.3em;
         height: 1em;
         font-size: 1.2em;
     }
@@ -199,24 +199,10 @@
         cursor: pointer;
     }
 
-    .media-vol-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
+    .media-vol-slider::-moz-range-thumb, .media-vol-slider::-webkit-slider-thumb {
         width: 1.8em;
         height: 1.8em;
-        border-radius: 50%;
-        border: none;
         background: #949494;
-        cursor: pointer;
-    }
-
-    .media-vol-slider::-moz-range-thumb {
-        -webkit-appearance: none;
-        width: 1.8em;
-        height: 1.8em;
-        border-radius: 50%;
-        border: none;
-        background: #949494;
-        cursor: pointer;
     }
 
     .media-browser-button {
@@ -250,7 +236,7 @@
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
             <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider interactive-muted-bg interactive" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls">
@@ -427,6 +413,7 @@ component(function(wrapper) {
     // Render volume/mute
     {{if enabledByDefault .ShowVolume}}
     ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+        if (volDragging) { return; }
         var muted = (attrs.is_volume_muted) || (attrs.volume_level === 0);
         if (muted) {
             elVol.innerHTML = '{{icon "volume-mute"}}';
