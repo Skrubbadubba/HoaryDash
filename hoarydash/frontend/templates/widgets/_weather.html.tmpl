@@ -291,16 +291,9 @@ component(function(wrapper) {
     container.innerHTML = html;
   }
 
-  var translations = {};
+  var translations = {{domainTranslations "weather"}};
 
-  function fetchTranslations(callback) {
-      window.goFetch('/api/translations/weather/' + window.CONFIG.locale.split("-")[0], function(err, t) {
-          if (!err) { translations = t; }
-          callback();
-      });
-  }
-
-  function fetchForecast() {
+   function fetchForecast() {
     return window.haSend({
       type: 'call_service',
       domain: 'weather',
@@ -326,10 +319,7 @@ component(function(wrapper) {
         return;
     }
     if (window.haSocketReady) {
-      fetchTranslations(function(translations) {
-            window.weatherTranslations = translations;
-            fetchForecast();
-        });
+          fetchForecast();
         {{/* console.log("tried running fetchWeather") */}}
     } else {
         ++tries;
@@ -342,10 +332,8 @@ component(function(wrapper) {
   });
 
   window.onHaReady.push(function() {
-      fetchTranslations(function() {
-          fetchForecast();
-          setInterval(fetchForecast, POLL_INTERVAL);
-      });
+      fetchForecast();
+      setInterval(fetchForecast, POLL_INTERVAL);
   });
 
   tryFetch();

@@ -417,7 +417,7 @@
                 {{if .Screen.Entity.ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn">
                     {{icon "play-box-multiple"}}
-                    <span>Browse</span>
+                    <span>{{translate "media:browse"}}</span>
                 </button>
                 <div class="fml-source-browser">{{template "modal"}}</div>
                 <div class="fml-media-browser">{{template "media-browser" .Screen.Entity}}</div>
@@ -556,7 +556,7 @@ component(function(wrapper) {
     };
 
     var elSourceBrowserHeader = document.createElement('div')
-    elSourceBrowserHeader.textContent = "Sources"; 
+    elSourceBrowserHeader.textContent = "{{translate "media:sources"}}"; 
     elSourceBrowserHeader.classList.add('accent');
     elSourceBrowserHeader.style.fontSize = '1.8em';
     elSourceBrowser.querySelector('.modal-header').appendChild(elSourceBrowserHeader);

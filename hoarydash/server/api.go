@@ -2,90 +2,52 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 )
 
-var weatherTranslations = map[string]map[string]string{
-	"en": {
-		"clear-night":     "Clear night",
-		"cloudy":          "Cloudy",
-		"exceptional":     "Exceptional",
-		"fog":             "Foggy",
-		"hail":            "Hail",
-		"lightning":       "Lightning",
-		"lightning-rainy": "Lightning, rainy",
-		"partlycloudy":    "Partly cloudy",
-		"pouring":         "Pouring",
-		"rainy":           "Rainy",
-		"snowy":           "Snowy",
-		"snowy-rainy":     "Snowy, rainy",
-		"sunny":           "Sunny",
-		"windy":           "Windy",
-		"windy-variant":   "Windy",
-	},
-	"sv": {
-		"clear-night":     "Klart, natt",
-		"cloudy":          "Molnigt",
-		"exceptional":     "Exceptionellt",
-		"fog":             "Dimma",
-		"hail":            "Hagel",
-		"lightning":       "Åska",
-		"lightning-rainy": "Åska, regnigt",
-		"partlycloudy":    "Delvis molnigt",
-		"pouring":         "Ösregn",
-		"rainy":           "Regnigt",
-		"snowy":           "Snöigt",
-		"snowy-rainy":     "Snöigt, regnigt",
-		"sunny":           "Soligt",
-		"windy":           "Blåsigt",
-		"windy-variant":   "Blåsigt",
-	},
-	"de": {
-		"clear-night":     "Klare Nacht",
-		"cloudy":          "Bewölkt",
-		"exceptional":     "Außergewöhnlich",
-		"fog":             "Neblig",
-		"hail":            "Hagel",
-		"lightning":       "Gewitter",
-		"lightning-rainy": "Gewitter, regnerisch",
-		"partlycloudy":    "Teilweise bewölkt",
-		"pouring":         "Starkregen",
-		"rainy":           "Regnerisch",
-		"snowy":           "Schneefall",
-		"snowy-rainy":     "Schneeregen",
-		"sunny":           "Sonnig",
-		"windy":           "Windig",
-		"windy-variant":   "Windig, bewölkt",
-	},
-}
-
-var widgetTranslations = map[string]map[string]map[string]string{
-	"weather": weatherTranslations,
-	// "media_player": mediaPlayerTranslations,
-}
-
 func translationsHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		widget := r.PathValue("widget")
-		lang := r.PathValue("lang")
-
-		widgetMap, ok := widgetTranslations[widget]
-		if !ok {
-			http.Error(w, "unknown widget", http.StatusNotFound)
-			return
-		}
-
-		translations, ok := widgetMap[lang]
-		if !ok {
-			translations = widgetMap["en"] // fallback to english
-		}
-
 		w.Header().Set("Content-Type", "application/json")
+		params := r.URL.Query()
+
+		key := params.Get("key")
+		lang := params.Get("lang")
+		domain := params.Get("domain")
+
+		if lang == "" {
+			http.Error(w, "'lang' parameter must be present", http.StatusBadRequest)
+		}
+
+		if domain == "" && key == "" {
+			http.Error(w, "no domain or key specified", http.StatusBadRequest)
+		}
+
+		var dTranslations map[string]string
+		if domain != "" {
+			var err error
+			dTranslations, err = domainTranslations(domain, lang)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("domain '%s' not found for language '%s'", domain, lang), http.StatusNotFound)
+				return
+			}
+		}
+
+		if key != "" {
+			t, err := translate(fmt.Sprintf("%s:%s", domain, key), lang)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("key '%s' in domain '%s' not found for language '%s'", key, domain, lang), http.StatusNotFound)
+				return
+			}
+			w.Header().Set("Cache-Control", "max-age=86400")
+			json.NewEncoder(w).Encode(map[string]string{"t": t})
+		}
+
 		w.Header().Set("Cache-Control", "max-age=86400")
-		json.NewEncoder(w).Encode(translations)
+		json.NewEncoder(w).Encode(dTranslations)
 	}
 }
 

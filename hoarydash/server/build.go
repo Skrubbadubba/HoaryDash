@@ -51,6 +51,20 @@ func makeGlobals(globals map[string]any) func(string) (any, error) {
 	}
 }
 
+func makeTranslate(lang string) func(key string) (string, error) {
+	return func(key string) (string, error) {
+		return translate(key, lang)
+	}
+}
+
+func makeDomainTranslations(lang string) func(domain string) (map[string]string, error) {
+	return func(domain string) (map[string]string, error) {
+		return domainTranslations(domain, lang)
+	}
+}
+
+func nilfunc() any { return nil }
+
 var uid = 0
 
 var funcMap = template.FuncMap{
@@ -196,8 +210,8 @@ var funcMap = template.FuncMap{
 		}
 		return nil
 	},
-	"once":    makeOnceFunc(),
-	"globals": makeGlobals(make(map[string]any)),
+	"once":    nilfunc,
+	"globals": nilfunc,
 	"uid": func() int {
 		uid++
 		return uid
@@ -212,6 +226,8 @@ var funcMap = template.FuncMap{
 		}
 		return false
 	},
+	"translate":          nilfunc,
+	"domainTranslations": nilfunc,
 }
 
 func BuildDash() {
@@ -283,10 +299,19 @@ func BuildDash() {
 
 		funcMap["once"] = makeOnceFunc()
 
+		lang := "en"
+		if cfg.Localization.Locale != "" {
+			lang = strings.Split(cfg.Localization.Locale, "-")[0]
+		}
+
 		globals := map[string]any{
 			"Animations": dash.Animations,
+			"Lang":       lang,
 		}
 		funcMap["globals"] = makeGlobals(globals)
+
+		funcMap["translate"] = makeTranslate(lang)
+		funcMap["domainTranslations"] = makeDomainTranslations(lang)
 
 		dashTmpl, err := tmpl.Clone()
 		if err != nil {
