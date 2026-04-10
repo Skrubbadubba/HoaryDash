@@ -145,6 +145,8 @@
             height: 100%;
             overflow: hidden;
             touch-action: pan-y;
+            -webkit-transition: -webkit-transform 0.5s ease;
+            transition: transform 0.5s ease;
         }
         {{$showHints := enabledByDefault .Dashboard.ShowHints}}
         .layout-container {
@@ -304,12 +306,15 @@
     component(function(container) {
         var screens = container.querySelectorAll('.screen');
         var currentIndex = 0;
+        var xOffset = 0;
+
         for (var i = 0; i < screens.length; i++) {
             if (screens[i].id == window.location.hash.replace("#", "")) {
                 currentIndex = i;
                 break;
             }
         }
+        xOffset = currentIndex;
 
         function dispatchNavigate() {
             window.dispatchEvent(new CustomEvent("screen-navigate", { detail: { index: currentIndex } }));
@@ -320,12 +325,14 @@
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
             screenEl = screens[currentIndex];
-            console.log("screenEl: ", screenEl);
-            window.location.hash = screenEl.id;
+            history.pushState({}, '', "#" + screenEl.id);
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].style.transform = "translateX(" + (xOffset - index)*100 + "%)";
+            }
             dispatchNavigate();
         };
 
-        
+
         {{if enabledByDefault .Dashboard.Swipe}}
         var mc = new Hammer.Manager(document.body);
         mc.add(new Hammer.Swipe({

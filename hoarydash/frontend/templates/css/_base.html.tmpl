@@ -26,8 +26,8 @@
         
     * {
         {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
-        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
         {{else}}
         -webkit-transition: none;
         transition: none;
@@ -101,6 +101,8 @@
     input[type=range].thumb::-webkit-slider-thumb, 
     input[type=range].thumb::-moz-range-thumb {
         -webkit-appearance: none;
+        display: flex;
+        flex-shrink: 0;
         border-radius: 50%;
         border: none;
         cursor: pointer;
