@@ -94,6 +94,7 @@ type CardStyle struct {
 	Borders      *bool
 	BorderRadius template.CSS `yaml:"border_radius"`
 	BorderWidth  template.CSS `yaml:"border_width"`
+	Background   template.CSS
 	Padding      template.CSS `yaml:"padding"`
 	BorderColor  template.CSS `yaml:"border_color"`
 	FontSize     int          `yaml:"font_size"`

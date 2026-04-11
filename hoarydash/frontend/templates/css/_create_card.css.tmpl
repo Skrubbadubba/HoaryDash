@@ -16,6 +16,9 @@
 {{if .BorderWidth}}
     border-width: {{.BorderWidth | css}};
 {{end}}
+{{if .Background}}
+    background-color: {{.Background | css}};
+{{end}}
 {{if .Padding}}
     padding: {{.Padding | css}};
 {{end}}
