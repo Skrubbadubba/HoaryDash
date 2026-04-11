@@ -151,19 +151,69 @@
 {{end}}
 
 {{/* Geometry */}}
-{{if .MediumBorderRadius}}
-    {{$p}} .border-medium { {{.MediumBorderRadius}} }
+{{if .Shapes.MediumBorderRadius}}
+    {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
+{{end}}
+
+{{/* --- CARD-LIKE DEFAULT ASSIGNMENTS --- */}}
+{{/* Colors and geometry assigned from semantic theme values.              */}}
+{{/* CardStyle override blocks below take precedence via specificity.      */}}
+
+{{if .Shapes.Borders}}
+{{$p}} .border {
+    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
+    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
+{{$p}} .card {
+    {{if .Colors.Surface}}background-color: {{.Colors.Surface | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceOpaque .Shapes.WideBorderRadius .Shapes.BorderThick}}
+{{$p}} .modal {
+    {{if .Colors.SurfaceOpaque}}background-color: {{.Colors.SurfaceOpaque | css}};{{end}}
+    {{if .Shapes.WideBorderRadius}}border-radius: {{.Shapes.WideBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceSubtle .Shapes.WideBorderRadius .Shapes.BorderThin}}
+{{$p}} .badge {
+    {{if .Colors.SurfaceSubtle}}background-color: {{.Colors.SurfaceSubtle | css}};{{end}}
+    {{if .Shapes.WideBorderRadius}}border-radius: {{.Shapes.WideBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThin}}border-width: {{.Shapes.BorderThin | css}};{{end}}
+}
+{{$p}} .badge-btn {
+    {{if .Colors.SurfaceSubtle}}background-color: {{.Colors.SurfaceSubtle | css}};{{end}}
+    {{if .Shapes.TightBorderRadius}}border-radius: {{.Shapes.TightBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThin}}border-width: {{.Shapes.BorderThin | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceProminent .Shapes.MediumBorderRadius}}
+{{$p}} .btn {
+    {{if .Colors.SurfaceProminent}}background-color: {{.Colors.SurfaceProminent | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
+{{$p}} .tooltip {
+    {{if .Colors.Surface}}background-color: {{.Colors.Surface | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
 {{end}}
 
 {{/* --- STRUCTURAL CARD OVERRIDES --- */}}
 {{if .Cards}}
-{{$p}} .card, .card-opaque {
+{{$p}} .card {
     {{template "create-card-theme" .Cards}}
-}
-{{end}}
-{{if .Colors.SurfaceOpaque}}
-{{$p}} .card-opaque {
-    background-color: {{.Colors.SurfaceOpaque | css}};
 }
 {{end}}
 {{if .Entities}}

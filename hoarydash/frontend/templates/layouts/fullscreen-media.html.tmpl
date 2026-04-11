@@ -383,13 +383,13 @@
             <div class="fml-top-right">
                 {{if .Screen.Badges}}
                 <div class="fml-badges">
-                    <div class="fml-badge surface-subtle on-surface-muted badge">
+                    <div class="fml-badge surface-subtle on-surface-muted badge border">
                         <div class="fml-badge-icon icon">{{icon .Screen.Badges.Badge.Icon}}</div>
                         <span class="fml-badge-name">{{.Screen.Badges.Badge.Label}}</span>
                     </div>
                     {{if .Screen.Badges.Sensors}}
                     {{range .Screen.Badges.Sensors}}
-                        <div class="fml-sensor surface-subtle on-surface-muted badge">
+                        <div class="fml-sensor surface-subtle on-surface-muted badge border">
                             {{if .Icon}}
                             <div class="fml-sensor-icon icon">{{icon .Icon}}</div>
                             {{end}}
@@ -406,12 +406,12 @@
                     {{end}}
                 </div>
                 {{end}}
-                <button class="fml-source-btn surface-subtle on-surface-muted badge-btn">
+                <button class="fml-source-btn surface-subtle on-surface-muted badge-btn border">
                     <div class="fml-source-icon icon">{{icon "speaker-multiple"}}</div>
                     <span class="fml-source-name">-</span>
                 </button>
                 {{if .Screen.ShowBrowser}}
-                <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn">
+                <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
                 </button>

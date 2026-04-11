@@ -43,6 +43,7 @@ type Colors struct {
 	SurfaceSubtle    template.CSS `yaml:"surface_subtle"`
 	SurfaceAlt       template.CSS `yaml:"surface_alt"`
 	Highlight        template.CSS `yaml:"highlight"`
+	Border           template.CSS `yaml:"border"`
 
 	// Text + icons
 	OnSurface       template.CSS `yaml:"on_surface"`
@@ -78,11 +79,12 @@ type derivedColors struct {
 	StateDisabledMuted template.CSS
 }
 type Shapes struct {
-	Borders            bool
+	Borders            *bool
 	TightBorderRadius  template.CSS `yaml:"tight_border_radius"`
 	WideBorderRadius   template.CSS `yaml:"wide_border_radius"`
 	MediumBorderRadius template.CSS `yaml:"medium_border_radius"`
-	BorderWidth        template.CSS `yaml:"border_width"`
+	BorderThick        template.CSS `yaml:"border_thick"`
+	BorderThin         template.CSS `yaml:"border_thin"`
 	Padding            template.CSS `yaml:"padding"`
 }
 
@@ -92,8 +94,7 @@ type CardStyle struct {
 	BorderWidth  template.CSS `yaml:"border_width"`
 	Padding      template.CSS `yaml:"padding"`
 	BorderColor  template.CSS `yaml:"border_color"`
-	Background   template.CSS
-	FontSize     int `yaml:"font_size"`
+	FontSize     int          `yaml:"font_size"`
 	Custom       template.CSS
 }
 
@@ -106,23 +107,13 @@ func newFalse() *bool {
 	return &f
 }
 
-func newDefaultCard() *CardStyle {
-	style := CardStyle{}
-	return &style
-}
-
-func newDefaultModal() *CardStyle {
-	style := newDefaultCard()
-	style.Background = "rgb1(20,20,20)"
-	return style
-}
-
 func createDefaultModal() *CardStyle {
 	ms := CardStyle{
 		BorderColor: "rgba(130,185,255,0.15)",
 	}
 	return &ms
 }
+
 func createDefaultBadge() *CardStyle {
 	bs := CardStyle{
 		BorderColor: "rgba(255,255,255,0.15)",
@@ -131,24 +122,24 @@ func createDefaultBadge() *CardStyle {
 	}
 	return &bs
 }
+
 func createDefaultBadgeButton() *CardStyle {
 	bs := createDefaultBadge()
 	bs.Padding = "0.4em 0.7em"
 	return bs
 }
+
 func createDefaultButton() *CardStyle {
-	bs := CardStyle{
+	return &CardStyle{
 		Padding: "1em",
 		Borders: newFalse(),
 	}
-	return &bs
 }
 
 func createDefaultTooltip() *CardStyle {
-	ts := CardStyle{
+	return &CardStyle{
 		Padding: "1em",
 	}
-	return &ts
 }
 
 var defaultTheme = Theme{
@@ -160,6 +151,7 @@ var defaultTheme = Theme{
 		SurfaceProminent: "rgba(57, 57, 57, 0.85)",
 		SurfaceSubtle:    "rgba(255,255,255,0.07)",
 		SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
+		Border:           "rgba(130, 185, 255, 0.15)",
 		Highlight:        "rgba(255, 255, 255, 0.12)",
 		OnSurface:        "#ffffff",
 		OnSurfaceMuted:   "#dbdbdb",
@@ -175,11 +167,12 @@ var defaultTheme = Theme{
 	FontSize: 18,
 	Shapes: Shapes{
 		Padding:            "0",
-		Borders:            true,
+		Borders:            newBool(true),
 		TightBorderRadius:  "0.2em",
 		WideBorderRadius:   "2em",
 		MediumBorderRadius: "1em",
-		BorderWidth:        "1.8px",
+		BorderThick:        "1.8px",
+		BorderThin:         "0.5px",
 	},
 	Modals:       createDefaultModal(),
 	Badges:       createDefaultBadge(),
@@ -236,50 +229,6 @@ func (t *Theme) ComputeDerivatives() {
 	t.Derived.StateOnMuted = deriveAlpha(t.Colors.StateOn, 0.35)
 	t.Derived.StateOffMuted = deriveAlpha(t.Colors.StateOff, 0.35)
 	t.Derived.StateDisabledMuted = deriveAlpha(t.Colors.StateDisabled, 0.35)
-
-	// Cards and shapes
-	if t.Cards != nil {
-		if t.Cards.Background == "" && t.Colors.Surface != "" {
-			t.Cards.Background = t.Colors.Surface
-		}
-	}
-
-	if t.Badges != nil {
-		if t.Badges.Background == "" && t.Colors.SurfaceSubtle != "" {
-			t.Badges.Background = t.Colors.SurfaceSubtle
-		}
-	}
-	if t.BadgeButtons != nil {
-		if t.BadgeButtons.Background == "" && t.Colors.SurfaceSubtle != "" {
-			t.BadgeButtons.Background = t.Colors.SurfaceSubtle
-		}
-	}
-
-	propagateShape := func(target **CardStyle, defaultRadius template.CSS) {
-		if *target == nil {
-			*target = &CardStyle{}
-		}
-		cs := *target
-		if cs.BorderRadius == "" {
-			cs.BorderRadius = defaultRadius
-		}
-		if cs.Padding == "" && t.Shapes.Padding != "" {
-			cs.Padding = t.Shapes.Padding
-		}
-		if cs.BorderWidth == "" && t.Shapes.BorderWidth != "" {
-			cs.BorderWidth = t.Shapes.BorderWidth
-		}
-		if (*target).Borders == nil && t.Shapes.Borders {
-			(*target).Borders = &t.Shapes.Borders
-		}
-	}
-
-	// We pass a pointer-to-a-pointer to allow initialization
-	propagateShape(&t.Cards, t.Shapes.TightBorderRadius)
-	propagateShape(&t.Buttons, t.Shapes.MediumBorderRadius)
-	propagateShape(&t.BadgeButtons, t.Shapes.TightBorderRadius)
-	propagateShape(&t.Tooltips, t.Shapes.MediumBorderRadius)
-	propagateShape(&t.Badges, t.Shapes.WideBorderRadius)
 }
 
 func (t *Theme) Clone() Theme {
@@ -302,6 +251,8 @@ func (t *Theme) Clone() Theme {
 	clone.Tooltips = cloneCard(t.Tooltips)
 	clone.Modals = cloneCard(t.Modals)
 	clone.Buttons = cloneCard(t.Buttons)
+
+	clone.Shapes.Borders = newBool(*t.Shapes.Borders)
 
 	return clone
 }
@@ -375,6 +326,7 @@ func (t *Theme) Resolve() error {
 	res(&t.SurfaceSubtle)
 	res(&t.SurfaceAlt)
 	res(&t.Highlight)
+	res(&t.Border)
 
 	res(&t.OnSurface)
 	res(&t.OnSurfaceMuted)
@@ -397,35 +349,27 @@ func (t *Theme) Resolve() error {
 
 	if t.Cards != nil {
 		res(&t.Cards.BorderColor)
-		res(&t.Cards.Background)
 	}
 	if t.Entities != nil {
 		res(&t.Entities.BorderColor)
-		res(&t.Entities.Background)
 	}
 	if t.Sensors != nil {
 		res(&t.Sensors.BorderColor)
-		res(&t.Sensors.Background)
 	}
 	if t.Widgets != nil {
 		res(&t.Widgets.BorderColor)
-		res(&t.Widgets.Background)
 	}
 	if t.Modals != nil {
 		res(&t.Modals.BorderColor)
-		res(&t.Modals.Background)
 	}
 	if t.Badges != nil {
 		res(&t.Badges.BorderColor)
-		res(&t.Badges.Background)
 	}
 	if t.BadgeButtons != nil {
 		res(&t.BadgeButtons.BorderColor)
-		res(&t.BadgeButtons.Background)
 	}
 	if t.Tooltips != nil {
 		res(&t.Tooltips.BorderColor)
-		res(&t.Tooltips.Background)
 	}
 
 	t.ComputeDerivatives()

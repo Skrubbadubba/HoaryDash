@@ -1,6 +1,6 @@
 {{define "create-card-theme"}}
 {{if .Borders}}
-    {{if disabledByDefault .Borders}}
+    {{if .Borders | bool}}
         border-style: solid;
     {{else}}
         border-style: none;
@@ -10,9 +10,6 @@
 {{if .BorderColor}}
     border-color: {{.BorderColor | css}};
 {{end}}    
-{{if .Background}}
-    background-color: {{.Background | css}};
-{{end}}
 {{if .BorderRadius}}
     border-radius: {{.BorderRadius | css}};
 {{end}}

@@ -6,6 +6,7 @@ light:
     surface_prominent: "#d5c4a1"  # light2 solid, clearly distinct
     surface_opaque: "#fbf1c7"     # light0
     surface_subtle: "rgba(213, 196, 161, 0.25)"
+    border: "#d5c4a1"
     on_surface: "#3c3836"         # dark1
     on_surface_muted: "#665c54"   # dark3
     on_surface_subtle: "#928374"  # gray_245
@@ -21,11 +22,6 @@ light:
     state_disabled: "rgba(146, 131, 116, 0.35)"
     positive: "#79740e"           # faded_green
     negative: "#9d0006"           # faded_red
-  cards:
-    borders: true
-    border_color: "#d5c4a1"     # light2
-    border_radius: "0.5em"
-    background: "rgba(251, 241, 199, 0.8)"
 
 gruvbox-dark:
   vars:
@@ -55,6 +51,7 @@ gruvbox-dark:
     surface_prominent: "$dark2"
     surface_opaque: "$dark0_hard"
     surface_subtle: "$light4:0.15"
+    border: "$dark2"
     on_surface: "$light1"
     on_surface_muted: "$light4"
     on_surface_subtle: "$dark4"
@@ -70,11 +67,6 @@ gruvbox-dark:
     state_disabled: "$dark4:0.3"
     positive: "$bright_green"
     negative: "$bright_red"
-  cards:
-    borders: true
-    border_color: "$dark2"
-    border_radius: "0.5em"
-    background: "$dark1:0.7"
 
 gruvbox-light:
   vars:
@@ -103,6 +95,7 @@ gruvbox-light:
     surface_prominent: "$light3"
     surface_opaque: "$light0_soft"
     surface_subtle: "$light3:0.25"
+    border: "$light3"
     on_surface: "$dark0"
     on_surface_muted: "$dark3"
     on_surface_subtle: "$dark4"
@@ -118,11 +111,6 @@ gruvbox-light:
     state_disabled: "$dark4:0.35"
     positive: "$faded_green"
     negative: "$faded_red"
-  cards:
-    borders: true
-    border_color: "$light3"
-    border_radius: "0.5em"
-    background: "$light1:0.75"
 
 nord:
   vars:
@@ -153,6 +141,7 @@ nord:
     on_surface_muted: "$nord4"
     on_surface_subtle: "$nord4:0.5"
     on_background: "$nord4"
+    border: "$nord2"
     accent: "$nord13"
     accent_muted: "$nord12"
     interactive: "$nord8"
@@ -164,11 +153,6 @@ nord:
     state_disabled: "$nord2:0.45"
     positive: "$nord14"
     negative: "$nord11"
-  cards:
-    borders: true
-    border_color: "$nord2"
-    border_radius: "0.5em"
-    background: "$nord1:0.7"
   # badges:
   #   padding: 2em
 
@@ -180,6 +164,7 @@ sepia:
     surface_prominent: "#c9a87a"
     surface_opaque: "#ede0c8"
     surface_subtle: "rgba(184, 149, 106, 0.2)"
+    border: "#d4b896"
     on_surface: "#433422"
     on_surface_muted: "#8b6f47"
     on_surface_subtle: "#b8956a"
@@ -195,11 +180,6 @@ sepia:
     state_disabled: "rgba(184, 149, 106, 0.4)"
     positive: "#5a7a3a"
     negative: "#8b2500"
-  cards:
-    borders: true
-    border_color: "#d4b896"
-    border_radius: "0.5em"
-    background: "rgba(253, 246, 227, 0.8)"
 
 
 aurora:
@@ -210,6 +190,7 @@ aurora:
     surface_prominent: "rgba(77, 208, 225, 0.13)"
     surface_opaque: "#0f1929"
     surface_subtle: "rgba(77, 208, 225, 0.15)"
+    border: "rgba(255, 255, 255, 0.09)
     on_surface: "#e0f7fa"
     on_surface_muted: "#80cbc4"
     on_surface_subtle: "#4db6ac"
@@ -225,11 +206,6 @@ aurora:
     state_disabled: "rgba(77, 208, 225, 0.1)"
     positive: "#80cbc4"
     negative: "#ef9a9a"
-  cards:
-    borders: true
-    border_color: "rgba(255, 255, 255, 0.09)"
-    border_radius: "0.5em"
-    background: "rgba(255, 255, 255, 0.06)"
 
 sunset:
   background: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
@@ -239,6 +215,7 @@ sunset:
     surface_prominent: "rgba(255, 112, 67, 0.2)"
     surface_opaque: "#1a0a00"
     surface_subtle: "rgba(255, 112, 67, 0.12)"
+    border: "rgba(255, 100, 30, 0.2)"
     on_surface: "#fff3e0"
     on_surface_muted: "#ffcc80"
     on_surface_subtle: "#ff8a50"
@@ -254,11 +231,6 @@ sunset:
     state_disabled: "rgba(255, 112, 67, 0.1)"
     positive: "#aed581"
     negative: "#ef5350"
-  cards:
-    borders: true
-    border_color: "rgba(255, 100, 30, 0.2)"
-    border_radius: "0.5em"
-    background: "rgba(255, 100, 30, 0.09)"
 
 forest:
   background: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
@@ -268,6 +240,7 @@ forest:
     surface_prominent: "rgba(105, 240, 110, 0.13)"
     surface_opaque: "#0a1e0e"
     surface_subtle: "rgba(105, 240, 110, 0.12)"
+    border: "rgba(100, 200, 100, 0.13)"
     on_surface: "#e8f5e9"
     on_surface_muted: "#a5d6a7"
     on_surface_subtle: "#66bb6a"
@@ -283,11 +256,6 @@ forest:
     state_disabled: "rgba(102, 187, 106, 0.1)"
     positive: "#aed581"
     negative: "#ef9a9a"
-  cards:
-    borders: true
-    border_color: "rgba(100, 200, 100, 0.13)"
-    border_radius: "0.5em"
-    background: "rgba(255, 255, 255, 0.05)"
 
 synthwave:
   background: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
@@ -297,6 +265,7 @@ synthwave:
     surface_prominent: "rgba(255, 68, 204, 0.18)"
     surface_opaque: "#1a0030"
     surface_subtle: "rgba(255, 68, 204, 0.12)"
+    border: "rgba(255, 0, 255, 0.16)"
     on_surface: "#f8f0ff"
     on_surface_muted: "#cc88ff"
     on_surface_subtle: "#aa44ff"
@@ -312,8 +281,3 @@ synthwave:
     state_disabled: "rgba(255, 68, 204, 0.1)"
     positive: "#44ffcc"
     negative: "#ff4466"
-  cards:
-    borders: true
-    border_color: "rgba(255, 0, 255, 0.16)"
-    border_radius: "0.5em"
-    background: "rgba(255, 0, 255, 0.07)"

@@ -86,6 +86,12 @@ var funcMap = template.FuncMap{
 
 		return val
 	},
+	"bool": func(val *bool) bool {
+		if val != nil {
+			return *val
+		}
+		return false
+	},
 	"css": func(val any) template.CSS {
 		return template.CSS(fmt.Sprintf("%v", val))
 	},
