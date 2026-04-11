@@ -155,18 +155,18 @@
   }
 </style>
 {{end}}
-<div class="weather-container widget card">
+<div class="weather-container widget card border">
   <div class="weather-main">
     <div class="weather-current">
       <div class="weather-icon">🌡️</div>
       <div>
-        <span class="weather-temp font-primary">--</span><span class="weather-temp-unit font-secondary">°C</span>
+        <span class="weather-temp on-surface">--</span><span class="weather-temp-unit on-surface-muted">°C</span>
       </div>
     </div>
     <div class="weather-divider"></div>
     <div class="weather-details">
-      <div class="weather-condition font-secondary">Loading...</div>
-      <div class="weather-meta">
+      <div class="weather-condition accent-muted">Loading...</div>
+      <div class="weather-meta on-surface-muted">
         <span class="weather-wind"></span>
         <span class="weather-humidity"></span>
         <span class="weather-feels"></span>
@@ -280,27 +280,20 @@ component(function(wrapper) {
       var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
       var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
       html += '<div class="forecast-day" {{if enabledByDefault .InternalBorders}}style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"{{end}}>'
-        + '<div class="forecast-day-name">'  + timeLabel + '</div>'
+        + '<div class="forecast-day-name on-surface">'  + timeLabel + '</div>'
         + '<div class="forecast-day-icon">'  + icon    + '</div>'
         + '<div class="forecast-day-temps">'
-        +   '<span class="forecast-temp-high font-primary">' + high + '</span>'
-        +   (low ? '<span class="forecast-temp-low">' + low + '</span>' : '')
+        +   '<span class="forecast-temp-high on-surface">' + high + '</span>'
+        +   (low ? '<span class="forecast-temp-low on-surface-muted">' + low + '</span>' : '')
         + '</div>'
         + '</div>';
     }
     container.innerHTML = html;
   }
 
-  var translations = {};
+  var translations = {{domainTranslations "weather"}};
 
-  function fetchTranslations(callback) {
-      window.goFetch('/api/translations/weather/' + window.CONFIG.locale.split("-")[0], function(err, t) {
-          if (!err) { translations = t; }
-          callback();
-      });
-  }
-
-  function fetchForecast() {
+   function fetchForecast() {
     return window.haSend({
       type: 'call_service',
       domain: 'weather',
@@ -326,10 +319,7 @@ component(function(wrapper) {
         return;
     }
     if (window.haSocketReady) {
-      fetchTranslations(function(translations) {
-            window.weatherTranslations = translations;
-            fetchForecast();
-        });
+          fetchForecast();
         {{/* console.log("tried running fetchWeather") */}}
     } else {
         ++tries;
@@ -342,10 +332,8 @@ component(function(wrapper) {
   });
 
   window.onHaReady.push(function() {
-      fetchTranslations(function() {
-          fetchForecast();
-          setInterval(fetchForecast, POLL_INTERVAL);
-      });
+      fetchForecast();
+      setInterval(fetchForecast, POLL_INTERVAL);
   });
 
   tryFetch();

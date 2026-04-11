@@ -287,7 +287,7 @@ Some card types accept additional fields.
 
 ### Card style fields
 
-A `style` block can be placed on an individual card or on a card group. Individual card style takes precedence. For theme-level styling that applies to all cards of a given type across the whole dashboard, see [Theming](#theming).
+A `style` block can be placed on an individual card or on a card group. Individual card style takes precedence. See [Theming](#theming) for more information.
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -417,71 +417,228 @@ order:
    sensors: -1
 ```
 
+---
+
+## Fullscreen media layout
+
+The fullscreen media layout turns the entire screen into a media player view. Album art is blurred and stretched behind a dark scrim to form the backdrop. Transport controls, song info, and cover art sit in the foreground. A row of badge pills in the top-right corner can show sensor readings alongside the source selector and music browser.
+
+```yaml
+screens:
+  - name: Now Playing
+    layout: fullscreen-media
+    entity_id: media_player.spotify
+    show_browser: true
+    dateclock:
+      enabled: true
+    badges:
+      badge:
+        label: Living room
+        icon: sofa
+      sensors:
+        - entity_id: sensor.living_room_temperature
+          label: Temp
+          unit: °C
+          icon: thermometer
+        - entity_id: sensor.living_room_humidity
+          label: Hum
+          unit: "%"
+```
+
+### Additional fields
+
+In addition to the common screen fields, the fullscreen media layout has the following:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `entity_id` | string | The `media_player.*` entity to control |
+| `show_browser` | bool | Show a browse button that opens the media browser |
+| `rotate` | bool | Whether or not to slowly rotate the backdrop |
+
+#### Badges object
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `badge` | object | A static label pill. Useful for a room name |
+| `badge.label` | string | Text shown in the pill |
+| `badge.icon` | string | Icon shown in the pill |
+| `sensors` | list | Live sensor readings shown as pills |
+
+Sensor fields follow the same schema as sensor cards elsewhere — `entity_id`, `label`, `unit`, `icon`.
 
 ---
 
 ## Theming
 
-The theme controls colours, borders, backgrounds, and font sizes. `cards` is the base default — `entities`, `sensors`, and `widgets` each inherit from `cards` and can override individual properties.
+HoaryDash has a two-level theme system. The **dashboard theme** is fully merged with built-in defaults, so every color and shape value is always defined. **Screen themes** are partial — only the fields you set are applied, and they layer on top of the dashboard theme via CSS cascade.
+
+Themes can be defined inline or by referencing a named preset.
+
+### Named themes
+
+Named themes can come from two sources:
+- **Bundled presets** — defined in `themes.yaml`. Available presets: `light`, `gruvbox-dark`, `gruvbox-light`, `sepia`, `nord`, `aurora`, `sunset`, `forest`, `synthwave`
+- **Custom themes** — defined under a `themes:` block in your config. These take precedence over bundled presets if names collide.
 
 ```yaml
-theme:
-  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
-  font_color: "#e0f7fa"
-  secondary_font_color: "#80cbc4"
-  icon_color: "#4dd0e1"
-  base_font_size: 20
+themes:
+  my-theme:
+    background: "#1a1a2e"
+    accent: "#ff6b6b"
 
-  cards:
-    borders: true
-    border_color: "rgba(255, 255, 255, 0.12)"
-    border_radius: "0.75em"
-    background: "rgba(255, 255, 255, 0.08)"
-    font_size: 14
-
-  entities:
-    background: "rgba(255, 255, 255, 0.06)"
-
-  sensors:
-    borders: false
-    font_size: 20
+dashboards:
+  main:
+    theme: my-theme
+    screens:
+      - name: Home
+        theme: aurora        # reference a bundled preset
 ```
 
+### Inline themes
 
-### Common theme fields
+Instead of a name, you can define the theme directly under the `theme:` key:
 
-A `theme` field with these keys can be applied to either the entire dashboard or per screen.
+```yaml
+dashboards:
+  main:
+    theme:
+      background: "#0f0f0f"
+      accent: "hsl(210, 90%, 65%)"
+    screens:
+      - name: Home
+        theme:
+          accent: "#ff7043"   # only overrides accent; everything else cascades from dashboard
+```
+
+### Variable references
+
+Themes support `$variable` references within their own definition, which are resolved before the theme is applied. Variables are defined under `vars:` and can be used anywhere a CSS value appears — including inside gradients and raw `custom` CSS.
+
+An optional `:alpha` suffix applies opacity to the resolved color:
+
+```yaml
+themes:
+  my-theme:
+    vars:
+      brand: "#d79921"
+      dark: "#1a1a2e"
+    accent: "$brand"
+    interactive: "$brand"
+    surface: "$brand:0.1"
+    background: "linear-gradient(180deg, $dark:0.8, #0f0f0f)"
+```
+
+### Dashboard vs. screen themes
+
+| Level | Merged with defaults? | Effect |
+|---|---|---|
+| Dashboard | Yes — all fields guaranteed populated | Sets the full visual baseline for the page |
+| Screen | No — partial, only set fields emitted | Overrides specific values; CSS cascade fills the rest from dashboard |
+
+This means a screen theme only needs to contain what it actually changes. Setting just `accent` on a screen is valid and safe.
+
+### Theme fields
+
+#### Top-level
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `background` | CSS value | Background of the entire page. Any valid CSS `background` value. Note that radial gradients are not supported on old browsers |
-| `opaque_background` | CSS value | Background color to be used where transparancy is not wanted, such as modals. The recommendation is to style card backgrounds with hsl, and specify the same hue value with lower saturation and brightness here | 
-| `font_color` | CSS color | Primary text colour |
-| `secondary_font_color` | CSS color | Secondary/muted text colour |
-| `icon_color` | CSS color | Icon tint colour |
-| `button_background` | CSS color | Background for entity control buttons |
-| `font_size` | number | Base font size in px. Everything scales from this |
-| `entities` | `card-style` | Styles for all cards of this category |
-| `sensors` | `card-style` | Styles for all cards of this category |
-| `widgets` | `card-style` | Styles for all cards of this category |
+| `background` | CSS value | Page background. Any valid CSS `background`, including gradients |
+| `font_size` | number | Base font size in px. All sizing scales from this |
+| `is_light` | bool | Hints that this is a light theme |
+| `vars` | map | Named variables for use with `$name` references |
 
-### Card theme fields (cards / entities / sensors / widgets)
-
-Entities, sensors and widgets are all types of `Cards`. They all share the same schema, as follows:
+#### Colors
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `borders` | bool | Show card borders |
-| `border_color` | CSS color | Border colour |
-| `border_radius` | CSS value | Corner rounding, e.g. `0.75em` |
-| `background` | CSS value | Card background colour or gradient |
-| `font_size` | CSS value | Font size for cards in this section, e.g. `18px` |
+| `surface` | CSS color | Default card/panel background (semi-transparent) |
+| `surface_opaque` | CSS color | Opaque surface, used for modals and overlays |
+| `surface_prominent` | CSS color | Elevated surface, used for buttons |
+| `surface_subtle` | CSS color | Faint surface, used for badges |
+| `surface_alt` | CSS color | Alternative surface color for differentiated regions |
+| `highlight` | CSS color | Hover/focus highlight layer |
+| `border` | CSS color | Theme-wide border color |
+| `on_surface` | CSS color | Primary text and icon color |
+| `on_surface_muted` | CSS color | Secondary text and icons |
+| `on_surface_subtle` | CSS color | Tertiary text, timestamps |
+| `on_background` | CSS color | Text/icons directly on the page background |
+| `accent` | CSS color | Active indicators, highlights |
+| `accent_muted` | CSS color | Dimmed accent (derived automatically if omitted) |
+| `interactive` | CSS color | Button icons, slider thumbs, controls |
+| `interactive_muted` | CSS color | Dimmed interactive (derived automatically if omitted) |
+| `interactive_disabled` | CSS color | Disabled controls (derived automatically if omitted) |
+| `state_on` | CSS color | Icon/text color when an entity is active |
+| `state_off` | CSS color | Icon/text color when an entity is inactive |
+| `state_disabled` | CSS color | Icon/text color for unavailable entities |
+| `positive` | CSS color | Success/good state indicators |
+| `negative` | CSS color | Error/bad state indicators |
 
-### Card group theming
+Several colors are derived automatically when omitted: `accent_muted`, `interactive_muted`, `interactive_disabled`, `on_surface_muted`, `on_surface_subtle`, `on_background`, `surface_prominent`, and `surface_subtle` are all computed from their base color. Muted variants of state and semantic colors used for toggle track backgrounds are always computed and cannot be overridden.
 
-On the _tiled_ layout, a group can have its own theme, which follows the `card`theme schema.
+#### Shapes
 
-Theming is currently a work in process. The fact that layouts (centered and tiled) have different schemas for specifying what cards to show makes it complicated. The hope is that in the future, any dashboard, screen, group of cards, indivudial card, and any other future component can be themed individually.
+| Key | Type | Description |
+|-----|------|-------------|
+| `borders` | bool | Show borders on all card-like elements |
+| `tight_border_radius` | CSS value | Corner radius for compact elements, e.g. badge buttons |
+| `medium_border_radius` | CSS value | Corner radius for cards and buttons |
+| `wide_border_radius` | CSS value | Corner radius for modals and badges |
+| `border_thick` | CSS value | Border width for cards, modals, tooltips |
+| `border_thin` | CSS value | Border width for badges and badge buttons |
+| `padding` | CSS value | Base padding |
+
+#### Card-type overrides
+
+Each of these keys accepts a **card style** object and overrides the defaults for that specific type of card. All fields are optional.
+
+| Key | Applies to |
+|-----|------------|
+| `cards` | All cards (base default) |
+| `entities` | Entity control cards only |
+| `sensors` | Sensor readout cards only |
+| `widgets` | Widget cards only |
+| `modals` | Modal overlays |
+| `badges` | Badge labels |
+| `badge_buttons` | Badge buttons |
+| `buttons` | Control buttons |
+| `tooltips` | Tooltip popups |
+
+**Card style fields:**
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `borders` | bool | Show or hide borders for this card type |
+| `border_radius` | CSS value | Corner rounding |
+| `border_width` | CSS value | Border thickness |
+| `border_color` | CSS color | Border color (overrides the theme-wide `.border` color) |
+| `background` | CSS color | Background color |
+| `padding` | CSS value | Inner padding |
+| `font_size` | number | Font size in px for this card type |
+| `custom` | CSS | Raw CSS injected into this card type's rule block |
+
+### Example
+
+```yaml
+dashboards:
+  main:
+    theme:
+      background: "linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)"
+      font_size: 18
+      accent: "hsl(200, 80%, 60%)"
+      surface: "rgba(255,255,255,0.07)"
+      borders: true
+      medium_border_radius: "0.75em"
+      sensors:
+        borders: false
+        font_size: 20
+    screens:
+      - name: Home
+        theme:
+          accent: "#ff7043"   # warm accent on this screen only
+      - name: Media
+        theme: synthwave       # use a named preset for this screen
+```
 
 ---
 

@@ -1,17 +1,31 @@
 {{define "create-card-theme"}}
 {{if .Borders}}
-border: {{if disabledByDefault .Borders}}0.125rem solid{{else}}none{{end}};
+    {{if .Borders | bool}}
+        border-style: solid;
+    {{else}}
+        border-style: none;
+    {{end}}
 {{end}}
+
 {{if .BorderColor}}
-border-color: {{.BorderColor | css}};
+    border-color: {{.BorderColor | css}};
 {{end}}    
-{{if .Background}}
-background-color: {{.Background | css}};
-{{end}}
 {{if .BorderRadius}}
-border-radius: {{.BorderRadius | css}};
+    border-radius: {{.BorderRadius | css}};
+{{end}}
+{{if .BorderWidth}}
+    border-width: {{.BorderWidth | css}};
+{{end}}
+{{if .Background}}
+    background-color: {{.Background | css}};
+{{end}}
+{{if .Padding}}
+    padding: {{.Padding | css}};
 {{end}}
 {{if .FontSize}}
-font-size: {{.FontSize}}px;
+    font-size: {{.FontSize}}px;
+{{end}}
+{{if .Custom}}
+    {{.Custom | css}}
 {{end}}
 {{end}}

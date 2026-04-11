@@ -158,6 +158,7 @@
         opacity: 0.85;
         -webkit-tap-highlight-color: transparent;
         color: #c0d8f0;
+        padding: 0 0.3em;
     }
 
     .media-ctrl-btn:active {
@@ -166,8 +167,6 @@
 
     .media-ctrl-btn.play {
         font-size: 1.7em;
-        padding-left: 0.2em;
-        padding-right: 0.2em;
         opacity: 1;
     }
 
@@ -184,7 +183,7 @@
         align-items: center;
     }
     .media-vol-icon {
-        margin-right: 0.4em;
+        padding: 0 0.3em;
         height: 1em;
         font-size: 1.2em;
     }
@@ -200,22 +199,10 @@
         cursor: pointer;
     }
 
-    .media-vol-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
+    .media-vol-slider::-moz-range-thumb, .media-vol-slider::-webkit-slider-thumb {
         width: 1.8em;
         height: 1.8em;
-        border-radius: 50%;
         background: #949494;
-        cursor: pointer;
-    }
-
-    .media-vol-slider::-moz-range-thumb {
-        -webkit-appearance: none;
-        width: 1.8em;
-        height: 1.8em;
-        border-radius: 50%;
-        background: #949494;
-        cursor: pointer;
     }
 
     .media-browser-button {
@@ -225,19 +212,20 @@
     }
 </style>
 {{end}}
-<div class="media-container widget card">
+{{template "media-controller"}}
+<div class="media-container widget card border">
     <div class="media-top-row">
         <div class="media-info">
             <div class="media-cover">
-                <div class="media-cover-placeholder">♪</div>
+                <div class="media-cover-placeholder accent">{{icon "music"}}</div>
             </div>
             <div class="media-song-info">
-                <span class="media-idle font-secondary">Idle</span>
+                <span class="media-idle on-surface-subtle">Idle</span>
             </div>
         </div>
         {{if .ShowBrowser}}
         <div class="media-browse">
-            <button class="media-browser-button">{{icon "play-box-multiple"}}</button>
+            <button class="media-browser-button on-surface-muted">{{icon "play-box-multiple"}}</button>
         </div>
         {{end}}
     </div>
@@ -247,14 +235,16 @@
     {{end}}>
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
-            <span class="media-vol-icon">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider font-primary" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>
+            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls">
-            <button class="media-ctrl-btn back font-primary" title="Previous">{{icon "skip-backward"}}</button>
-            <button class="media-ctrl-btn play font-primary" title="Play-Pause">{{icon "play"}}</button>
-            <button class="media-ctrl-btn forward font-primary" title="Next">{{icon "skip-forward"}}</button>
+            <button class="media-ctrl-btn shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
+            <button class="media-ctrl-btn back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
+            <button class="media-ctrl-btn play on-surface" title="Play-Pause">{{icon "play"}}</button>
+            <button class="media-ctrl-btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
+            <button class="media-ctrl-btn repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
         </div>
 
     </div>
@@ -262,51 +252,37 @@
     {{template "media-browser" .}}
     {{end}}
 </div>
-
 <script>
 component(function(wrapper) {
-    var POLL_INTERVAL = 30 * 1000;
     var entityId = {{.EntityID}}
     if (!entityId) { return; }
-
-    var haUrl = window.CONFIG.haUrl || '';
 
     var elIdle = wrapper.querySelector('.media-idle');
     var elSongInfo = wrapper.querySelector('.media-song-info');
     var elCover = wrapper.querySelector('.media-cover');
     var elPlaceholder = wrapper.querySelector('.media-cover-placeholder');
+    var elVol = wrapper.querySelector('.media-vol-icon');
     var elPlay = wrapper.querySelector('.media-ctrl-btn.play');
     var elBack = wrapper.querySelector('.media-ctrl-btn.back');
     var elForward = wrapper.querySelector('.media-ctrl-btn.forward');
+    var elShuffle = wrapper.querySelector('.media-ctrl-btn.shuffle');
+    var elRepeat = wrapper.querySelector('.media-ctrl-btn.repeat');
     var elVolSlider = wrapper.querySelector('.media-vol-slider');
     var elBrowseBtn = wrapper.querySelector('.media-browser-button');
     var elMediaBrowser = wrapper.querySelector('.mbrowser-container');
 
-    function callMediaService(service) {
-        return window.haSend({
-            type: 'call_service',
-            domain: 'media_player',
-            service: service,
-            target: { entity_id: entityId }
-        });
-    }
+    var ctrl = makeMediaController(entityId);
 
-    function setVolume(vol) {
-        return window.haSend({
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'volume_set',
-            target: { entity_id: entityId },
-            service_data: { volume_level: vol }
-        });
-    }
-
-    elPlay.onclick = function () { callMediaService('media_play_pause'); };
-    elBack.onclick = function () { callMediaService('media_previous_track'); };
-    elForward.onclick = function () { callMediaService('media_next_track'); };
+    elPlay.onclick = ctrl.playPause;
+    elBack.onclick = ctrl.prev;
+    elForward.onclick = ctrl.next;
+    elShuffle.onclick = ctrl.toggleShuffle;
+    elRepeat.onclick = ctrl.cycleRepeat;
+    elVol.onclick = ctrl.toggleMute;
 
     var volDragging = false;
 
+    {{if enabledByDefault .ShowVolume}}
     if (elVolSlider) {
         elVolSlider.ontouchstart = function() { volDragging = true; };
         elVolSlider.onmousedown  = function() { volDragging = true; };
@@ -316,39 +292,33 @@ component(function(wrapper) {
         var volDebounce;
 
         elVolSlider.oninput = function() {
+            console.log("dragging vol slider!")
             volDragging = true;
             clearTimeout(volDebounce);
             var v = parseFloat(elVolSlider.value);
             volDebounce = setTimeout(function() {
-                setVolume(v);
+                ctrl.setVolume(v);
                 volDragging = false;
             }, 150);
         };
     }
+    {{end}}
 
+    {{if .ShowBrowser}}
     if (elBrowseBtn) {
         elBrowseBtn.onclick = function() {
             if (elMediaBrowser) { elMediaBrowser.mediaBrowserOpen(); console.log("tried running open on: ", elMediaBrowser) }
         };
     }
-
-    function getOrCreate(id, tag, className) {
-        var el = document.getElementById(id);
-        if (!el) {
-            el = document.createElement(tag);
-            el.id = id;
-            if (className) { el.className = className; }
-            elSongInfo.appendChild(el);
-        }
-        return el;
-    }
+    {{end}}
 
     function renderIdle() {
         elSongInfo.innerHTML = '';
         var idle = document.createElement('span');
-        idle.className = 'media-idle';
+        idle.className = 'media-idle on-surface-subtle';
         idle.textContent = 'Idle';
         elSongInfo.appendChild(idle);
+        elIdle = idle;
         elPlay.innerHTML = '{{icon "play"}}';
         if (elCover.querySelector('img')) {
             elCover.removeChild(elCover.querySelector('img'));
@@ -356,46 +326,73 @@ component(function(wrapper) {
         elPlaceholder.style.display = '';
     }
 
-    function renderActive(state, attributes) {
-        {{/* console.log("ran renderActive with state and attrs: ", state, attributes) */}}
-        elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
-        elSongInfo.innerHTML = '';
+    // Render idle
+    ctrl.onUpdate("state", function(state, _) {
+        if (state === undefined || state === null || state === "idle") {
+            renderIdle();
+        } else {
+            elIdle.remove();
+        }
 
-        var song = attributes.media_title || '';
-        var artist = attributes.media_artist || '';
-        var album = attributes.media_album_name || '';
+    })
+
+    // Render pause/play button
+    ctrl.onUpdate("state", function(state, _) {
+        elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
+    });
+
+    // Render song info
+    ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
+        var song = attrs.media_title || '';
+        var artist = attrs.media_artist || '';
 
         if (!song && !artist) {
             renderIdle();
             return;
         }
 
-        var elSong = document.createElement('span');
-        elSong.className = 'media-song font-primary';
+        var elSong = elSongInfo.querySelector('.media-song');
+        if (!elSong) {
+            elSong = document.createElement('span');
+            elSong.className = 'media-song on-surface';
+            elSongInfo.appendChild(elSong);
+        }
         elSong.textContent = song || '—';
-        elSongInfo.appendChild(elSong);
 
+        var elArtist = elSongInfo.querySelector('.media-artist');
         if (artist) {
-            var elArtist = document.createElement('span');
-            elArtist.className = 'media-artist font-secondary';
+            if (!elArtist) {
+                elArtist = document.createElement('span');
+                elArtist.className = 'media-artist on-surface-muted';
+                elSongInfo.appendChild(elArtist);
+            }
             elArtist.textContent = artist;
-            elSongInfo.appendChild(elArtist);
+        } else if (elArtist) {
+            elSongInfo.removeChild(elArtist);
         }
 
-        {{ if disabledByDefault .ShowAlbum}}
+        {{if disabledByDefault .ShowAlbum}}
+        var album = attrs.media_album_name || '';
+        var elAlbum = elSongInfo.querySelector('.media-album');
         if (album) {
-            var elAlbum = document.createElement('span');
-            elAlbum.className = 'media-album font-secondary';
+            if (!elAlbum) {
+                elAlbum = document.createElement('span');
+                elAlbum.className = 'media-album on-surface-subtle';
+                elSongInfo.appendChild(elAlbum);
+            }
             elAlbum.textContent = album;
-            elSongInfo.appendChild(elAlbum);
+        } else if (elAlbum) {
+            elSongInfo.removeChild(elAlbum);
         }
-        {{ end }}
+        {{end}}
+    });
 
-
-        var picPath = attributes.entity_picture;
+    // Render thumbnail
+    ctrl.onUpdate(['entity_picture'], function(state, attrs) {
+        var picPath = attrs.entity_picture;
         var existingImg = elCover.querySelector('img');
         if (picPath) {
-            var imgSrc = '/api/media_cover?path=' + encodeURIComponent(picPath);
+            var imgSrc = window.CONFIG.haUrl + picPath;
             if (existingImg) {
                 if (existingImg.getAttribute('src') !== imgSrc) {
                     existingImg.setAttribute('src', imgSrc);
@@ -411,70 +408,44 @@ component(function(wrapper) {
             if (existingImg) { elCover.removeChild(existingImg); }
             elPlaceholder.style.display = '';
         }
-
-        if (!volDragging && elVolSlider && attributes.volume_level !== undefined) {
-            elVolSlider.value = attributes.volume_level;
-        }
-    }
-
-    var cachedState = null;
-    var cachedAttributes = {};
-
-    function mergeUpdate(state, attributes) {
-        if (state !== undefined) { cachedState = state; }
-        if (attributes !== undefined) {
-            for (var key in attributes) {
-                if (attributes.hasOwnProperty(key)) {
-                    cachedAttributes[key] = attributes[key];
-                }
-            }
-        }
-        if (cachedState !== null) {
-            renderCurrent(cachedState, cachedAttributes);
-        }
-    }
-
-    function renderCurrent(state, attributes) {
-        if (state === 'playing' || state === 'paused' || state === 'buffering') {
-            renderActive(state, attributes);
-        } else {
-            renderIdle();
-        }
-    }
-
-    function fetchCurrent() {
-        return window.haSend({ type: 'get_states' }).then(function (result) {
-            for (var i = 0; i < result.length; i++) {
-                if (result[i].entity_id === entityId) {
-                    cachedState = result[i].state;
-                    cachedAttributes = result[i].attributes || {};
-                    renderCurrent(cachedState, cachedAttributes);
-                    return;
-                }
-            }
-        });
-    }
-
-    window.entityListeners[entityId].push(function (state, attributes) {
-        mergeUpdate(state, attributes);
     });
 
-    var MAX_TRIES = 15;
-    var tries = 0;
-    function tryFetch() {
-        if (tries >= MAX_TRIES) {
-            setTimeout(function () { tries = 0; tryFetch(); }, 3 * 60 * 1000);
-            return;
-        }
-        if (window.haSocketReady) {
-            fetchCurrent().catch(function (err) { console.error('media fetch failed:', err); });
+    // Render volume/mute
+    {{if enabledByDefault .ShowVolume}}
+    ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+        if (volDragging) { return; }
+        var muted = (attrs.is_volume_muted) || (attrs.volume_level === 0);
+        if (muted) {
+            elVol.innerHTML = '{{icon "volume-mute"}}';
+            elVolSlider.classList.add('interactive-disabled-bg', 'interactive-disabled');
+            elVolSlider.classList.remove('interactive-muted-bg', 'interactive');
         } else {
-            ++tries;
-            setTimeout(tryFetch, 1000);
+            elVol.innerHTML = '{{icon "volume-high"}}';
+            elVolSlider.classList.remove('interactive-disabled-bg', 'interactive-disabled');
+            elVolSlider.classList.add('interactive-muted-bg', 'interactive');
         }
-    }
+        if (!volDragging && attrs.volume_level !== undefined) {
+            elVolSlider.value = attrs.volume_level;
+        }
+    });
+    {{end}}
 
-    tryFetch();
+    // Render shuffle/repeat
+    ctrl.onUpdate(['shuffle', 'repeat'], function(state, attrs) {
+        if (attrs.shuffle !== undefined) {
+            elShuffle.classList.remove('hide');
+            elShuffle.innerHTML = attrs.shuffle ? '{{icon "shuffle"}}' : '{{icon "shuffle-disabled"}}';
+        }
+        if (attrs.repeat !== undefined) {
+            elRepeat.classList.remove('hide');
+            switch (attrs.repeat) {
+                case 'off':  elRepeat.innerHTML = '{{icon "repeat-off"}}';  break;
+                case 'one':  elRepeat.innerHTML = '{{icon "repeat-once"}}'; break;
+                case 'all':  elRepeat.innerHTML = '{{icon "repeat"}}';      break;
+            }
+        }
+    });
+
 });
 </script>
 {{ end }}

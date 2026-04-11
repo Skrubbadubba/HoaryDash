@@ -1,0 +1,187 @@
+{{define "media-controller"}}
+{{if once "media-controller"}}
+<script>
+    function makeMediaController(entityId, options) {
+        if (window.controllers && 
+            window.controllers.hasOwnProperty(entityId)) { 
+                console.log("controller for", entityId, "already exists, returning");
+                return window.controllers[entityId]
+            }
+        if (!options) {
+            options = {
+                spotifyPlus: false
+            }
+        }
+
+        var cachedState = null;
+        var cachedAttributes = {};
+        var updateListeners = [];
+    
+        function handleUpdate(newState, newAttributes) {
+            console.log("media controller recieved: ", newState, newAttributes)
+            var stateChanged = (newState !== undefined && newState !== cachedState);
+            var changedAttrs = diffAttributes(newAttributes);
+
+            updateCache(newState, newAttributes);
+
+            if (cachedState === null) return;
+
+            notifyListeners(stateChanged, changedAttrs);
+        }
+        
+        function diffAttributes(newAttributes) {
+            var diff = {};
+            if (!newAttributes) return diff;
+            
+            for (var k in newAttributes) {
+                if (newAttributes.hasOwnProperty(k) && newAttributes[k] !== cachedAttributes[k]) {
+                    diff[k] = true;
+                }
+            }
+            return diff;
+        }
+
+        function updateCache(newState, newAttributes) {
+            if (newState !== undefined) { 
+                cachedState = newState; 
+            }
+            if (!newAttributes) return;
+            
+            for (var k in newAttributes) {
+                if (newAttributes.hasOwnProperty(k)) {
+                    cachedAttributes[k] = newAttributes[k];
+                }
+            }
+        }
+
+        function notifyListeners(stateChanged, changedAttrs) {
+            for (var i = 0; i < updateListeners.length; i++) {
+                var entry = updateListeners[i];
+                if (hasRelevantChange(entry.watch, stateChanged, changedAttrs)) {
+                    entry.cb(cachedState, cachedAttributes);
+                }
+            }
+        }
+        
+        function hasRelevantChange(watch, stateChanged, changedAttrs) {
+            if (!watch || watch === "state") return stateChanged;
+            for (var i = 0; i < watch.length; i++) {
+                if (changedAttrs[watch[i]]) return true;
+            }
+            return false;
+        }
+                
+                
+        function callService(service, data, returnRes) {
+            var msg = { type: 'call_service', domain: 'media_player',
+                        service: service, target: { entity_id: entityId } };
+            if (data) { msg.service_data = data; }
+            if (returnRes) { msg.return_response = true; }
+            return window.haSend(msg);
+        }
+        
+
+        function isMuted() {
+            return cachedAttributes.is_volume_muted === true || cachedAttributes.volume_level === 0;
+        }
+
+        function browse(id, type) {
+            var serviceData = null;
+            if (id !== null && id !== undefined) {
+                serviceData = {
+                    media_content_id: id,
+                    media_content_type: type
+                };
+            }
+
+            return callService('browse_media', serviceData, true).then(function(result) {
+                console.log("called browser media, got: ", result)
+                return result && result["response"] && result["response"][entityId] ? result["response"][entityId] : result;
+            });
+        }
+
+        function queueItem(item, tries) {
+            if (!tries) { tries = 0; }
+            if (tries > 4) { return; }
+
+            return callService('play_media', {
+                    media_content_id: item.media_content_id,
+                    media_content_type: item.media_content_type,
+                    enqueue: "add"
+                }).catch(function(err) {
+                console.error('media enqueue failed:', err);
+                if (options.spotifyPlus) {
+                    browse(item.media_content_id, item.media_content_type).then(function(data) {
+                        for (entry of data.children) {
+                            queueItem(entry, tries + 1);
+                        }
+                    })
+                }
+            });
+        }
+
+        function _playNormalItem(item) {
+            return callService('media_play', {
+                media_content_id: item.media_content_id,
+                media_content_type: item.media_content_type,
+            })
+        }
+
+        function playItem(item, stack) {
+            if (!options.spotifyPlus) return _playNormalItem(item);
+            var spMsg = {
+                type: 'call_service',
+                domain: 'spotifyplus',
+                service: 'player_media_play_context',
+                service_data: {
+                    entity_id: entityId
+                    }
+                }
+            if (item.can_expand) {
+                spMsg.service_data.context_uri = item.media_content_id;
+            } else if (stack[stack.length - 1].canPlay) {
+                spMsg.service_data.context_uri = stack[stack.length - 1].id;
+                spMsg.service_data.offset_uri = item.media_content_id;
+            } else {
+               return _playNormalItem(item)
+            }
+            
+            console.log("trying to send: ", spMsg)
+            return window.haSend(spMsg)
+        }
+    
+        window.entityListeners[entityId].push(function(state, attrs) {
+            {{/* console.log("media controller recieved: ", state, attrs) */}}
+            handleUpdate(state, attrs);
+        });
+    
+        var controller = {
+            onUpdate:      function(watch, cb) { updateListeners.push({ watch: watch, cb: cb }); },
+            setSource:     function(s)         { return callService('select_source', { source: s })},
+            playPause:     function()          { return callService('media_play_pause'); },
+            prev:          function()          { return callService('media_previous_track'); },
+            next:          function()          { return callService('media_next_track'); },
+            isMuted,
+            toggleMute:    function()          { return callService('volume_mute', { is_volume_muted: !isMuted() }); },
+            seek:          function(p)         { return callService('media_seek', { seek_position: p })},
+            setVolume:     function(v)         { return callService('volume_set', { volume_level: v }); },
+            toggleShuffle: function()          { return callService('shuffle_set', { shuffle: !cachedAttributes.shuffle }); },
+            cycleRepeat:   function() {
+                var next = { off: 'all', all: 'one', one: 'off' }[cachedAttributes.repeat] || 'off';
+                return callService('repeat_set', { repeat: next });
+            },
+            queueItem,
+            playItem,
+            browse,
+            getState:      function() { return cachedState; },
+            getAttributes: function() { return cachedAttributes; },
+        };
+
+        if (!window.controllers) window.controllers = {};
+        window.controllers[entityId] = controller;
+
+        return controller
+    }
+</script>
+{{end}}
+{{end}}

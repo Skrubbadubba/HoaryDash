@@ -1,62 +1,264 @@
-{{define "create-theme"}}
-{{$prefix := "undefined"}}
-{{if .Prefix}}
-    {{$prefix = .Prefix}}
+{{define "_before"}}
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    z-index: -1;
+    top: 0;
+    right: 0;
 {{end}}
+
+{{define "create-theme"}}
+{{$p := .Prefix}}
 <style>
-    #{{$prefix}} {
-        {{if .FontSize}}
-        font-size: {{.FontSize}}px;
-        {{end}}
-        {{if .Background}}
-        background: {{.Background}};
-        {{end}}
-        
-    }
-    
-    {{if .IconColor}}
-    #{{$prefix}} .icon {
-        fill: {{.IconColor}}
-    }
-    {{end}}
 
-    {{if .FontColor}}
-    #{{$prefix}} .font-primary {
-        color: {{.FontColor}};
-    }
-    {{end}}
-    {{if .SecondaryFontColor}}
-    #{{$prefix}} .font-secondary {
-        color: {{.SecondaryFontColor}};
-    }
-    {{end}}
+{{/* Base layout */}}
+{{if or .FontSize .Background}}
+{{$p}} {
+    {{if .FontSize}}font-size: {{.FontSize}}px;{{end}}
+    {{if .Background}}background: {{.Background | css}};{{end}}
+}
+{{end}}
 
-    {{if .Cards}}
-    #{{$prefix}} .card {
-        {{template "create-card-theme" .Cards}}
-    }
-    #{{$prefix}} .card-opaque {
-        {{template "create-card-theme" .Cards}}
-        {{if .OpaqueBackground}}
-            background-color: {{.OpaqueBackground | css}};
-        {{end}}
-    }
-    {{end}}
-    {{if .Sensors}}
-    #{{$prefix}} .sensor.card {
-        {{template "create-card-theme" .Sensors}}
-    }
-    {{end}}
-    {{if .Entities}}
-    #{{$prefix}} .entity.card {
-        {{template "create-card-theme" .Entities}}
-    }
-    {{end}}
-    {{if .Widgets}}
-    #{{$prefix}} .widget.card {
-        {{template "create-card-theme" .Widgets}}
-    }
-    {{end}}
+{{/* --- SEMANTIC UTILITY CLASSES --- */}}
+
+{{if .Colors.Surface}}
+{{$p}} .surface { background-color: {{.Colors.Surface | css}}; }
+{{end}}
+
+{{if .Colors.SurfaceProminent}}
+{{$p}} .surface-prominent { background-color: {{.Colors.SurfaceProminent | css}}; }
+{{end}}
+
+{{if .Colors.SurfaceSubtle}}
+{{$p}} .surface-subtle { background-color: {{.Colors.SurfaceSubtle | css}}; }
+{{end}}
+
+{{if .Colors.SurfaceOpaque}}
+{{$p}} .surface-opaque { background-color: {{.Colors.SurfaceOpaque | css}}; }
+{{end}}
+
+{{if .Colors.SurfaceAlt}}
+{{$p}} .surface-alt { background-color: {{.Colors.SurfaceAlt | css}}; }
+{{end}}
+
+{{if .Colors.Highlight}}
+{{$p}} .highlight { background-color: {{.Colors.Highlight | css}}; }
+{{end}}
+
+{{/* Text + Icons */}}
+{{if .Colors.OnSurface}}
+{{$p}} .on-surface { color: {{.Colors.OnSurface | css}}; fill: {{.Colors.OnSurface | css}}; }
+{{end}}
+
+{{if .Colors.OnSurfaceMuted}}
+{{$p}} .on-surface-muted { color: {{.Colors.OnSurfaceMuted | css}}; fill: {{.Colors.OnSurfaceMuted | css}}; }
+{{end}}
+
+{{if .Colors.OnSurfaceSubtle}}
+{{$p}} .on-surface-subtle { color: {{.Colors.OnSurfaceSubtle | css}}; fill: {{.Colors.OnSurfaceSubtle | css}}; }
+{{end}}
+
+{{if .Colors.OnBackground}}
+{{$p}} .on-bg { color: {{.Colors.OnBackground | css}}; fill: {{.Colors.OnBackground | css}}; }
+{{end}}
+
+{{/* Accents */}}
+{{if .Colors.Accent}}
+{{$p}} .accent { color: {{.Colors.Accent | css}}; fill: {{.Colors.Accent | css}}; }
+{{$p}} .accent-bg { background-color: {{.Colors.Accent | css}}; }
+{{end}}
+
+{{if .Colors.AccentMuted}}
+{{$p}} .accent-muted { color: {{.Colors.AccentMuted | css}}; fill: {{.Colors.AccentMuted | css}}; }
+{{$p}} .accent-muted-bg { background-color: {{.Colors.AccentMuted | css}}; }
+{{end}}
+
+{{/* Interactive */}}
+{{if .Colors.Interactive}}
+{{$p}} .interactive { color: {{.Colors.Interactive | css}}; fill: {{.Colors.Interactive | css}}; }
+{{$p}} .interactive-bg { background-color: {{.Colors.Interactive | css}}; }
+{{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
+    background-color: {{.Colors.Interactive | css}};
+}
+{{end}}
+
+{{if .Colors.InteractiveMuted}}
+{{$p}} .interactive-muted { color: {{.Colors.InteractiveMuted | css}}; fill: {{.Colors.InteractiveMuted | css}}; }
+{{$p}} .interactive-muted-bg { background-color: {{.Colors.InteractiveMuted | css}}; }
+{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
+    background-color: {{.Colors.InteractiveMuted | css}};
+}
+{{end}}
+
+{{if .Colors.InteractiveDisabled}}
+{{$p}} .interactive-disabled { color: {{.Colors.InteractiveDisabled | css}}; fill: {{.Colors.InteractiveDisabled | css}}; }
+{{$p}} .interactive-disabled-bg { background-color: {{.Colors.InteractiveDisabled | css}}; }
+{{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
+    opacity: 0;
+}
+{{end}}
+
+{{/* --- STATES & PILL BACKGROUNDS --- */}}
+
+{{/* The ::after is for the thumb itself, it should be the full, opaque color */}}
+{{if .Colors.StateOn}}
+{{$p}} .state.on, {{$p}} .on .state { color: {{.Colors.StateOn | css}}; fill: {{.Colors.StateOn | css}}; }
+{{$p}} .state-border.on, {{$p}} .on .state-border { border-color: {{.Colors.StateOn | css}}; }
+{{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after { background-color: {{.Colors.StateOn | css}}; }
+{{end}}
+{{if .Colors.StateOff}}
+{{$p}} .state.off, {{$p}} .off .state { color: {{.Colors.StateOff | css}}; fill: {{.Colors.StateOff | css}}; }
+{{$p}} .state-border.off, {{$p}} .off .state-border { border-color: {{.Colors.StateOff | css}}; }
+{{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after { background-color: {{.Colors.StateOff | css}}; }
+{{end}}
+{{if .Colors.StateDisabled}}
+{{$p}} .state.disabled, {{$p}} .disabled .state { color: {{.Colors.StateDisabled | css}}; fill: {{.Colors.StateDisabled | css}}; }
+{{$p}} .state-border.disabled, {{$p}} .disabled .state-border { border-color: {{.Colors.StateDisabled | css}}; }
+{{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after { background-color: {{.Colors.StateDisabled | css}}; }
+{{end}}
+
+
+{{/* The ::before is for the track, which uses the new Derived muted color */}}
+{{if .Derived.StateOnMuted}}
+{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_before"}} }
+{{end}}
+{{if .Derived.StateOffMuted}}
+{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.Derived.StateOffMuted | css}}; {{template "_before"}} }
+{{end}}
+{{if .Derived.StateDisabledMuted}}
+{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.Derived.StateDisabledMuted | css}}; {{template "_before"}} }
+{{end}}
+
+
+{{/* Semantic backgrounds also use the derived muted colors */}}
+{{if .Colors.Positive}}
+{{$p}} .positive { color: {{.Colors.Positive | css}}; fill: {{.Colors.Positive | css}}; }
+{{end}}
+{{if .Derived.PositiveMuted}}
+{{$p}} .positive-bg { background-color: {{.Derived.PositiveMuted | css}}; }
+{{end}}
+
+{{if .Colors.Negative}}
+{{$p}} .negative { color: {{.Colors.Negative | css}}; fill: {{.Colors.Negative | css}}; }
+{{end}}
+{{if .Derived.NegativeMuted}}
+{{$p}} .negative-bg { background-color: {{.Derived.NegativeMuted | css}}; }
+{{end}}
+
+{{/* Geometry */}}
+{{if .Shapes.MediumBorderRadius}}
+    {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
+{{end}}
+
+{{/* --- CARD-LIKE DEFAULT ASSIGNMENTS --- */}}
+{{/* Colors and geometry assigned from semantic theme values.              */}}
+{{/* CardStyle override blocks below take precedence via specificity.      */}}
+
+{{if .Shapes.Borders}}
+{{$p}} .border {
+    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
+    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
+{{$p}} .card {
+    {{if .Colors.Surface}}background-color: {{.Colors.Surface | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceOpaque .Shapes.WideBorderRadius .Shapes.BorderThick}}
+{{$p}} .modal {
+    {{if .Colors.SurfaceOpaque}}background-color: {{.Colors.SurfaceOpaque | css}};{{end}}
+    {{if .Shapes.WideBorderRadius}}border-radius: {{.Shapes.WideBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceSubtle .Shapes.WideBorderRadius .Shapes.BorderThin}}
+{{$p}} .badge {
+    {{if .Colors.SurfaceSubtle}}background-color: {{.Colors.SurfaceSubtle | css}};{{end}}
+    {{if .Shapes.WideBorderRadius}}border-radius: {{.Shapes.WideBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThin}}border-width: {{.Shapes.BorderThin | css}};{{end}}
+}
+{{$p}} .badge-btn {
+    {{if .Colors.SurfaceSubtle}}background-color: {{.Colors.SurfaceSubtle | css}};{{end}}
+    {{if .Shapes.TightBorderRadius}}border-radius: {{.Shapes.TightBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThin}}border-width: {{.Shapes.BorderThin | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.SurfaceProminent .Shapes.MediumBorderRadius}}
+{{$p}} .btn {
+    {{if .Colors.SurfaceProminent}}background-color: {{.Colors.SurfaceProminent | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+}
+{{end}}
+
+{{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
+{{$p}} .tooltip {
+    {{if .Colors.Surface}}background-color: {{.Colors.Surface | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
+    {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
+}
+{{end}}
+
+{{/* --- STRUCTURAL CARD OVERRIDES --- */}}
+{{if .Cards}}
+{{$p}} .card {
+    {{template "create-card-theme" .Cards}}
+}
+{{end}}
+{{if .Entities}}
+{{$p}} .entity.card {
+    {{template "create-card-theme" .Entities}}
+}
+{{end}}
+
+{{if .Sensors}}
+{{$p}} .sensor.card {
+    {{template "create-card-theme" .Sensors}}
+}
+{{end}}
+
+{{if .Widgets}}
+{{$p}} .widget.card {
+    {{template "create-card-theme" .Widgets}}
+}
+{{end}}
+{{if .Badges}}
+{{$p}} .badge {
+    {{template "create-card-theme" .Badges}}
+}
+{{end}}
+{{if .BadgeButtons}}
+{{$p}} .badge-btn {
+    {{template "create-card-theme" .BadgeButtons}}
+}
+{{end}}
+{{if .Tooltips}}
+{{$p}} .tooltip {
+    {{template "create-card-theme" .Tooltips}}
+}
+{{end}}
+{{if .Modals}}
+{{$p}} .modal.card {
+    {{template "create-card-theme" .Modals}}
+}
+{{end}}
+
+{{if .Buttons}}
+{{$p}} .btn {
+    {{template "create-card-theme" .Buttons}}
+}
+{{end}}
 
 </style>
 {{end}}

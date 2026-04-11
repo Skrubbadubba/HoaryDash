@@ -1,0 +1,748 @@
+{{define "fullscreen-media-layout"}}
+{{if once "fullscreen-media-layout-style"}}
+<style>
+    .fml-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+
+    .fml-backdrop {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .fml-backdrop-art {
+        position: absolute;
+        top: -15%;
+        left: -15%;
+        width: 130%;
+        height: 130%;
+        object-fit: cover;
+        -webkit-filter: blur(2em) brightness(0.65);
+        filter: blur(2em) brightness(0.65);
+        display: none;
+    }
+
+    .fml-backdrop-art.loaded {
+        display: block;
+    }
+
+    .fml-backdrop-scrim {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: -webkit-linear-gradient(top, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 70%);
+        background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 70%);
+    }
+
+    .fml-layout {
+        position: relative;
+        z-index: 1;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        height: 100%;
+        margin: 26px;
+        margin-bottom: 2.25em;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .fml-clock .dateclock-container {
+        align-items: start;
+        font-size: 1.3em;
+    }
+    .fml-clock  .clock {
+        font-size: 2em;
+        font-weight: 400;
+    }
+
+    .fml-clock .date {
+        font-size: 1em;
+        font-weight: 300;
+    }
+
+    .fml-top-row {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: space-between;
+        justify-content: space-between;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        align-items: flex-start;
+        margin-bottom: auto;
+    }
+
+    .fml-top-right {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: end;
+        -webkit-align-items: flex-end;
+        align-items: flex-end;
+    }
+
+    .fml-top-right > * {
+        margin-bottom: 0.65em;
+    }
+
+    .fml-badges {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        justify-content: end;
+    }
+
+    .fml-badges > .badge {
+        margin-left: 0.6em;
+    }
+
+    .fml-badges > .badge > * {
+        font-size: 1em;
+        font-weight: unset;
+        margin: 0 0.2em;
+    }
+
+    .fml-browse-btn:active {
+        opacity: 0.6;
+    }
+
+    .fml-browse-btn .icon {
+        margin-right: 0.4em;
+    }
+
+    .fml-mid {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: end;
+        -webkit-align-items: flex-end;
+        align-items: flex-end;
+        padding-bottom: 1em;
+    }
+
+    .fml-cover {
+        width: 11.5em;
+        height: 11.5em;
+        -webkit-flex-shrink: 0;
+        flex-shrink: 0;
+        border-radius: 0.4em;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+        border: 0.05em solid rgba(255,255,255,0.12);
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        margin-right: 1.2em;
+    }
+
+    .fml-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .fml-cover-placeholder {
+        font-size: 2.2em;
+    }
+
+    .fml-song-block {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        flex: 1;
+        min-width: 0;
+        font-size: 1.8em;
+    }
+
+    .fml-song-title {
+        font-size: 1.2em;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        margin-bottom: 0.2em;
+    }
+
+    .fml-song-artist {
+        font-size: 0.82em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .fml-song-album {
+        font-size: 0.68em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        margin-top: 0.1em;
+        opacity: 0.7;
+    }
+
+    .fml-idle {
+        font-size: 0.85em;
+        font-style: italic;
+    }
+
+    .fml-bottom {
+        padding-top: 0.8em;
+    }
+
+    .fml-controls-row {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: start;
+        justify-content: start;
+        margin-bottom: 0.7em;
+        font-size: 1.5em;
+    }
+
+    .fml-transport {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        margin-left: -0.2em;
+    }
+
+    .fml-ctrl-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        line-height: 1;
+        padding: 0.2em 0.35em;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .fml-ctrl-btn:active {
+        opacity: 0.5;
+    }
+
+    .fml-ctrl-btn.fml-play {
+        font-size: 1.9em;
+    }
+
+    .fml-ctrl-btn.fml-aux {
+        font-size: 1em;
+        opacity: 0.5;
+    }
+
+    .fml-ctrl-btn.fml-active {
+        opacity: 1;
+    }
+
+    .fml-vol {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        margin-left: 0.2em;
+    }
+
+    .fml-vol-slider {
+        -webkit-appearance: none;
+        -webkit-flex: 1;
+        flex: 1;
+        height: 0.5em;
+        border-radius: 0.2em;
+        outline: none;
+        margin: 0 0.6em;
+        cursor: pointer;
+    }
+
+    .fml-vol-slider::-webkit-slider-thumb, .fml-vol-slider::-moz-range-thumb {
+        width: 1.6em;
+        height: 1.6em;
+    }
+
+    .fml-progress-row {
+        width: 100%;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    .fml-progress-duration {
+        min-width: 4ch;
+    }
+    .fml-progress-duration.left {
+        text-align: right;
+    }
+
+    .fml-progress-bar {
+        position: relative;
+        height: 0.3em;
+        border-radius: 0.2em;
+        flex: 1;
+        margin: 0 0.15em;
+        margin-top: 0.15em;
+    }
+     .fml-progress-bar > input {
+        -webkit-appearance: none;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        opacity: 0;
+        pointer-events: all;
+        z-index: 3;
+        background-color: transparent;
+     }
+     .fml-progress-bar > input::-webkit-slider-thumb,
+     .fml-progress-bar > input::-moz-range-thumb {
+        height: 1.2em;
+        width: 1.2em;
+     }
+
+    .fml-progress-bar-elapsed {
+        position: absolute;
+        border-radius: inherit;
+        width: 0;
+        height: 100%;
+    }
+</style>
+{{end}}
+{{template "media-controller"}}
+
+
+<div class="fml-container">
+    <div class="fml-backdrop">
+        <img class="fml-backdrop-art" src="" alt="" />
+        <div class="fml-backdrop-scrim"></div>
+    </div>
+
+    <div class="fml-layout navbar-padding">
+        <div class="fml-top-row">
+            {{if enabledByDefault .Screen.Dateclock.Enabled}}
+            <div class="fml-clock">
+                {{template "_dateclock"}}
+                {{template "dateclock-controller" .Screen.Dateclock}}
+            </div>
+            {{else}}
+            <div></div>
+            {{end}}
+
+            <div class="fml-top-right">
+                {{if .Screen.Badges}}
+                <div class="fml-badges">
+                    <div class="fml-badge surface-subtle on-surface-muted badge border">
+                        <div class="fml-badge-icon icon">{{icon .Screen.Badges.Badge.Icon}}</div>
+                        <span class="fml-badge-name">{{.Screen.Badges.Badge.Label}}</span>
+                    </div>
+                    {{if .Screen.Badges.Sensors}}
+                    {{range .Screen.Badges.Sensors}}
+                        <div class="fml-sensor surface-subtle on-surface-muted badge border">
+                            {{if .Icon}}
+                            <div class="fml-sensor-icon icon">{{icon .Icon}}</div>
+                            {{end}}
+                            {{if .Label}}
+                            <span class="fml-sensor-name">{{.Label}}</span>
+                            {{end}}
+                            <span class="fml-sensor-value sensor-value"></span>
+                            {{if .Unit}}
+                            <span class="fml-sensor-unit">{{.Unit}}</span>
+                            {{end}}
+                        </div>
+                        {{template "_sensor-script" .}}
+                    {{end}}
+                    {{end}}
+                </div>
+                {{end}}
+                <button class="fml-source-btn surface-subtle on-surface-muted badge-btn border">
+                    <div class="fml-source-icon icon">{{icon "speaker-multiple"}}</div>
+                    <span class="fml-source-name">-</span>
+                </button>
+                
+                {{if .Screen.ShowBrowser}}
+                <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
+                    {{icon "play-box-multiple"}}
+                    <span>{{translate "media:browse"}}</span>
+                </button>
+                <div class="fml-media-browser">{{template "media-browser" .Screen}}</div>
+                {{end}}
+                <div class="fml-source-browser">{{template "modal"}}</div>
+            </div>
+        </div>
+
+        <div class="fml-mid">
+            <div class="fml-cover medium-border">
+                <div class="fml-cover-placeholder accent">{{icon "music"}}</div>
+            </div>
+            <div class="fml-song-block">
+                <span class="fml-idle on-surface-subtle">Idle</span>
+            </div>
+        </div>
+
+        <div class="fml-bottom">
+            <div class="fml-controls-row">
+                <div class="fml-transport">
+                    <button class="fml-ctrl-btn fml-aux shuffle on-surface-subtle" title="Shuffle">{{icon "shuffle"}}</button>
+                    <button class="fml-ctrl-btn back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
+                    <button class="fml-ctrl-btn fml-play play on-surface" title="Play / Pause">{{icon "play-circle"}}</button>
+                    <button class="fml-ctrl-btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
+                    <button class="fml-ctrl-btn fml-aux repeat on-surface-subtle" title="Repeat">{{icon "repeat"}}</button>
+                </div>
+                <div class="fml-vol">
+                    <span class="accent-muted icon">{{icon "volume-low"}}</span>
+                    <input class="fml-vol-slider interactive-muted-bg interactive-thumb thumb" type="range" min="0" max="1" step="0.02" value="0.5" />
+                    <span class="accent-muted icon">{{icon "volume-high"}}</span>
+                </div>
+            </div>
+            <div class="fml-progress-row on-surface transition-fast">
+                <span class="fml-progress-duration elapsed">1:00</span>
+                <div class="fml-progress-bar surface-alt">
+                    <input class="thumb" type="range" min="0" max="100" value="0" />
+                    <div class="fml-progress-bar-elapsed surface-prominent"></div>
+                </div>
+                <span class="fml-progress-duration left">-2:00</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+component(function(wrapper) {
+    var entityId = '{{.Screen.EntityID}}';
+    if (!entityId) { return; }
+
+    var ctrl = makeMediaController(entityId{{if .Screen.Spotifyplus}}, { spotifyPlus: true }{{end}});
+    var progressInterval;
+    var currentDuration;
+
+    var elBackdropArt   = wrapper.querySelector('.fml-backdrop-art');
+    var elCoverWrap     = wrapper.querySelector('.fml-cover');
+    var elCoverPH       = wrapper.querySelector('.fml-cover-placeholder');
+    var elSongBlock     = wrapper.querySelector('.fml-song-block');
+    var elSourceName    = wrapper.querySelector('.fml-source-name');
+    var elPlay          = wrapper.querySelector('.fml-ctrl-btn.play');
+    var elShuffle       = wrapper.querySelector('.fml-ctrl-btn.shuffle');
+    var elRepeat        = wrapper.querySelector('.fml-ctrl-btn.repeat');
+    var elVolSlider     = wrapper.querySelector('.fml-vol-slider');
+    var elMediaBrowser  = wrapper.querySelector('.fml-media-browser .modal-container');
+    var elSourceBrowser = wrapper.querySelector('.fml-source-browser .modal-container');
+    var elTimeElapsed   = wrapper.querySelector('.fml-progress-duration.elapsed');
+    var elTimeLeft      = wrapper.querySelector('.fml-progress-duration.left');
+    var elElapsedBar    = wrapper.querySelector('.fml-progress-bar-elapsed');
+    var elProgressInput = wrapper.querySelector('.fml-progress-bar > input');
+    var elSourceBtn     = wrapper.querySelector('.fml-source-btn'); 
+
+    // transport buttons
+    wrapper.querySelector('.fml-ctrl-btn.back').onclick = ctrl.prev;
+    wrapper.querySelector('.fml-ctrl-btn.forward').onclick = ctrl.next;
+    elPlay.onclick = ctrl.playPause;
+    elShuffle.onclick = ctrl.toggleShuffle;
+    elRepeat.onclick = ctrl.cycleRepeat;
+
+    var volDragging = false;
+    if (elVolSlider) {
+        elVolSlider.ontouchstart = function() { volDragging = true; };
+        elVolSlider.onmousedown  = function() { volDragging = true; };
+        elVolSlider.ontouchend   = function() { volDragging = false; };
+        elVolSlider.onmouseup    = function() { volDragging = false; };
+
+        var volDebounce;
+
+        elVolSlider.oninput = function() {
+            console.log("dragging vol slider!")
+            volDragging = true;
+            clearTimeout(volDebounce);
+            var v = parseFloat(elVolSlider.value);
+            volDebounce = setTimeout(function() {
+                ctrl.setVolume(v);
+                volDragging = false;
+            }, 150);
+        };
+    }
+
+    var progressDragging = false;
+
+    function progressDrag () {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        elProgressInput.style.opacity = 1;
+        elProgressInput.classList.add("interactive-muted-thumb");
+        elElapsedBar.classList.remove("surface-prominent");
+        elElapsedBar.classList.add("accent-bg");
+        progressDragging = true;
+    }
+
+    function progressRelease () {
+        elProgressInput.style.opacity = 0;
+        elProgressInput.classList.remove("interactive-muted-thumb");
+        elElapsedBar.classList.add("surface-prominent");
+        elElapsedBar.classList.remove("accent-bg");
+        progressDragging = false;
+    }
+
+    elProgressInput.ontouchstart = progressDrag;
+    elProgressInput.onmousedown  = progressDrag;
+    elProgressInput.ontouchend   = progressRelease;
+    elProgressInput.onmouseup    = progressRelease;
+
+    elProgressInput.oninput = function() {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+
+        var pct = (parseFloat(elProgressInput.value) / currentDuration) * 100;
+
+        elElapsedBar.style.width = pct + '%';
+    }
+
+    elProgressInput.onchange = function() { 
+        if (progressDragging) return; 
+        ctrl.seek(parseFloat(elProgressInput.value)); 
+    };
+
+    var elSourceBrowserHeader = document.createElement('div')
+    elSourceBrowserHeader.textContent = "{{translate "media:sources"}}"; 
+    elSourceBrowserHeader.classList.add('accent');
+    elSourceBrowserHeader.style.fontSize = '1.8em';
+    elSourceBrowser.querySelector('.modal-header').appendChild(elSourceBrowserHeader);
+    elSourceBtn.onclick = elSourceBrowser.open;
+    
+
+    {{if .Screen.ShowBrowser}}
+    var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
+    if (elBrowseBtn) {
+        elBrowseBtn.onclick = elMediaBrowser.mediaBrowserOpen;
+    }
+    {{end}}
+
+    {{if disabledByDefault .Screen.Rotate}}
+    var backdropRotationDeg = 0;
+    setInterval(function() {
+        elBackdropArt.style.transform = "rotate(" + backdropRotationDeg + "deg)"
+        backdropRotationDeg += 0.1;
+    }, 100);
+    {{end}}
+
+    function formatMin(seconds) {
+        var minutes = 0;
+        while (seconds > 60) {
+            ++minutes;
+            seconds -= 60;
+        }
+        var secondsString = seconds < 10 ? "0" + seconds.toString() : seconds.toString();
+        return minutes.toString() + ":" + secondsString;
+    }
+
+    function renderProgress(elapsed, duration) {
+        var left = duration - elapsed;
+        var pct = (elapsed / duration) * 100;
+
+        elTimeElapsed.textContent = formatMin(elapsed);
+        elTimeLeft.textContent = '-' + formatMin(left);
+        elElapsedBar.style.width = pct + '%';
+    }
+
+    function progressUpdater(position, duration) {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        renderProgress(position, duration)
+        progressInterval = setInterval(function(){
+            ++position;
+            renderProgress(position, duration);
+        }, 1000)
+    }
+
+    // play/pause state
+    ctrl.onUpdate(null, function(state, _) {
+        if (state == 'playing') {
+            elPlay.innerHTML = '{{icon "pause-circle"}}'
+        } else {
+            elPlay.innerHTML = '{{icon "play-circle"}}'
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        }
+    });
+
+    // song info + cover art
+    ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
+        var title  = attrs.media_title   || '';
+        var artist = attrs.media_artist  || '';
+        var album  = attrs.media_album_name || '';
+
+        if (!title && !artist) {
+            elSongBlock.innerHTML = '<span class="fml-idle on-surface-subtle">Idle</span>';
+            return;
+        }
+        var html = '';
+        if (title)  { html += '<span class="fml-song-title on-surface">'  + title  + '</span>'; }
+        if (artist) { html += '<span class="fml-song-artist on-surface-muted">' + artist + '</span>'; }
+        {{if .Screen.ShowAlbum}}
+        if (album)  { html += '<span class="fml-song-album on-surface-subtle">' + album  + '</span>'; }
+        {{end}}
+        elSongBlock.innerHTML = html;
+    });
+
+    // track progress
+    ctrl.onUpdate(['media_duration', 'media_position'], function(state, attrs) {
+        if (state !== "playing") return;
+        if (progressInterval) {
+            clearInterval(progressInterval);
+        }
+        
+        var duration = attrs.media_duration;
+        var position = attrs.media_position;
+
+        progressUpdater(position, duration)
+        elProgressInput.value = position;
+        elProgressInput.max = duration;
+
+        currentDuration = duration;
+    })
+
+    // cover art + backdrop blur
+    ctrl.onUpdate(['entity_picture'], function(state, attrs) {
+        if (attrs.entity_picture) {
+            var haBase = (function() {
+                var cfgUrl = window.CONFIG && window.CONFIG.haUrl;
+                if (cfgUrl) { return cfgUrl; }
+                return window.location.origin.replace(/:\d+$/, ':8123');
+            })();
+            var src = haBase + attrs.entity_picture;
+
+            // backdrop blur art
+            elBackdropArt.src = src;
+            elBackdropArt.className = 'fml-backdrop-art';
+            elBackdropArt.onload = function() {
+                elBackdropArt.className = 'fml-backdrop-art loaded';
+            };
+
+            // cover art in the card
+            var img = elCoverWrap.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                img.alt = '';
+                elCoverWrap.insertBefore(img, elCoverWrap.firstChild);
+            }
+            img.src = src;
+            elCoverPH.style.display = 'none';
+        } else {
+            elBackdropArt.src = '';
+            elBackdropArt.className = 'fml-backdrop-art';
+            var img = elCoverWrap.querySelector('img');
+            if (img) { elCoverWrap.removeChild(img); }
+            elCoverPH.style.display = '';
+        }
+    });
+
+    // source / app name
+    ctrl.onUpdate(['source'], function(state, attrs) {
+        elSourceName.textContent = attrs.source || '–';
+    });
+
+    ctrl.onUpdate(['source_list'], function(state, attrs) {
+        var sourcesNodes = []
+        for (source of attrs.source_list) {
+            (function(source) {
+                var node = document.createElement('div');
+                var contentSpan = document.createElement('div');
+
+                contentSpan.textContent = source;
+                contentSpan.classList = "interactive";
+                node.appendChild(contentSpan);
+
+                node.onclick = function() {
+                    console.log("sending set source with source: ", source)
+                    ctrl.setSource(source);
+                    elSourceBrowser.close();
+                }
+                sourcesNodes.push(node);
+            }(source))
+        }
+        elSourceBrowser.renderList(sourcesNodes);
+    })
+
+    // volume
+    ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+        if (!elVolSlider || volDragging) { return; }
+        if (attrs.is_volume_muted) {
+            elVolSlider.value = 0;
+        } else if (typeof attrs.volume_level !== 'undefined') {
+            elVolSlider.value = attrs.volume_level;
+        }
+    });
+
+    // shuffle / repeat active state
+    ctrl.onUpdate(['shuffle', 'repeat'], function(state, attrs) {
+        if (attrs.shuffle) {
+            elShuffle.className = elShuffle.className.replace(' fml-active', '') + ' fml-active accent';
+        } else {
+            elShuffle.className = elShuffle.className.replace(' fml-active accent', '') + ' on-surface-subtle';
+        }
+        var rep = attrs.repeat || 'off';
+        if (rep !== 'off') {
+            elRepeat.className = elRepeat.className.replace(' fml-active', '') + ' fml-active accent';
+            elRepeat.innerHTML = (rep === 'one')
+                ? '{{icon "repeat-once"}}'
+                : '{{icon "repeat"}}';
+        } else {
+            elRepeat.className = elRepeat.className.replace(' fml-active accent', '') + ' on-surface-subtle';
+            elRepeat.innerHTML = '{{icon "repeat"}}';
+        }
+    });
+});
+</script>
+{{end}}

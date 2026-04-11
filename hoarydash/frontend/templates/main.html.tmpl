@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>{{.Name}}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -28,6 +28,7 @@
                 ],
             locale: locale,
             timezone: timezone,
+            haUrl: {{if .Config.HomeAssistant.URL}}"{{.Config.HomeAssistant.URL}}"{{else}}location.origin.replace(/:\d+$/, ':8123'){{end}},
             widgetPollInterval: 10 * 60 * 1000,
             };
         window.goFetch = function(path, callback) {
@@ -56,10 +57,14 @@
     {{end}}
     {{$config := .Config}}
     {{template "base-style" .}}
-    {{template "btn-style" .Dashboard.Theme}}
+    {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
+            while (root.tagName === 'SCRIPT') {
+                console.log("component scripts previous sibling was a script, ioterating back one node")
+                root = root.previousElementSibling
+            }
             script(root);
         };
         function normalizeSize(container) {
@@ -106,7 +111,7 @@
         }
     </script>
     <div class="screens">
-        
+        <div>{{json .Dashboard.Theme}}</div>
     <style>
         .screens {
             display: -webkit-box;
@@ -140,18 +145,32 @@
             height: 100%;
             overflow: hidden;
             touch-action: pan-y;
+            -webkit-transition: -webkit-transform 0.5s ease;
+            transition: transform 0.5s ease;
         }
         {{$showHints := enabledByDefault .Dashboard.ShowHints}}
         .layout-container {
             height: 100%;
             width: 100%;
             overflow-x: hidden;
+            
+        }
+        .layout-padding {
             {{if $showHints}}
-                padding: 1em 3.5em;
+            padding: 1em 3.5em;
             {{else}}
             padding: 1em;
             {{end}}
         }
+        {{if .Dashboard.Navbar.Enabled}}
+        {{$position := .Dashboard.Navbar.Position | default "bottom"}}
+         .navbar-padding {
+            {{if eq $position "bottom"}}padding-bottom: 4.5em;{{end}}
+            {{if eq $position "top"}}padding-top: 5em;{{end}}
+            {{if eq $position "left"}}padding-left: 5.5em;{{end}}
+            {{if eq $position "right"}}padding-right: 5.5em;{{end}}
+        }
+        {{end}}
 
         {{if $showHints}}
         .swipe-hint {
@@ -180,14 +199,6 @@
         }
         {{end}}
     </style>
-    {{$extraPad := ""}}
-    {{if .Dashboard.Navbar.Enabled}}
-        {{$position := .Dashboard.Navbar.Position | default "bottom"}}
-        {{if eq $position "bottom"}}{{$extraPad = "padding-bottom: 4.5em;"}}{{end}}
-        {{if eq $position "top"}}{{$extraPad = "padding-top: 5em;"}}{{end}}
-        {{if eq $position "left"}}{{$extraPad = "padding-left: 5.5em;"}}{{end}}
-        {{if eq $position "right"}}{{$extraPad = "padding-right: 5.5em;"}}{{end}}
-    {{end}}
     
     {{range $i, $screen := .Dashboard.Screens}}
         {{$id := ""}}
@@ -196,7 +207,9 @@
         {{else}}
             {{$id = concat "screen-" $i}}
         {{end}}
-        {{template "create-theme" (merge $screen.Theme (dict "Prefix" $id))}}
+        {{if $screen.Theme}}
+            {{template "create-theme" (merge $screen.Theme (dict "Prefix" (concat "#" $id)))}}
+        {{end}}
         <div id="{{$id}}" class="screen">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
@@ -207,13 +220,19 @@
             {{end}}
             {{end}}
             {{/* <p>{{json .}}</p> */}}
-            <div class="layout-container" style="{{css $extraPad}}">
-                {{$layoutDict := (dict 
-                    "Config" $config
-                    "Screen" $screen
-                )}}
-                {{if eq $screen.Layout "tiled"}}
-                    {{template "tiled-layout" $layoutDict}}
+            {{$layoutDict := (dict 
+                "Config" $config
+                "Screen" $screen
+            )}}
+            {{if isFull $screen.Layout}}
+                <div class="layout-container">
+            {{else}}
+                <div class="layout-container layout-padding">
+            {{end}}
+            {{if eq $screen.Layout "tiled"}}
+                {{template "tiled-layout" $layoutDict}}
+                {{else if eq $screen.Layout "media-full"}}
+                    {{template "fullscreen-media-layout" $layoutDict}}
                 {{else}}
                     {{template "centered-layout" $layoutDict}}
                 {{end}}
@@ -276,7 +295,7 @@
         <div class="navbar-container navbar-{{.Dashboard.Navbar.Position | default "bottom"}} navbar-{{$orientation}}">
             {{template "navbar" .Dashboard.Screens}}
             {{if eq .Dashboard.Navbar.Style "rectangle"}}
-                {{template "navbar-rectangle-style" (merge .Dashboard.Theme .Dashboard.Navbar)}}
+                {{template "navbar-rectangle-style" .Dashboard.Navbar}}
             {{else}}
                 {{template "navbar-default-style" .Dashboard.Theme}}
             {{end}}
@@ -287,12 +306,15 @@
     component(function(container) {
         var screens = container.querySelectorAll('.screen');
         var currentIndex = 0;
+        var xOffset = 0;
+
         for (var i = 0; i < screens.length; i++) {
             if (screens[i].id == window.location.hash.replace("#", "")) {
                 currentIndex = i;
                 break;
             }
         }
+        xOffset = currentIndex;
 
         function dispatchNavigate() {
             window.dispatchEvent(new CustomEvent("screen-navigate", { detail: { index: currentIndex } }));
@@ -303,12 +325,14 @@
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
             screenEl = screens[currentIndex];
-            console.log("screenEl: ", screenEl);
-            window.location.hash = screenEl.id;
+            history.pushState({}, '', "#" + screenEl.id);
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].style.transform = "translateX(" + (xOffset - index)*100 + "%)";
+            }
             dispatchNavigate();
         };
 
-        
+
         {{if enabledByDefault .Dashboard.Swipe}}
         var mc = new Hammer.Manager(document.body);
         mc.add(new Hammer.Swipe({

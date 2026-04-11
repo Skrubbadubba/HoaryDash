@@ -56,17 +56,6 @@ dashboards:
           internal_borders: false
           forecast_interval: hourly
           forecast_times: 5
-    # Example of light theme
-    # theme:
-    #   background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
-    #   font_color: "#e0f7fa"
-    #   secondary_font_color: "#80cbc4"
-    #   icon_color: "#4dd0e1"
-    #   cards:
-    #     borders: true
-    #     border_color: "rgba(255, 255, 255, 0.12)"
-    #     background: "rgba(255, 255, 255, 0.08)"
-    #   base_font_size: 20
 
 
 localization:
@@ -80,8 +69,6 @@ fully_kiosk:
 home_assistant:
   token: "your_long_lived_token_here"
 ```
-
-Find more example [themes](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/themes.example.yaml)
 
 Save the file. The dashboard will regenerate automatically — no restart needed. Restart the addon if it doesn't work
 

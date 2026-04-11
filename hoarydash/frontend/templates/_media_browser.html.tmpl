@@ -1,68 +1,6 @@
 {{define "media-browser"}}
 {{if once "media-browser-style"}}
 <style>
-    .mbrowser-container {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
-    }
-
-    .mbrowser-container.open {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-    }
-
-    .mbrowser-backdrop {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.65);
-        z-index: 0;
-    }
-
-    .mbrowser-modal {
-        position: relative;
-        z-index: 1;
-        width: 75vw;
-        height: 75vh;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .mbrowser-header {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        padding: 0.6em 0.8em;
-        -webkit-flex-shrink: 0;
-        flex-shrink: 0;
-        border-bottom: 0.05em solid rgba(255, 255, 255, 0.1);
-    }
-
     .mbrowser-back {
         background: none;
         border: none;
@@ -127,42 +65,12 @@
         flex-shrink: 0;
     }
 
-    .mbrowser-list {
-        -webkit-box-flex: 1;
-        -webkit-flex: 1;
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-        padding: 0.4em 0;
-    }
-
-    .mbrowser-row {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        padding: 0.45em 0.8em;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-        border-bottom: 0.04em solid rgba(255, 255, 255, 0.06);
-    }
-
-    .mbrowser-row:active {
-        background: rgba(255, 255, 255, 0.08);
-    }
-
     .mbrowser-row-thumb {
         width: 2.6em;
         height: 2.6em;
         -webkit-flex-shrink: 0;
         flex-shrink: 0;
         border-radius: 0.2em;
-        background: rgba(255, 255, 255, 0.08);
         overflow: hidden;
         margin-right: 0.7em;
         display: -webkit-box;
@@ -202,7 +110,7 @@
         text-overflow: ellipsis;
     }
 
-    .mbrowser-row-play {
+    .mbrowser-row button {
         background: none;
         border: none;
         cursor: pointer;
@@ -230,27 +138,26 @@
     }
 </style>
 {{end}}
-
-<div class="mbrowser-container">
-    <div class="mbrowser-backdrop"></div>
-    <div class="mbrowser-modal card-opaque modal">
-        <div class="mbrowser-header">
-            <button class="mbrowser-back font-primary" disabled>{{icon "chevron-left"}}</button>
-            <div class="mbrowser-breadcrumbs"></div>
-        </div>
-        <div class="mbrowser-list"></div>
-    </div>
-</div>
+{{template "media-controller" .}}
+{{template "modal"}}
 
 <script>
-component(function(wrapper) {
+component(function(modal) {
     var entityId = {{.EntityID}};
     if (!entityId) { return; }
 
-    var elBackdrop  = wrapper.querySelector('.mbrowser-backdrop');
-    var elBack      = wrapper.querySelector('.mbrowser-back');
-    var elCrumbs    = wrapper.querySelector('.mbrowser-breadcrumbs');
-    var elList      = wrapper.querySelector('.mbrowser-list');
+    var elBackdrop  = modal.querySelector('.modal-backdrop');
+    var elList      = modal.querySelector('.modal-list');
+    
+    console.log("media browser root is: ", modal);
+    modal.querySelector('.modal-header').innerHTML = 
+              '<button class="mbrowser-back on-surface" disabled>{{icon "chevron-left"}}</button>'
+            + '<div class="mbrowser-breadcrumbs"></div>'
+
+    var elBack      = modal.querySelector('.mbrowser-back');
+    var elCrumbs    = modal.querySelector('.mbrowser-breadcrumbs');
+    
+    var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
 
     /*
      * Stack entries: { title, id, type }
@@ -296,13 +203,13 @@ component(function(wrapper) {
         for (var i = 0; i < stack.length; i++) {
             if (i > 0) {
                 var sep = document.createElement('span');
-                sep.className = 'mbrowser-crumb-sep font-secondary';
+                sep.className = 'mbrowser-crumb-sep on-surface-muted';
                 sep.textContent = '›';
                 elCrumbs.appendChild(sep);
             }
             var crumb = document.createElement('span');
             crumb.className = 'mbrowser-crumb' +
-                (i === stack.length - 1 ? ' active font-primary' : ' font-secondary');
+                (i === stack.length - 1 ? ' active on-surface' : ' on-surface-muted');
             crumb.textContent = stack[i].title;
             elCrumbs.appendChild(crumb);
         }
@@ -310,15 +217,7 @@ component(function(wrapper) {
     }
 
     function renderList(children) {
-        elList.innerHTML = '';
-
-        if (!children || children.length === 0) {
-            var empty = document.createElement('div');
-            empty.className = 'mbrowser-empty font-secondary';
-            empty.textContent = 'Nothing here';
-            elList.appendChild(empty);
-            return;
-        }
+        var rows = [];
 
         for (var i = 0; i < children.length; i++) {
             (function(item) {
@@ -326,7 +225,7 @@ component(function(wrapper) {
                 row.className = 'mbrowser-row';
 
                 var thumb = document.createElement('div');
-                thumb.className = 'mbrowser-row-thumb';
+                thumb.className = 'mbrowser-row-thumb surface-subtle accent-muted';
                 if (item.thumbnail) {
                     var img = document.createElement('img');
                     img.setAttribute('alt', '');
@@ -337,66 +236,63 @@ component(function(wrapper) {
                 }
 
                 var title = document.createElement('span');
-                title.className = 'mbrowser-row-title font-primary';
+                title.className = 'mbrowser-row-title';
                 title.textContent = item.title || '—';
 
                 row.appendChild(thumb);
                 row.appendChild(title);
 
                 if (item.can_play) {
+                    {{if .Queue}}
+                        var queueBtn = document.createElement('button');
+                        queueBtn.className = 'mbrowser-row-queue';
+                        queueBtn.innerHTML = '{{icon "playlist-plus"}}';
+                        queueBtn.title = 'queue';
+                        queueBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            ctrl.queueItem(item);
+                            modal.close();
+                        };
+                        row.appendChild(queueBtn);
+                    {{end}}
                     var playBtn = document.createElement('button');
-                    playBtn.className = 'mbrowser-row-play font-primary';
+                    playBtn.className = 'mbrowser-row-play';
                     playBtn.innerHTML = '{{icon "play-circle"}}';
                     playBtn.title = 'Play';
                     playBtn.onclick = function(e) {
                         e.stopPropagation();
-                        playItem(item);
+                        ctrl.playItem(item);
+                        modal.close();
                     };
                     row.appendChild(playBtn);
+                    
                 }
 
                 if (item.can_expand) {
                     row.onclick = function() { navigateTo(item); };
                 } else if (item.can_play) {
-                    row.onclick = function() { playItem(item); };
+                    row.onclick = function() { ctrl.playItem(item); modal.close(); };
                 } else {
                     row.style.cursor = 'default';
                     row.style.opacity = '0.45';
                 }
-
-                elList.appendChild(row);
+                rows.push(row);
             })(children[i]);
         }
+        modal.renderList(rows);
     }
 
-    function fetchLevel(id, type) {
-        var msg = {
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'browse_media',
-            target: { entity_id: entityId },
-            return_response: true
-        };
-        if (id !== null && id !== undefined) {
-            msg.service_data = {
-                media_content_id: id,
-                media_content_type: type
-            };
-        }
-        return window.haSend(msg).then(function(result) {
-            console.log("called browser media, got: ", result)
-            return result && result["response"] && result["response"][entityId] ? result["response"][entityId] : result;
-        });
-    }
+    
 
     function navigateTo(item) {
         elList.innerHTML = '';
-        fetchLevel(item.media_content_id, item.media_content_type)
+        ctrl.browse(item.media_content_id, item.media_content_type)
             .then(function(data) {
                 stack.push({
                     title: (data && data.title) ? data.title : (item.title || 'Media'),
                     id:    item.media_content_id,
-                    type:  item.media_content_type
+                    type:  item.media_content_type,
+                    canPlay: item.can_play,
                 });
                 elBack.disabled = false;
                 renderCrumbs();
@@ -413,7 +309,7 @@ component(function(wrapper) {
         stack.pop();
         var parent = stack[stack.length - 1];
         elList.innerHTML = '';
-        fetchLevel(parent.id, parent.type)
+        ctrl.browse(parent.id, parent.type)
             .then(function(data) {
                 elBack.disabled = stack.length <= 1;
                 renderCrumbs();
@@ -424,34 +320,19 @@ component(function(wrapper) {
             });
     }
 
-    function playItem(item) {
-        window.haSend({
-            type: 'call_service',
-            domain: 'media_player',
-            service: 'play_media',
-            target: { entity_id: entityId },
-            service_data: {
-                media_content_id: item.media_content_id,
-                media_content_type: item.media_content_type
-            }
-        }).catch(function(err) {
-            console.error('media play failed:', err);
-        });
-        close();
-    }
-
     function open() {
         stack = [];
         elBack.disabled = true;
         elCrumbs.innerHTML = '';
         elList.innerHTML = '';
-        wrapper.className = 'mbrowser-container open';
-        fetchLevel(null, null)
+        modal.open();
+        ctrl.browse(null, null)
             .then(function(data) {
                 stack.push({
                     title: (data && data.title) ? data.title : 'Media',
                     id:    null,
-                    type:  null
+                    type:  null,
+                    canPlay: null,
                 });
                 renderCrumbs();
                 renderList(data ? data.children : []);
@@ -461,22 +342,16 @@ component(function(wrapper) {
                 renderList([]);
             });
     }
-
-    function close() {
-        wrapper.className = 'mbrowser-container';
-    }
-
-    elBackdrop.onclick = close;
     elBack.onclick = goBack;
 
     document.addEventListener('keydown', function(e) {
-        if (e.keyCode === 27 && wrapper.className.indexOf('open') !== -1) {
-            close();
+        if (e.keyCode === 27 && modal.className.indexOf('open') !== -1) {
+            modal.close();
         }
     });
 
-    // caller does wrapper.mediaBrowserOpen()
-    wrapper.mediaBrowserOpen = open;
+    // caller does modal.mediaBrowserOpen()
+    modal.mediaBrowserOpen = open;
 });
 </script>
 {{end}}

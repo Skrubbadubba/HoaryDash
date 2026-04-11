@@ -4,9 +4,6 @@
         font-size: 18px;
     }
     body {
-        background: {{.Theme.Background | default "#000000" | css}};
-        color: {{.Theme.FontColor | default "#ffffff" | css}};
-        font-size: {{.Theme.FontSize | default 18}}px;
         font-family: "Outfit", sans-serif;
         display: -webkit-flex;
         display: flex;
@@ -17,13 +14,6 @@
         -webkit-align-items: center;
         align-items: center;
         overflow: hidden;
-    }
-    body .font-primary {
-        color: {{.Theme.FontColor | default "#ffffff" | css}};
-    }
-
-    body .font-secondary {
-        color: {{.Theme.FontColor | default "#ffffffa2" | css}};
     }
 
     html, body {
@@ -36,8 +26,8 @@
         
     * {
         {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.2s ease, fill 0.4s ease;
-        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.2s ease, fill 0.4s ease;
+        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
+        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
         {{else}}
         -webkit-transition: none;
         transition: none;
@@ -47,25 +37,135 @@
         padding: 0;
         -webkit-tap-highlight-color: transparent;
     }
+
+    *::before, *::after, *::-webkit-slider-thumb, *::-moz-range-thumb {
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
+        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
+    }
+
+    .transition-fast, .transition-fast *::after, .transition-fast *::before, .transition-fast *::-webkit-slider-thumb, .transition-fast *::-moz-range-thumb {
+        {{if enabledByDefault .Animations}}
+        -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
+        transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
+        {{else}}
+        -webkit-transition: none;
+        transition: none;
+        {{end}}
+    }
     
     button:focus { outline: none; }
+
+    .btn {
+        width: 4.5em;
+        height: 4.5em;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        z-index: 50;
+    }
+    .btn svg {
+        width: 2.33em;
+        height: 2.33em;
+    }
+    .btn:active {
+        -webkit-transform: scale(0.88);
+        transform: scale(0.88);
+    }
 
     .card, .card-opaque {
         height: 100%;
         width: 100%;
-        border-radius: {{.Theme.Cards.BorderRadius | default "0.5em"}};
-        {{if enabledByDefault .Theme.Cards.Borders}}
-        border: 0.125rem solid {{.Theme.Cards.BorderColor | default "rgba(130,185,255,0.15)" | css}};
-        {{end}}
-        background-color: {{.Theme.Cards.Background | default "rgba(18, 18, 18, 0.75)" | css}};
-    }
-    .card-opaque {
-        background-color: {{.Theme.OpaqueBackground | default "rgb(18,18,18)" | css}};
     }
     .icon {
         height: 1em;
         width: 1em;
-        fill: {{.Theme.IconColor | default "#e5e5e5" | css}}
     }
+
+    .hide {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    input[type=range].thumb::-webkit-slider-thumb, 
+    input[type=range].thumb::-moz-range-thumb {
+        -webkit-appearance: none;
+        display: flex;
+        flex-shrink: 0;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
+
+    .tooltip {
+        display: none;
+        position: absolute;
+        top: calc(100% + 0.5em);
+        left: 50%;
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        background: rgba(7,16,34,0.96);
+        border: 0.0625em solid rgba(130,185,255,0.15);
+        padding: 0.8125em 0.9375em 0.6875em;
+        z-index: 200;
+        -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+        width: fit-content;
+        font-size: 1.3em;
+     }
+
+    .expanded .tooltip {
+         display: block;
+    }
+
+    .tooltip::before {
+        content: '';
+        position: absolute;
+        top: -0.3125em;
+        left: 50%;
+        width: 0.5625em;
+        height: 0.5625em;
+        background: inherit;
+        border-left: inherit;
+        border-top: inherit;
+        -webkit-transform: translateX(-50%) rotate(45deg);
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    .badge, .badge-btn {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    .badge-btn {
+        cursor: pointer;
+        font-size: 1em;
+    }
+
+    .badge > .icon, .badge-btn > .icon {
+         margin-right: 0.4em;
+    }
+
+    .badge-btn:active {
+        opacity: 0.6;
+    }
+
 </style>
 {{end}}

@@ -95,9 +95,7 @@
     align-items: center;
     margin-bottom: 0.6em;
   }
-  .ha-slider-row:last-child {
-    margin-bottom: 0;
-  }
+
   .ha-slider-label {
     font-size: 0.5625em;
     letter-spacing: 0.1em;
@@ -118,26 +116,15 @@
     cursor: pointer;
     margin: 0 0.75em;
   }
-  .ha-slider-row input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 1.25em;
-    height: 1.25em;
-    border-radius: 50%;
-    background: #78b4f0;
-    -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
-    box-shadow: 0 0 8px rgba(90,175,255,0.44);
-    cursor: pointer;
-  }
+  .ha-slider-row input[type=range]::-webkit-slider-thumb,
   .ha-slider-row input[type=range]::-moz-range-thumb {
-    -webkit-appearance: none;
     width: 1.25em;
     height: 1.25em;
-    border-radius: 50%;
     background: #78b4f0;
     -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
     box-shadow: 0 0 8px rgba(90,175,255,0.44);
-    cursor: pointer;
   }
+
   .ha-slider-val {
     font-size: 0.865em;
     color: #78b4f0;
@@ -168,12 +155,12 @@
     {{if eq $domain "light"}}
     <div class="ha-slider-row dim">
       <span class="ha-slider-label">Dim</span>
-      <input class="ha-slider-input" type="range" min="0" max="255" value="255">
+      <input class="ha-slider-input thumb" type="range" min="0" max="255" value="255">
       <span class="ha-slider-val" style="width: 3.375em;">100%</span>
     </div>
     <div class="ha-slider-row cct hidden">
       <span class="ha-slider-label">Temp</span>
-      <input class="ha-slider-input" type="range" min="2700" max="6500" value="4000">
+      <input class="ha-slider-input thumb" type="range" min="2700" max="6500" value="4000">
       <span class="ha-slider-val" style="width: 3.375em;">4000K</span>
     </div>
     {{end}}
@@ -181,7 +168,7 @@
     {{if eq $domain "fan"}}
     <div class="ha-slider-row speed">
       <span class="ha-slider-label">Speed</span>
-      <input class="ha-slider-input" type="range" min="0" max="100" value="0" >
+      <input class="ha-slider-input thumb" type="range" min="0" max="100" value="0" >
       <span class="ha-slider-val" width="0">100%</span>
       <span class="ha-slider-val" style="visibility: hidden;">100%</span>
     </div>
