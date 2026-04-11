@@ -254,7 +254,9 @@ func (t *Theme) Clone() Theme {
 	clone.Modals = cloneCard(t.Modals)
 	clone.Buttons = cloneCard(t.Buttons)
 
-	clone.Shapes.Borders = newBool(*t.Shapes.Borders)
+	if t.Shapes.Borders != nil {
+		clone.Shapes.Borders = newBool(*t.Shapes.Borders)
+	}
 
 	return clone
 }
@@ -268,11 +270,19 @@ func mergeTheme(base, override Theme) Theme {
 func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {
 		if namedTheme, ok := named[ref.Name]; ok {
-			return &namedTheme, nil
+			cloned := namedTheme.Clone()
+			return &cloned, nil
 		}
-		return nil, fmt.Errorf("Theme %q not found", ref.Name)
+		return nil, fmt.Errorf("theme %q not found", ref.Name)
 	}
-	return ref.Theme, nil
+	if ref.Theme == nil {
+		return nil, nil
+	}
+	cloned := ref.Theme.Clone()
+	if err := cloned.Finalize(); err != nil {
+		return nil, err
+	}
+	return &cloned, nil
 }
 
 func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CSS, error) {
@@ -339,7 +349,7 @@ func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
 	return nil
 }
 
-func (t *Theme) Resolve() error {
+func (t *Theme) Finalize() error {
 	if t.Vars == nil {
 		return nil
 	}
@@ -386,14 +396,10 @@ func parseThemes() (*ThemesMap, error) {
 	}
 
 	for name, theme := range parsed {
-		merged := mergeTheme(defaultTheme, theme)
-
-		err := merged.Resolve()
-		if err != nil {
+		if err := theme.Finalize(); err != nil {
 			return nil, fmt.Errorf("theme %s: %w", name, err)
 		}
-
-		parsed[name] = merged
+		parsed[name] = theme
 	}
 	return &parsed, nil
 }
