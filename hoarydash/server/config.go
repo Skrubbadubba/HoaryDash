@@ -205,9 +205,9 @@ func parseConfig() (*Yaml, error) {
 	var yaml_file []byte
 	var err error
 	if isDev {
-		yaml_file, err = os.ReadFile(yamlPath + "/hoarydash.dev.yaml")
+		yaml_file, err = os.ReadFile(configPath + "/hoarydash.dev.yaml")
 	} else {
-		yaml_file, err = os.ReadFile(yamlPath + "/hoarydash.yaml")
+		yaml_file, err = os.ReadFile(configPath + "/hoarydash.yaml")
 	}
 	parsed := Yaml{}
 	if err != nil {

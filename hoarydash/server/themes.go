@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
+	"maps"
 	"os"
 	"reflect"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -385,22 +388,38 @@ func (t *Theme) Finalize() error {
 }
 
 func parseThemes() (*ThemesMap, error) {
-	yamlFile, err := os.ReadFile(yamlPath + "/themes.yaml")
+	merged := ThemesMap{}
+
+	bundled, err := os.ReadFile(appPath + "/themes.bundled.yaml")
 	if err != nil {
+		return nil, fmt.Errorf("bundled themes missing: %w", err)
+	}
+	if err := yaml.Unmarshal(bundled, &merged); err != nil {
 		return nil, err
 	}
 
-	parsed := ThemesMap{}
-	err = yaml.Unmarshal(yamlFile, &parsed)
-	if err != nil {
-		return nil, err
+	userFilePath := configPath + "/themes.yaml"
+	if isDev {
+		userFilePath = configPath + "/themes.dev.yaml"
+	}
+	userFile, err := os.ReadFile(userFilePath)
+	if err == nil {
+		log.Printf("Found user defined themes.yaml")
+		user := ThemesMap{}
+		if err := yaml.Unmarshal(userFile, &user); err != nil {
+			return nil, err
+		}
+		for name, theme := range user {
+			merged[name] = theme
+		}
+		log.Printf("parsed themes: %+v", slices.Collect(maps.Keys(user)))
 	}
 
-	for name, theme := range parsed {
+	for name, theme := range merged {
 		if err := theme.Finalize(); err != nil {
 			return nil, fmt.Errorf("theme %s: %w", name, err)
 		}
-		parsed[name] = theme
+		merged[name] = theme
 	}
-	return &parsed, nil
+	return &merged, nil
 }

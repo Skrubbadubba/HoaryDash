@@ -22,8 +22,26 @@ func check(e error, message string, v ...any) {
 
 var isDev bool
 
-var yamlPath string
+var configPath string
 var frontendPath string
+var appPath string
+
+// type AddonOptions struct {
+// 	Port int `json:"port"`
+// }
+
+// func loadAddonOptions() AddonOptions {
+// 	defaults := AddonOptions{Port: 4567}
+// 	data, err := os.ReadFile("/data/options.json")
+// 	if err != nil {
+// 		return defaults // not running as addon, use defaults
+// 	}
+// 	var opts AddonOptions
+// 	if err := json.Unmarshal(data, &opts); err != nil {
+// 		return defaults
+// 	}
+// 	return opts
+// }
 
 func init() {
 	godotenv.Load()
@@ -31,16 +49,18 @@ func init() {
 	isDev = os.Getenv("IS_DEV") == "true"
 
 	if isDev {
-		yamlPath = "../config"
+		configPath = "../config"
 		frontendPath = "../frontend"
+		appPath = ".."
 	} else {
-		yamlPath = "/config"
+		configPath = "/config"
 		frontendPath = "/app/frontend"
+		appPath = "/app"
 	}
 
 	json.Unmarshal(mdiData, &mdiIcons)
 
-	log.Printf("isDev=%v yamlPath=%s frontendPath=%s", isDev, yamlPath, frontendPath)
+	log.Printf("isDev=%v configPath=%s frontendPath=%s appPath=%s", isDev, configPath, frontendPath, appPath)
 }
 
 func main() {
@@ -54,7 +74,7 @@ func main() {
 	yamlWatcher := watcher.New()
 	yamlWatcher.SetMaxEvents(1)
 	yamlWatcher.FilterOps(watcher.Write)
-	yamlWatcher.AddRecursive(yamlPath)
+	yamlWatcher.AddRecursive(configPath)
 	defer yamlWatcher.Close()
 
 	rebuildChan := make(chan struct{})
@@ -78,7 +98,9 @@ func main() {
 
 	cfg, err := parseConfig()
 	check(err, "Config loaded successfully")
-	log.Printf("Config is: %v", cfg)
+	if isDev {
+		log.Printf("Config is: %+v", cfg)
+	}
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))

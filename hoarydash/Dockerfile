@@ -15,5 +15,6 @@ FROM ${BUILD_FROM:-alpine:latest}
 WORKDIR /app
 COPY --from=builder /build/server .
 COPY frontend/ ./frontend/
+COPY themes.bundled.yaml ./
 EXPOSE 4567
 CMD ["./server"]

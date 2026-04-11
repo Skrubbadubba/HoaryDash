@@ -62,3 +62,10 @@ docker:
 
 extract-mdi:
     cd hoarydash && sudo sh -c 'docker build --target icons -t mdi-extract . && docker run --rm mdi-extract cat /build/mdi.json > mdi.json'
+
+dev-sync:
+    rsync -av --inplace --no-compress --exclude='config.yaml' ./hoarydash/ /mnt/haos-addons/hoarydash-dev/
+    sed 's/slug: hoarydash/slug: hoarydash_dev/' hoarydash/config.yaml \
+    | sed 's/name: "HoaryDash"/name: "HoaryDash Dev"/' \
+    | sed 's|4567/tcp: 4567|4567/tcp: 4568|' \
+    > /mnt/haos-addons/hoarydash-dev/config.yaml

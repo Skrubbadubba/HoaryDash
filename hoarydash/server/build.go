@@ -239,13 +239,13 @@ var funcMap = template.FuncMap{
 func BuildDash() {
 	cfg, err := parseConfig()
 	if err != nil {
-		log.Printf("Could not load config when building dashboard")
+		log.Printf("could not load config when building dashboard: %v", err)
 		return
 	}
 
 	parsedThemes, err := parseThemes()
 	if err != nil {
-		log.Printf("Could not load config when building dashboard")
+		log.Printf("could not load themes when building dashboard: %v", err)
 		return
 	}
 	allNamed := ThemesMap{}
