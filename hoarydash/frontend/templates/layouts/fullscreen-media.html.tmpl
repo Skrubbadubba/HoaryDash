@@ -410,14 +410,15 @@
                     <div class="fml-source-icon icon">{{icon "speaker-multiple"}}</div>
                     <span class="fml-source-name">-</span>
                 </button>
+                
                 {{if .Screen.ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
                 </button>
-                <div class="fml-source-browser">{{template "modal"}}</div>
                 <div class="fml-media-browser">{{template "media-browser" .Screen}}</div>
                 {{end}}
+                <div class="fml-source-browser">{{template "modal"}}</div>
             </div>
         </div>
 

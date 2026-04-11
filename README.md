@@ -44,17 +44,19 @@ I have a bunch of features planned. The idea is to make a feature rich configura
 - [x] More complex widgets
 - [x] Multiple screens per dashboard
 - [x] A browse media modal
-- [ ] Fullscreen-widget layouts (such as a full screen just for media)
-- [ ] System for preset themes, allowing easy switch between them
+- [x] Fullscreen-widget layouts (such as a full screen just for media)
+- [x] System for preset themes, allowing easy switch between them
 - [ ] Controllable HA entities via mqtt such as current screen and theme
 - [ ] Some security
 - [ ] Calendar widget
-- [ ] Custom cards (altought not sure if thats a good idea)
+- [ ] Custom community cards system (altought not sure if thats a good idea)
 - [ ] A logo
 - [ ] Prepopulating dashboard with information from HA
     - [ ] Fill all entity icons based on domain, device type, or attribute
     - [ ] Fill label with friendly name
     - [ ] Configure timezone and language based on HA configuration
+- [ ] Create a default configuration based on available HA entities on first install
+- [ ] A drag and drop editor (this one is really out of scope though, dont get your hopes up)
 
 ## Why
 
