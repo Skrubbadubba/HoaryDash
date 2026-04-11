@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -275,35 +277,66 @@ func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 
 func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CSS, error) {
 	val := string(input)
-	if !strings.HasPrefix(val, "$") {
+	if !strings.Contains(val, "$") {
 		return input, nil
 	}
 
-	parts := strings.Split(strings.TrimPrefix(val, "$"), ":")
-	varName := parts[0]
+	result := val
+	re := regexp.MustCompile(`\$([a-zA-Z_][a-zA-Z0-9_]*)(?::([0-9]*\.?[0-9]+))?`)
+	var firstErr error
 
-	rawColor, ok := vars[varName]
-	if !ok {
-		return "", fmt.Errorf("variable %q not found", varName)
+	result = re.ReplaceAllStringFunc(result, func(match string) string {
+		if firstErr != nil {
+			return match
+		}
+		parts := re.FindStringSubmatch(match)
+		varName := parts[1]
+
+		rawColor, ok := vars[varName]
+		if !ok {
+			firstErr = fmt.Errorf("variable %q not found", varName)
+			return match
+		}
+
+		if parts[2] == "" {
+			return string(rawColor)
+		}
+
+		alpha, err := strconv.ParseFloat(parts[2], 64)
+		if err != nil {
+			firstErr = fmt.Errorf("invalid alpha for %s: %v", varName, err)
+			return match
+		}
+
+		c, err := csscolorparser.Parse(string(rawColor))
+		if err != nil {
+			firstErr = fmt.Errorf("could not parse color %s: %v", rawColor, err)
+			return match
+		}
+		c.A = alpha
+		return c.RGBString()
+	})
+
+	return template.CSS(result), firstErr
+}
+
+func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
+	v := reflect.ValueOf(ptr).Elem()
+	t := v.Type()
+	cssType := reflect.TypeOf(template.CSS(""))
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		if !field.CanSet() || field.Type() != cssType {
+			continue
+		}
+		resolved, err := resolveColor(template.CSS(field.String()), vars)
+		if err != nil {
+			return fmt.Errorf("field %s: %w", t.Field(i).Name, err)
+		}
+		field.Set(reflect.ValueOf(resolved))
 	}
-
-	if len(parts) == 1 {
-		return rawColor, nil
-	}
-
-	alpha, err := strconv.ParseFloat(parts[1], 64)
-	if err != nil {
-		return "", fmt.Errorf("invalid alpha for %s: %v", varName, err)
-	}
-
-	c, err := csscolorparser.Parse(string(rawColor))
-	if err != nil {
-		return "", fmt.Errorf("could not parse color %s: %v", rawColor, err)
-	}
-
-	c.A = alpha
-
-	return template.CSS(c.RGBString()), nil
+	return nil
 }
 
 func (t *Theme) Resolve() error {
@@ -311,69 +344,33 @@ func (t *Theme) Resolve() error {
 		return nil
 	}
 
-	var err error
-	res := func(field *template.CSS) {
+	if err := resolveCSS(&t.Colors, t.Vars); err != nil {
+		return err
+	}
+	if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
+		return err
+	}
+	if t.Background != "" {
+		resolved, err := resolveColor(t.Background, t.Vars)
 		if err != nil {
-			return
+			return err
 		}
-		*field, err = resolveColor(*field, t.Vars)
+		t.Background = resolved
 	}
 
-	res(&t.Background)
-	res(&t.Surface)
-	res(&t.SurfaceOpaque)
-	res(&t.SurfaceProminent)
-	res(&t.SurfaceSubtle)
-	res(&t.SurfaceAlt)
-	res(&t.Highlight)
-	res(&t.Border)
-
-	res(&t.OnSurface)
-	res(&t.OnSurfaceMuted)
-	res(&t.OnSurfaceSubtle)
-	res(&t.OnBackground)
-
-	res(&t.Accent)
-	res(&t.AccentMuted)
-
-	res(&t.Interactive)
-	res(&t.InteractiveMuted)
-	res(&t.InteractiveDisabled)
-
-	res(&t.StateOn)
-	res(&t.StateOff)
-	res(&t.StateDisabled)
-
-	res(&t.Positive)
-	res(&t.Negative)
-
-	if t.Cards != nil {
-		res(&t.Cards.BorderColor)
-	}
-	if t.Entities != nil {
-		res(&t.Entities.BorderColor)
-	}
-	if t.Sensors != nil {
-		res(&t.Sensors.BorderColor)
-	}
-	if t.Widgets != nil {
-		res(&t.Widgets.BorderColor)
-	}
-	if t.Modals != nil {
-		res(&t.Modals.BorderColor)
-	}
-	if t.Badges != nil {
-		res(&t.Badges.BorderColor)
-	}
-	if t.BadgeButtons != nil {
-		res(&t.BadgeButtons.BorderColor)
-	}
-	if t.Tooltips != nil {
-		res(&t.Tooltips.BorderColor)
+	// CardStyles
+	for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
+		t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
+		if cs == nil {
+			continue
+		}
+		if err := resolveCSS(cs, t.Vars); err != nil {
+			return err
+		}
 	}
 
 	t.ComputeDerivatives()
-	return err
+	return nil
 }
 
 func parseThemes() (*ThemesMap, error) {
