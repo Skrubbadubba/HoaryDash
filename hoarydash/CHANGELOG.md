@@ -1,8 +1,22 @@
-# v0.11.0: Themes and a media layout
+# Patch: v0.11.1
 
-## Summary
+Fix theme parsing:
 
-### ✨ Features
+- Predefined themes are now bundled into the image in /app/themes.bundle.yaml
+- User defined themes live in their own file in /config/themes.yaml
+- User defined themes overrides bundled ones on name collison
+
+Logging is cleaned up a bit aswell
+
+---
+
+## Previous release
+
+## v0.11.0: Themes and a media layout
+
+### Summary
+
+#### ✨ Features
 
 - Named themes
 - Media widget:
@@ -19,7 +33,7 @@
 - Fullscreen media layout
 - New "badge" UI element, currently only used by the fullscreen media layout
 
-### 🏗 Code changes and optimizations
+#### 🏗 Code changes and optimizations
 
 - Go files are split for better organization
 - Use controller pattern to reduce rendered javascript
@@ -29,7 +43,7 @@
   - No entity, layout or other component needs to recieve a theme struct, they style themselves with utility classes and the theming will be applied
 - Navigates screens using translateX instead of native scroll, should be slightly more performant
 
-## Release notes (complete wall of text rambling, you have been warned)
+### Release notes (complete wall of text rambling, you have been warned)
 
 Hi to all my 9 users, if any of yall are even here. This has really turned into a passion project, and this is probably the biggest update yet. Been working on it for quite some time, with lots of back and forths, and some breaking changes. So I'd thought I'd share my thoughts. This is just gonna be me yapping, kind of like a devlog.
 
