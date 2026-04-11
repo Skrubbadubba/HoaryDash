@@ -4,14 +4,39 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"strconv"
+	"strings"
 
 	"dario.cat/mergo"
+	"github.com/mazznoer/csscolorparser"
 	"go.yaml.in/yaml/v4"
 )
 
 type Theme struct {
+	IsLight    bool
+	Vars       map[string]template.CSS
+	Background template.CSS `yaml:"background"`
+	Colors
+	Derived derivedColors `yaml:"-"`
+
+	Shapes
+	// Font size
+	FontSize int `yaml:"font_size"`
+
+	// Structural styles
+	Cards        *CardStyle
+	Entities     *CardStyle
+	Sensors      *CardStyle
+	Widgets      *CardStyle
+	Modals       *CardStyle
+	Badges       *CardStyle
+	BadgeButtons *CardStyle `yaml:"badge_buttons"`
+	Buttons      *CardStyle
+	Tooltips     *CardStyle
+}
+
+type Colors struct {
 	// Surfaces
-	Background       template.CSS `yaml:"background"`
 	Surface          template.CSS `yaml:"surface"`
 	SurfaceOpaque    template.CSS `yaml:"surface_opaque"`
 	SurfaceProminent template.CSS `yaml:"surface_prominent"`
@@ -42,38 +67,47 @@ type Theme struct {
 	// Semantic states
 	Positive template.CSS `yaml:"positive"`
 	Negative template.CSS `yaml:"negative"`
+}
 
-	// Font size
-	FontSize int `yaml:"font_size"`
-
-	// Structural styles
-	Cards    *CardStyle
-	Entities *CardStyle
-	Sensors  *CardStyle
-	Widgets  *CardStyle
-	Modals   *CardStyle
+// These colors are purely derived and can not be user themed
+type derivedColors struct {
+	PositiveMuted      template.CSS
+	NegativeMuted      template.CSS
+	StateOnMuted       template.CSS
+	StateOffMuted      template.CSS
+	StateDisabledMuted template.CSS
+}
+type Shapes struct {
+	Borders            bool
+	TightBorderRadius  template.CSS `yaml:"tight_border_radius"`
+	WideBorderRadius   template.CSS `yaml:"wide_border_radius"`
+	MediumBorderRadius template.CSS `yaml:"medium_border_radius"`
+	BorderWidth        template.CSS `yaml:"border_width"`
+	Padding            template.CSS `yaml:"padding"`
 }
 
 type CardStyle struct {
 	Borders      *bool
-	BorderColor  template.CSS `yaml:"border_color"`
 	BorderRadius template.CSS `yaml:"border_radius"`
+	BorderWidth  template.CSS `yaml:"border_width"`
+	Padding      template.CSS `yaml:"padding"`
+	BorderColor  template.CSS `yaml:"border_color"`
 	Background   template.CSS
 	FontSize     int `yaml:"font_size"`
+	Custom       template.CSS
 }
 
-func newTrue() *bool {
-	b := true
+func newBool(b bool) *bool {
 	return &b
 }
 
+func newFalse() *bool {
+	f := false
+	return &f
+}
+
 func newDefaultCard() *CardStyle {
-	style := CardStyle{
-		Borders:      newTrue(),
-		BorderColor:  "rgba(130,185,255,0.15)",
-		BorderRadius: "0.5em",
-		Background:   "rgba(18,18,18,0.75)",
-	}
+	style := CardStyle{}
 	return &style
 }
 
@@ -83,33 +117,197 @@ func newDefaultModal() *CardStyle {
 	return style
 }
 
+func createDefaultModal() *CardStyle {
+	ms := CardStyle{
+		BorderColor: "rgba(130,185,255,0.15)",
+	}
+	return &ms
+}
+func createDefaultBadge() *CardStyle {
+	bs := CardStyle{
+		BorderColor: "rgba(255,255,255,0.15)",
+		BorderWidth: "0.2px",
+		Padding:     "0.35em 0.60em",
+	}
+	return &bs
+}
+func createDefaultBadgeButton() *CardStyle {
+	bs := createDefaultBadge()
+	bs.Padding = "0.4em 0.7em"
+	return bs
+}
+func createDefaultButton() *CardStyle {
+	bs := CardStyle{
+		Padding: "1em",
+		Borders: newFalse(),
+	}
+	return &bs
+}
+
+func createDefaultTooltip() *CardStyle {
+	ts := CardStyle{
+		Padding: "1em",
+	}
+	return &ts
+}
+
 var defaultTheme = Theme{
-	Background:       "#0f0f0f",
-	Surface:          "rgba(18,18,18,0.75)",
-	SurfaceOpaque:    "#1a1a1a",
-	SurfaceProminent: "rgba(57, 57, 57, 0.85)",
-	SurfaceSubtle:    "rgba(255,255,255,0.07)",
-	SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
-	Highlight:        "rgba(255, 255, 255, 0.12)",
-	OnSurface:        "#ffffff",
-	OnSurfaceMuted:   "#dbdbdb",
-	OnSurfaceSubtle:  "#989898",
-	Accent:           "hsl(210, 90%, 65%)",
-	Interactive:      "hsl(210, 90%, 65%)",
-	StateOn:          "hsl(134, 60%, 45%)",
-	StateOff:         "rgba(200,220,240,0.38)",
-	StateDisabled:    "rgba(220, 240, 250, 0.25)",
-	Positive:         "hsl(140, 60%, 55%)",
-	Negative:         "hsl(0, 70%, 55%)",
-	FontSize:         18,
-	Cards:            newDefaultCard(),
-	Modals:           newDefaultModal(),
+	IsLight:    false,
+	Background: "#0f0f0f",
+	Colors: Colors{
+		Surface:          "rgba(18,18,18,0.75)",
+		SurfaceOpaque:    "#1a1a1a",
+		SurfaceProminent: "rgba(57, 57, 57, 0.85)",
+		SurfaceSubtle:    "rgba(255,255,255,0.07)",
+		SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
+		Highlight:        "rgba(255, 255, 255, 0.12)",
+		OnSurface:        "#ffffff",
+		OnSurfaceMuted:   "#dbdbdb",
+		OnSurfaceSubtle:  "#989898",
+		Accent:           "hsl(210, 90%, 65%)",
+		Interactive:      "hsl(210, 90%, 65%)",
+		StateOn:          "hsl(134, 60%, 45%)",
+		StateOff:         "rgba(200,220,240,0.38)",
+		StateDisabled:    "rgba(220, 240, 250, 0.25)",
+		Positive:         "hsl(140, 60%, 55%)",
+		Negative:         "hsl(0, 70%, 55%)",
+	},
+	FontSize: 18,
+	Shapes: Shapes{
+		Padding:            "0",
+		Borders:            true,
+		TightBorderRadius:  "0.2em",
+		WideBorderRadius:   "2em",
+		MediumBorderRadius: "1em",
+		BorderWidth:        "1.8px",
+	},
+	Modals:       createDefaultModal(),
+	Badges:       createDefaultBadge(),
+	BadgeButtons: createDefaultBadgeButton(),
+	Buttons:      createDefaultButton(),
+	Tooltips:     createDefaultTooltip(),
 }
 
 type ThemesMap map[string]Theme
 
+func deriveAlpha(base template.CSS, alpha float64) template.CSS {
+	if base == "" {
+		return ""
+	}
+	c, err := csscolorparser.Parse(string(base))
+	if err != nil {
+		return base
+	}
+	c.A = c.A * alpha
+	return template.CSS(c.RGBString())
+}
+
+func (t *Theme) ComputeDerivatives() {
+	// Theme colors
+	if t.Colors.SurfaceProminent == "" && t.Colors.Surface != "" {
+		t.Colors.SurfaceProminent = t.Colors.Surface
+	}
+	if t.Colors.SurfaceSubtle == "" && t.Colors.Surface != "" {
+		t.Colors.SurfaceSubtle = deriveAlpha(t.Colors.Surface, 0.09)
+	}
+	if t.Colors.OnSurfaceMuted == "" && t.Colors.OnSurface != "" {
+		t.Colors.OnSurfaceMuted = deriveAlpha(t.Colors.OnSurface, 0.6)
+	}
+	if t.Colors.OnSurfaceSubtle == "" && t.Colors.OnSurface != "" {
+		t.Colors.OnSurfaceSubtle = deriveAlpha(t.Colors.OnSurface, 0.35)
+	}
+	if t.Colors.OnBackground == "" && t.Colors.OnSurface != "" {
+		t.Colors.OnBackground = t.Colors.OnSurface
+	}
+
+	if t.Colors.AccentMuted == "" && t.Colors.Accent != "" {
+		t.Colors.AccentMuted = deriveAlpha(t.Colors.Accent, 0.5)
+	}
+	if t.Colors.InteractiveMuted == "" && t.Colors.Interactive != "" {
+		t.Colors.InteractiveMuted = deriveAlpha(t.Colors.Interactive, 0.6)
+	}
+	if t.Colors.InteractiveDisabled == "" && t.Colors.Interactive != "" {
+		t.Colors.InteractiveDisabled = deriveAlpha(t.Colors.Interactive, 0.5)
+	}
+
+	// Precalculated derivations
+	t.Derived.PositiveMuted = deriveAlpha(t.Colors.Positive, 0.5)
+	t.Derived.NegativeMuted = deriveAlpha(t.Colors.Negative, 0.5)
+	t.Derived.StateOnMuted = deriveAlpha(t.Colors.StateOn, 0.35)
+	t.Derived.StateOffMuted = deriveAlpha(t.Colors.StateOff, 0.35)
+	t.Derived.StateDisabledMuted = deriveAlpha(t.Colors.StateDisabled, 0.35)
+
+	// Cards and shapes
+	if t.Cards != nil {
+		if t.Cards.Background == "" && t.Colors.Surface != "" {
+			t.Cards.Background = t.Colors.Surface
+		}
+	}
+
+	if t.Badges != nil {
+		if t.Badges.Background == "" && t.Colors.SurfaceSubtle != "" {
+			t.Badges.Background = t.Colors.SurfaceSubtle
+		}
+	}
+	if t.BadgeButtons != nil {
+		if t.BadgeButtons.Background == "" && t.Colors.SurfaceSubtle != "" {
+			t.BadgeButtons.Background = t.Colors.SurfaceSubtle
+		}
+	}
+
+	propagateShape := func(target **CardStyle, defaultRadius template.CSS) {
+		if *target == nil {
+			*target = &CardStyle{}
+		}
+		cs := *target
+		if cs.BorderRadius == "" {
+			cs.BorderRadius = defaultRadius
+		}
+		if cs.Padding == "" && t.Shapes.Padding != "" {
+			cs.Padding = t.Shapes.Padding
+		}
+		if cs.BorderWidth == "" && t.Shapes.BorderWidth != "" {
+			cs.BorderWidth = t.Shapes.BorderWidth
+		}
+		if (*target).Borders == nil && t.Shapes.Borders {
+			(*target).Borders = &t.Shapes.Borders
+		}
+	}
+
+	// We pass a pointer-to-a-pointer to allow initialization
+	propagateShape(&t.Cards, t.Shapes.TightBorderRadius)
+	propagateShape(&t.Buttons, t.Shapes.MediumBorderRadius)
+	propagateShape(&t.BadgeButtons, t.Shapes.TightBorderRadius)
+	propagateShape(&t.Tooltips, t.Shapes.MediumBorderRadius)
+	propagateShape(&t.Badges, t.Shapes.WideBorderRadius)
+}
+
+func (t *Theme) Clone() Theme {
+	clone := *t
+
+	cloneCard := func(cs *CardStyle) *CardStyle {
+		if cs == nil {
+			return nil
+		}
+		c := *cs
+		return &c
+	}
+
+	clone.Cards = cloneCard(t.Cards)
+	clone.Entities = cloneCard(t.Entities)
+	clone.Sensors = cloneCard(t.Sensors)
+	clone.Widgets = cloneCard(t.Widgets)
+	clone.Badges = cloneCard(t.Badges)
+	clone.BadgeButtons = cloneCard(t.BadgeButtons)
+	clone.Tooltips = cloneCard(t.Tooltips)
+	clone.Modals = cloneCard(t.Modals)
+	clone.Buttons = cloneCard(t.Buttons)
+
+	return clone
+}
+
 func mergeTheme(base, override Theme) Theme {
-	result := base
+	result := base.Clone()
 	mergo.Merge(&result, override, mergo.WithOverride)
 	return result
 }
@@ -124,15 +322,137 @@ func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	return ref.Theme, nil
 }
 
-func parseThemes() (*ThemesMap, error) {
-	yaml_file, err := os.ReadFile(yamlPath + "/themes.yaml")
-	parsed := ThemesMap{}
+func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CSS, error) {
+	val := string(input)
+	if !strings.HasPrefix(val, "$") {
+		return input, nil
+	}
+
+	parts := strings.Split(strings.TrimPrefix(val, "$"), ":")
+	varName := parts[0]
+
+	rawColor, ok := vars[varName]
+	if !ok {
+		return "", fmt.Errorf("variable %q not found", varName)
+	}
+
+	if len(parts) == 1 {
+		return rawColor, nil
+	}
+
+	alpha, err := strconv.ParseFloat(parts[1], 64)
 	if err != nil {
-		return &parsed, err
+		return "", fmt.Errorf("invalid alpha for %s: %v", varName, err)
 	}
-	err = yaml.Unmarshal(yaml_file, &parsed)
-	for _, theme := range parsed {
-		mergeTheme(defaultTheme, theme)
+
+	c, err := csscolorparser.Parse(string(rawColor))
+	if err != nil {
+		return "", fmt.Errorf("could not parse color %s: %v", rawColor, err)
 	}
-	return &parsed, err
+
+	c.A = alpha
+
+	return template.CSS(c.RGBString()), nil
+}
+
+func (t *Theme) Resolve() error {
+	if t.Vars == nil {
+		return nil
+	}
+
+	var err error
+	res := func(field *template.CSS) {
+		if err != nil {
+			return
+		}
+		*field, err = resolveColor(*field, t.Vars)
+	}
+
+	res(&t.Background)
+	res(&t.Surface)
+	res(&t.SurfaceOpaque)
+	res(&t.SurfaceProminent)
+	res(&t.SurfaceSubtle)
+	res(&t.SurfaceAlt)
+	res(&t.Highlight)
+
+	res(&t.OnSurface)
+	res(&t.OnSurfaceMuted)
+	res(&t.OnSurfaceSubtle)
+	res(&t.OnBackground)
+
+	res(&t.Accent)
+	res(&t.AccentMuted)
+
+	res(&t.Interactive)
+	res(&t.InteractiveMuted)
+	res(&t.InteractiveDisabled)
+
+	res(&t.StateOn)
+	res(&t.StateOff)
+	res(&t.StateDisabled)
+
+	res(&t.Positive)
+	res(&t.Negative)
+
+	if t.Cards != nil {
+		res(&t.Cards.BorderColor)
+		res(&t.Cards.Background)
+	}
+	if t.Entities != nil {
+		res(&t.Entities.BorderColor)
+		res(&t.Entities.Background)
+	}
+	if t.Sensors != nil {
+		res(&t.Sensors.BorderColor)
+		res(&t.Sensors.Background)
+	}
+	if t.Widgets != nil {
+		res(&t.Widgets.BorderColor)
+		res(&t.Widgets.Background)
+	}
+	if t.Modals != nil {
+		res(&t.Modals.BorderColor)
+		res(&t.Modals.Background)
+	}
+	if t.Badges != nil {
+		res(&t.Badges.BorderColor)
+		res(&t.Badges.Background)
+	}
+	if t.BadgeButtons != nil {
+		res(&t.BadgeButtons.BorderColor)
+		res(&t.BadgeButtons.Background)
+	}
+	if t.Tooltips != nil {
+		res(&t.Tooltips.BorderColor)
+		res(&t.Tooltips.Background)
+	}
+
+	t.ComputeDerivatives()
+	return err
+}
+
+func parseThemes() (*ThemesMap, error) {
+	yamlFile, err := os.ReadFile(yamlPath + "/themes.yaml")
+	if err != nil {
+		return nil, err
+	}
+
+	parsed := ThemesMap{}
+	err = yaml.Unmarshal(yamlFile, &parsed)
+	if err != nil {
+		return nil, err
+	}
+
+	for name, theme := range parsed {
+		merged := mergeTheme(defaultTheme, theme)
+
+		err := merged.Resolve()
+		if err != nil {
+			return nil, fmt.Errorf("theme %s: %w", name, err)
+		}
+
+		parsed[name] = merged
+	}
+	return &parsed, nil
 }

@@ -9,7 +9,7 @@
                 {{icon "circle-medium"}}
             {{end}}
         </div>
-        <div class="navbar-label on-surface-muted">{{$screen.Name}}</div>
+        <div class="navbar-label on-surface">{{$screen.Name}}</div>
     </div>
     {{end}}
 </nav>
@@ -21,10 +21,7 @@ component(function(navbar) {
 
     var items = navbar.querySelectorAll('.navbar-item');
     window.addEventListener('screen-navigate', function(e) {
-        console.log("screen navigated event! ", e)
-        console.log("looping through navbar items: ", items)
         for (var i = 0; i < items.length; i++) {
-            console.log("loop in navbar items: ", i, items[i])
             if (i === e.detail.index) {
                 items[i].className = 'navbar-item active highlight';
             } else {

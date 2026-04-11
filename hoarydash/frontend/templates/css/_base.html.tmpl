@@ -26,8 +26,8 @@
         
     * {
         {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
-        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
+        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
+        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
         {{else}}
         -webkit-transition: none;
         transition: none;
@@ -61,20 +61,19 @@
     button:focus { outline: none; }
 
     .btn {
-            width: 4.5em;
-            height: 4.5em;
-            border: none;
-            border-radius: 1em;
-            cursor: pointer;
-            outline: none;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-align-items: center;
-            align-items: center;
-            -webkit-justify-content: center;
-            justify-content: center;
-            z-index: 50;
-        }
+        width: 4.5em;
+        height: 4.5em;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        z-index: 50;
+    }
     .btn svg {
         width: 2.33em;
         height: 2.33em;
@@ -117,7 +116,6 @@
         transform: translateX(-50%);
         background: rgba(7,16,34,0.96);
         border: 0.0625em solid rgba(130,185,255,0.15);
-        border-radius: 0.625em;
         padding: 0.8125em 0.9375em 0.6875em;
         z-index: 200;
         -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
@@ -130,20 +128,19 @@
          display: block;
     }
 
-     .tooltip::before {
+    .tooltip::before {
         content: '';
         position: absolute;
         top: -0.3125em;
         left: 50%;
         width: 0.5625em;
         height: 0.5625em;
-        background: rgba(7,16,34,0.96);
-        border-left: 0.0625em solid rgba(130,185,255,0.15);
-        border-top: 0.0625em solid rgba(130,185,255,0.15);
+        background: inherit;
+        border-left: inherit;
+        border-top: inherit;
         -webkit-transform: translateX(-50%) rotate(45deg);
         transform: translateX(-50%) rotate(45deg);
     }
-
 
     .badge, .badge-btn {
         display: -webkit-box;
@@ -155,16 +152,9 @@
         -webkit-box-align: center;
         -webkit-align-items: center;
         align-items: center;
-        padding: 0.35em 0.75em;
-        border: 0.05em solid rgba(255,255,255,0.15);
-        background: rgba(255,255,255,0.08);
-    }
-    .badge {
-        border-radius: 2em;
     }
 
     .badge-btn {
-        border-radius: 0.4em;
         cursor: pointer;
         font-size: 1em;
     }
@@ -172,7 +162,6 @@
     .badge > .icon, .badge-btn > .icon {
          margin-right: 0.4em;
     }
-
 
     .badge-btn:active {
         opacity: 0.6;

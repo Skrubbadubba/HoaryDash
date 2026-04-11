@@ -8,333 +8,164 @@
     top: 0;
     right: 0;
 {{end}}
+
 {{define "create-theme"}}
 {{$p := .Prefix}}
 <style>
 
 {{/* Base layout */}}
-{{if or .FontSize .Background}}
+{{if or .FontSize .Colors.Background}}
 {{$p}} {
     {{if .FontSize}}font-size: {{.FontSize}}px;{{end}}
     {{if .Background}}background: {{.Background | css}};{{end}}
 }
 {{end}}
 
-{{/* Semantic utility classes */}}
-{{if .Surface}}
-{{$p}} .surface {
-    background-color: {{.Surface | css}};
-}
+{{/* --- SEMANTIC UTILITY CLASSES --- */}}
+
+{{if .Colors.Surface}}
+{{$p}} .surface { background-color: {{.Colors.Surface | css}}; }
 {{end}}
 
-{{if .SurfaceProminent}}
-{{$p}} .surface-prominent {
-    background-color: {{.SurfaceProminent | css}};
-}
-{{else if .Surface}}
-{{$p}} .surface-prominent {
-    background-color: {{.Surface | css}};
-}
+{{if .Colors.SurfaceProminent}}
+{{$p}} .surface-prominent { background-color: {{.Colors.SurfaceProminent | css}}; }
 {{end}}
 
-{{if .SurfaceSubtle }}
-{{$p}} .surface-subtle {
-    background-color: {{.SurfaceSubtle | css}};
-}
-{{else if .Surface}}
-{{$p}} .surface-subtle {
-    position: relative;
-    z-index: 0;
-}
-{{$p}} .surface-subtle::before {
-    background-color: {{.Surface | css}};
-    opacity: 0.09;
-    {{template "_before"}}
-}
+{{if .Colors.SurfaceSubtle}}
+{{$p}} .surface-subtle { background-color: {{.Colors.SurfaceSubtle | css}}; }
 {{end}}
 
-{{if .SurfaceOpaque}}
-{{$p}} .surface-opaque {
-    background-color: {{.SurfaceOpaque}};
-}
+{{if .Colors.SurfaceOpaque}}
+{{$p}} .surface-opaque { background-color: {{.Colors.SurfaceOpaque | css}}; }
 {{end}}
 
-{{if .SurfaceAlt}}
-{{$p}} .surface-alt {
-    background-color: {{.SurfaceAlt}};
-}
+{{if .Colors.SurfaceAlt}}
+{{$p}} .surface-alt { background-color: {{.Colors.SurfaceAlt | css}}; }
 {{end}}
 
-{{if .Highlight}}
-{{$p}} .highlight {
-    background-color: {{.Highlight}};
-}
+{{if .Colors.Highlight}}
+{{$p}} .highlight { background-color: {{.Colors.Highlight | css}}; }
 {{end}}
 
-{{if .OnSurface}}
-{{$p}} .on-surface {
-    color: {{.OnSurface | css}};
-    fill: {{.OnSurface | css}};
-}
+{{/* Text + Icons */}}
+{{if .Colors.OnSurface}}
+{{$p}} .on-surface { color: {{.Colors.OnSurface | css}}; fill: {{.Colors.OnSurface | css}}; }
 {{end}}
 
-{{if .OnSurfaceMuted}}
-{{$p}} .on-surface-muted {
-    color: {{.OnSurfaceMuted | css}};
-    fill: {{.OnSurfaceMuted | css}};
-}
-{{else if .OnSurface}}
-{{$p}} .on-surface-muted {
-    color: {{.OnSurface | css}};
-    fill: {{.OnSurface | css}};
-    opacity: 0.6;
-}
+{{if .Colors.OnSurfaceMuted}}
+{{$p}} .on-surface-muted { color: {{.Colors.OnSurfaceMuted | css}}; fill: {{.Colors.OnSurfaceMuted | css}}; }
 {{end}}
 
-{{if .OnSurfaceSubtle}}
-{{$p}} .on-surface-subtle {
-    color: {{.OnSurfaceSubtle | css}};
-    fill: {{.OnSurfaceSubtle | css}};
-}
-{{else if .OnSurface}}
-{{$p}} .on-surface-subtle {
-    color: {{.OnSurface | css}};
-    fill: {{.OnSurface | css}};
-    opacity: 0.35;
-}
+{{if .Colors.OnSurfaceSubtle}}
+{{$p}} .on-surface-subtle { color: {{.Colors.OnSurfaceSubtle | css}}; fill: {{.Colors.OnSurfaceSubtle | css}}; }
 {{end}}
 
-{{if .OnBackground}}
-{{$p}} .on-bg {
-    color: {{.OnBackground | css}};
-    fill: {{.OnBackground | css}};
-}
-{{else if .OnSurface}}
-{{$p}} .on-bg {
-    color: {{.OnSurface | css}};
-    fill: {{.OnSurface | css}};
-}
+{{if .Colors.OnBackground}}
+{{$p}} .on-bg { color: {{.Colors.OnBackground | css}}; fill: {{.Colors.OnBackground | css}}; }
 {{end}}
 
-{{if .Accent}}
-{{$p}} .accent {
-    color: {{.Accent | css}};
-    fill: {{.Accent | css}};
-}
-{{$p}} .accent-bg {
-    background-color: {{.Accent | css}};
-}
+{{/* Accents */}}
+{{if .Colors.Accent}}
+{{$p}} .accent { color: {{.Colors.Accent | css}}; fill: {{.Colors.Accent | css}}; }
+{{$p}} .accent-bg { background-color: {{.Colors.Accent | css}}; }
 {{end}}
 
-{{if .AccentMuted}}
-{{$p}} .accent-muted {
-    color: {{.AccentMuted | css}};
-    fill: {{.AccentMuted | css}};
-}
-{{$p}} .accent-muted-bg {
-    background-color: {{.AccentMuted | css}};
-}
-{{else if .Accent}}
-{{$p}} .accent-muted {
-    color: {{.Accent | css}};
-    fill: {{.Accent | css}};
-    opacity: 0.5;
-}
-{{$p}} .accent-muted-bg {
-    position: relative;
-    z-index: 0;
-}
-{{$p}} .accent-muted-bg::before {
-    {{template "_before"}}
-    background-color: {{.Accent}};
-    opacity: 0.5;
-}
+{{if .Colors.AccentMuted}}
+{{$p}} .accent-muted { color: {{.Colors.AccentMuted | css}}; fill: {{.Colors.AccentMuted | css}}; }
+{{$p}} .accent-muted-bg { background-color: {{.Colors.AccentMuted | css}}; }
 {{end}}
 
-{{if .Interactive}}
-{{$p}} .interactive {
-    color: {{.Interactive | css}};
-    fill: {{.Interactive | css}};
-}
-{{$p}} .interactive-bg {
-    background-color: {{.Interactive | css}};
-}
+{{/* Interactive */}}
+{{if .Colors.Interactive}}
+{{$p}} .interactive { color: {{.Colors.Interactive | css}}; fill: {{.Colors.Interactive | css}}; }
+{{$p}} .interactive-bg { background-color: {{.Colors.Interactive | css}}; }
 {{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb,
 {{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
-    background-color: {{.Interactive | css}};
+    background-color: {{.Colors.Interactive | css}};
 }
 {{end}}
 
-{{if .InteractiveMuted}}
-{{$p}} .interactive-muted {
-    color: {{.InteractiveMuted | css}};
-    fill: {{.InteractiveMuted | css}};
-}
+{{if .Colors.InteractiveMuted}}
+{{$p}} .interactive-muted { color: {{.Colors.InteractiveMuted | css}}; fill: {{.Colors.InteractiveMuted | css}}; }
+{{$p}} .interactive-muted-bg { background-color: {{.Colors.InteractiveMuted | css}}; }
 {{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
 {{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
-    background-color: {{.InteractiveMuted | css}};
-}
-{{$p}} .interactive-muted-bg {
-    background-color: {{.InteractiveMuted | css}};
-}
-{{else if .Interactive}}
-{{$p}} .interactive-muted {
-    color: {{.Interactive | css}};
-    fill: {{.Interactive | css}};
-    opacity: 0.6;
-}
-{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
-{{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
-    background-color: {{.Interactive | css}};
-}
-{{$p}} .interactive-muted-bg {
-    position: relative;
-    z-index:0;
-}
-{{$p}} .interactive-muted-bg::before {
-    background-color: {{.Interactive | css}};
-    opacity: 0.6;
-    {{template "_before"}}
+    background-color: {{.Colors.InteractiveMuted | css}};
 }
 {{end}}
 
+{{if .Colors.InteractiveDisabled}}
+{{$p}} .interactive-disabled { color: {{.Colors.InteractiveDisabled | css}}; fill: {{.Colors.InteractiveDisabled | css}}; }
+{{$p}} .interactive-disabled-bg { background-color: {{.Colors.InteractiveDisabled | css}}; }
 {{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb,
 {{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
     opacity: 0;
 }
-{{if .InteractiveDisabled}}
-{{$p}} .interactive-disabled {
-    color: {{.InteractiveDisabled | css}};
-    fill: {{.InteractiveDisabled | css}};
-}
-{{$p}} .interactive-disabled-bg {
-    background-color: {{.InteractiveDisabled | css}};
-}
-{{else if .Interactive}}
-{{$p}} .interactive-disabled {
-    color: {{.Interactive | css}};
-    fill: {{.Interactive | css}};
-    opacity: 0.5;
-}
-{{$p}} .interactive-disabled-bg {
-    position: relative;
-    z-index:0;
-}
-{{$p}} .interactive-disabled-bg::before {
-    background-color: {{.Interactive | css}};
-    opacity: 0.5;
-    {{template "_before"}}
-}
 {{end}}
 
-{{if or .StateOff .StateOn .StateDisabled}}
-{{$p}} .state-bg {
-    z-index: 0;
-    position: relative;
-}
-{{$p}} .state-bg::before {
-    {{template "_before"}}
-    opacity: 0.35;
-}
+{{/* --- STATES & PILL BACKGROUNDS --- */}}
+
+{{/* The ::after is for the thumb itself, it should be the full, opaque color */}}
+{{if .Colors.StateOn}}
+{{$p}} .state.on, {{$p}} .on .state { color: {{.Colors.StateOn | css}}; fill: {{.Colors.StateOn | css}}; }
+{{$p}} .state-border.on, {{$p}} .on .state-border { border-color: {{.Colors.StateOn | css}}; }
+{{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after { background-color: {{.Colors.StateOn | css}}; }
 {{end}}
-{{if .StateOn}}
-{{$p}} .state.on, {{$p}} .on .state {
-    color: {{.StateOn | css}};
-    fill: {{.StateOn | css}};
-}
-{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before {
-    background-color: {{.StateOn | css}};
-}
-{{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after {
-    background-color: {{.StateOn | css}};
-}
-{{$p}} .state-border.on, {{$p}} .on .state-border {
-    border-color: {{.StateOn | css}};
-}
+{{if .Colors.StateOff}}
+{{$p}} .state.off, {{$p}} .off .state { color: {{.Colors.StateOff | css}}; fill: {{.Colors.StateOff | css}}; }
+{{$p}} .state-border.off, {{$p}} .off .state-border { border-color: {{.Colors.StateOff | css}}; }
+{{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after { background-color: {{.Colors.StateOff | css}}; }
+{{end}}
+{{if .Colors.StateDisabled}}
+{{$p}} .state.disabled, {{$p}} .disabled .state { color: {{.Colors.StateDisabled | css}}; fill: {{.Colors.StateDisabled | css}}; }
+{{$p}} .state-border.disabled, {{$p}} .disabled .state-border { border-color: {{.Colors.StateDisabled | css}}; }
+{{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after { background-color: {{.Colors.StateDisabled | css}}; }
 {{end}}
 
-{{if .StateOff}}
-{{$p}} .state.off, {{$p}} .off .state {
-    color: {{.StateOff | css}};
-    fill: {{.StateOff | css}};
-}
-{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before {
-    background-color: {{.StateOff | css}};
-}
-{{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after {
-    background-color: {{.StateOff | css}};
-}
-{{$p}} .state-border.off, {{$p}} .off .state-border {
-    border-color: {{.StateOff | css}};
-}
+
+{{/* The ::before is for the track, which uses the new Derived muted color */}}
+{{if .Derived.StateOnMuted}}
+{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_before"}} }
+{{end}}
+{{if .Derived.StateOffMuted}}
+{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.Derived.StateOffMuted | css}}; {{template "_before"}} }
+{{end}}
+{{if .Derived.StateDisabledMuted}}
+{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.Derived.StateDisabledMuted | css}}; {{template "_before"}} }
 {{end}}
 
-{{if .StateDisabled}}
-{{$p}} .state.disabled, {{$p}} .disabled .state {
-    color: {{.StateDisabled | css}};
-    fill: {{.StateDisabled | css}};
-}
-{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before {
-    background-color: {{.StateDisabled | css}};
-}
-{{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after {
-    background-color: {{.StateDisabled | css}};
-}
-{{$p}} .state-border.disabled, {{$p}} .disabled .state-border {
-    border-color: {{.StateDisabled | css}};
-}
+
+{{/* Semantic backgrounds also use the derived muted colors */}}
+{{if .Colors.Positive}}
+{{$p}} .positive { color: {{.Colors.Positive | css}}; fill: {{.Colors.Positive | css}}; }
+{{end}}
+{{if .Derived.PositiveMuted}}
+{{$p}} .positive-bg { background-color: {{.Derived.PositiveMuted | css}}; }
 {{end}}
 
-{{if .Positive}}
-{{$p}} .positive {
-    color: {{.Positive | css}};
-    fill: {{.Positive | css}};
-}
-{{$p}} .positive-bg {
-    position: relative;
-}
-{{$p}} .positive-bg::before {
-    background-color: {{.Positive | css}};
-    opacity: 0.5;
-    {{template "_before"}}
-}
+{{if .Colors.Negative}}
+{{$p}} .negative { color: {{.Colors.Negative | css}}; fill: {{.Colors.Negative | css}}; }
+{{end}}
+{{if .Derived.NegativeMuted}}
+{{$p}} .negative-bg { background-color: {{.Derived.NegativeMuted | css}}; }
 {{end}}
 
-{{if .Negative}}
-{{$p}} .negative {
-    color: {{.Negative | css}};
-    fill: {{.Negative | css}};
-}
-{{$p}} .negative-bg {
-    position: relative;
-}
-{{$p}} .negative-bg::before {
-    background-color: {{.Negative | css}};
-    opacity: 0.5;
-    {{template "_before"}}
-}
+{{/* Geometry */}}
+{{if .MediumBorderRadius}}
+    {{$p}} .border-medium { {{.MediumBorderRadius}} }
 {{end}}
 
-{{/* Structural card overrides — only emitted when fields are present */}}
+{{/* --- STRUCTURAL CARD OVERRIDES --- */}}
 {{if .Cards}}
-{{$p}} .card, {{$p}} .card-opaque {
+{{$p}} .card, .card-opaque {
     {{template "create-card-theme" .Cards}}
 }
+{{end}}
+{{if .Colors.SurfaceOpaque}}
 {{$p}} .card-opaque {
-    background-color: {{.SurfaceOpaque | css}};
-}
-{{else}}
-{{$p}} .card {
-    background-color: {{.Surface | css}};
-}
-{{$p}} .card-opaque {
-    background-color: {{.SurfaceOpaque | css}};
-}
-{{$p}} .card, {{$p}} .card-opaque {
-    border-color: {{.Border | css}}
+    background-color: {{.Colors.SurfaceOpaque | css}};
 }
 {{end}}
-
 {{if .Entities}}
 {{$p}} .entity.card {
     {{template "create-card-theme" .Entities}}
@@ -352,15 +183,32 @@
     {{template "create-card-theme" .Widgets}}
 }
 {{end}}
-
-{{if .Modal}}
-{{$p}} .modal {
-    {{template "create-card-theme" .Modal}}
-}
-{{else if .OpaqueBackground}}
-{{$p}} .modal {
-    background-color: {{.OpaqueBackground}}
+{{if .Badges}}
+{{$p}} .badge {
+    {{template "create-card-theme" .Badges}}
 }
 {{end}}
+{{if .BadgeButtons}}
+{{$p}} .badge-btn {
+    {{template "create-card-theme" .BadgeButtons}}
+}
+{{end}}
+{{if .Tooltips}}
+{{$p}} .tooltip {
+    {{template "create-card-theme" .Tooltips}}
+}
+{{end}}
+{{if .Modals}}
+{{$p}} .modal.card {
+    {{template "create-card-theme" .Modals}}
+}
+{{end}}
+
+{{if .Buttons}}
+{{$p}} .btn {
+    {{template "create-card-theme" .Buttons}}
+}
+{{end}}
+
 </style>
 {{end}}
