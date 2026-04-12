@@ -15,7 +15,7 @@
         justify-content: space-between;
         height: 100%;
         width: 100%;
-        padding: 0 0 3em 0;
+        padding: 0 0 1em 0;
         overflow-x: hidden;
         overflow-y: auto;
     }
@@ -25,9 +25,9 @@
     } */}}
 </style>
 {{end}}
-{{$theme := .Screen.Theme}}
+{{$theme := .Theme}}
 <div class="main-container">
-    {{if .Screen.Entities}}
+    {{if .Entities}}
         {{if once "centered-entities-style"}}
         <style>
             .entities-container {
@@ -46,15 +46,15 @@
             }
         </style>
         {{end}}
-        {{if .Screen.Entities.Style}}
+        {{if .Entities.Style}}
             <style>
-                #screen-{{.Screen.Name}} .entities-container .card {
-                    {{template "create-card-theme" .Screen.Entities.Style}}
+                #screen-{{.Name}} .entities-container .card {
+                    {{template "create-card-theme" .Entities.Style}}
                 }
             </style>
         {{end}}
-        <div class="entities-container" style="order: {{.Screen.Order.Entities}}">
-        {{range .Screen.Entities.Cards}}
+        <div class="entities-container" style="order: {{.Order.Entities}}">
+        {{range .Entities.Cards}}
             {{template "card-multiplex" .}}
         {{end}}
         </div>
@@ -81,15 +81,12 @@
             }
         </style>
     {{end}}
-    <div class="center-container" style="order: {{.Screen.Order.Widgets}}">
-        {{if enabledByDefault .Screen.Dateclock.Enabled}}
-            {{template "dateclock" (dict
-            "Localization" .Config.Localization
-            "Dateclock" .Screen.Dateclock
-            )}}
+    <div class="center-container" style="order: {{.Order.Widgets}}">
+        {{if enabledByDefault .Dateclock.Enabled}}
+            {{template "dateclock" .Dateclock}}
         {{end}}
 
-        {{if .Screen.Widgets}}
+        {{if .Widgets}}
             <div style="flex-grow:1;"></div>
             {{if once "centered-widgets-style"}}
             <style>
@@ -107,22 +104,22 @@
                 }
                 </style>
             {{end}}
-            {{if .Screen.Widgets.Style}}
+            {{if .Widgets.Style}}
                 <style>
-                    #screen-{{.Screen.Name}} .widgets-container .card {
-                        {{template "create-card-theme" .Screen.Widgets.Style}}
+                    #screen-{{.Name}} .widgets-container .card {
+                        {{template "create-card-theme" .Widgets.Style}}
                     }
                 </style>
             {{end}}
             <div class="widgets-container">
-            {{range .Screen.Widgets.Cards}}
+            {{range .Widgets.Cards}}
                 {{template "card-multiplex" .}}
             {{end}}
             </div>
         {{end}}
     </div>
 
-    {{if .Screen.Sensors}}
+    {{if .Sensors}}
         {{if once "centered-sensors-style"}}
         <style>
             .sensors-container {
@@ -147,15 +144,15 @@
             }
         </style>
         {{end}}
-        {{if .Screen.Sensors.Style}}
+        {{if .Sensors.Style}}
             <style>
-                #screen-{{.Screen.Name}} .sensors-container .card {
-                    {{template "create-card-theme" .Screen.Sensors.Style}}
+                #screen-{{.Name}} .sensors-container .card {
+                    {{template "create-card-theme" .Sensors.Style}}
                 }
             </style>
         {{end}}
-        <div class="sensors-container" style="order: {{.Screen.Order.Sensors}}">
-        {{range .Screen.Sensors.Cards}}
+        <div class="sensors-container" style="order: {{.Order.Sensors}}">
+        {{range .Sensors.Cards}}
             {{template "card-multiplex" .}}
         {{end}}
         </div>

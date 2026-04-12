@@ -1,3 +1,30 @@
+{{define "_transition"}}
+    {{if globals "Animations" | enabledByDefault}}
+    -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
+    transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
+    {{else}}
+    -webkit-transition: none;
+    transition: none;
+    {{end}}
+{{end}}
+{{define "_transition-fast"}}
+    {{if globals "Animations" | enabledByDefault}}
+    -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
+    transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
+    {{else}}
+    -webkit-transition: none;
+    transition: none;
+    {{end}}
+{{end}}
+
+{{define "_slider-thumb"}}
+    -webkit-appearance: none;
+    display: flex;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+{{end}}
 {{define "base-style"}}
 <style>
     :root {
@@ -25,38 +52,23 @@
     }
         
     * {
-        {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
-        transition: color 0.5s ease, background-color 0.4s ease, background 0.4s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease, border-color 0.4s ease;
-        {{else}}
-        -webkit-transition: none;
-        transition: none;
-        {{end}}
+        {{template "_transition"}}
         box-sizing: border-box;
         margin: 0;
         padding: 0;
         -webkit-tap-highlight-color: transparent;
     }
 
-    *::before, *::after, *::-webkit-slider-thumb, *::-moz-range-thumb {
-        {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
-        transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
-        {{else}}
-        -webkit-transition: none;
-        transition: none;
-        {{end}}
-    }
+    *::before { {{template "_transition"}} }
+    *::after { {{template "_transition"}} }
+    *::-webkit-slider-thumb { {{template "_transition"}} } 
+    *::-moz-range-thumb { {{template "_transition"}} }
 
-    .transition-fast, .transition-fast *::after, .transition-fast *::before, .transition-fast *::-webkit-slider-thumb, .transition-fast *::-moz-range-thumb {
-        {{if enabledByDefault .Animations}}
-        -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
-        transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
-        {{else}}
-        -webkit-transition: none;
-        transition: none;
-        {{end}}
-    }
+    .transition-fast { {{template "_transition-fast"}} } 
+    .transition-fast *::after { {{template "_transition-fast"}} }
+    .transition-fast *::before { {{template "_transition-fast"}} }
+    .transition-fast *::-webkit-slider-thumb { {{template "_transition-fast"}} }
+    .transition-fast *::-moz-range-thumb { {{template "_transition-fast"}} }
     
     button:focus { outline: none; }
 
@@ -97,15 +109,8 @@
         pointer-events: none;
     }
 
-    input[type=range].thumb::-webkit-slider-thumb, 
-    input[type=range].thumb::-moz-range-thumb {
-        -webkit-appearance: none;
-        display: flex;
-        flex-shrink: 0;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-    }
+    input[type=range].thumb::-webkit-slider-thumb { {{template "_slider-thumb"}} } 
+    input[type=range].thumb::-moz-range-thumb { {{template "_slider-thumb"}} }
 
     .tooltip {
         display: none;

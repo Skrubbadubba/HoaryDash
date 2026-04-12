@@ -183,7 +183,6 @@
 component(function(wrapper) {
   var POLL_INTERVAL = 10 * 60 * 1000;
   var entityId = {{.EntityID}};
-  console.log("weather entity id is: ", entityId)
   if (!entityId) { return; }
 
   var locale   = window.CONFIG.locale   || navigator.language || 'en-US';

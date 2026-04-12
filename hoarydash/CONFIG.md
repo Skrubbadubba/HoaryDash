@@ -445,6 +445,8 @@ screens:
           unit: "%"
 ```
 
+It is recommended to apply a dark theme to this layout, as the text might not read well against the backdrop otherwise.
+
 ### Additional fields
 
 In addition to the common screen fields, the fullscreen media layout has the following:

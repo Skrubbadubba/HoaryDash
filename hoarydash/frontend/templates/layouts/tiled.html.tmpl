@@ -90,18 +90,15 @@
 </style>
 {{end}}
 
-{{$screen := .Screen}}
+{{$screen := .}}
 <div class="tiled-container">
-    {{if enabledByDefault .Screen.Dateclock.Enabled}}
+    {{if enabledByDefault .Dateclock.Enabled}}
         <div class="tiled-clock">
-            {{template "dateclock" (dict
-                "Localization" .Config.Localization
-                "Dateclock" .Screen.Dateclock
-            )}}
+            {{template "dateclock" .Dateclock}}
         </div>
     {{end}}
 
-    {{range $gi, $group := .Screen.Groups}}
+    {{range $gi, $group := .Groups}}
     {{if $group.Style}}
         <style>
             #screen-{{$screen.Name}} #group-{{$group.Name}} .card {

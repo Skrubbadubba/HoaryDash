@@ -148,8 +148,9 @@ component(function(modal) {
 
     var elBackdrop  = modal.querySelector('.modal-backdrop');
     var elList      = modal.querySelector('.modal-list');
-    
+    {{if globals "IsDev"}}
     console.log("media browser root is: ", modal);
+    {{end}}
     modal.querySelector('.modal-header').innerHTML = 
               '<button class="mbrowser-back on-surface" disabled>{{icon "chevron-left"}}</button>'
             + '<div class="mbrowser-breadcrumbs"></div>'
@@ -261,7 +262,7 @@ component(function(modal) {
                     playBtn.title = 'Play';
                     playBtn.onclick = function(e) {
                         e.stopPropagation();
-                        ctrl.playItem(item);
+                        ctrl.playItem(item, stack);
                         modal.close();
                     };
                     row.appendChild(playBtn);
@@ -271,7 +272,7 @@ component(function(modal) {
                 if (item.can_expand) {
                     row.onclick = function() { navigateTo(item); };
                 } else if (item.can_play) {
-                    row.onclick = function() { ctrl.playItem(item); modal.close(); };
+                    row.onclick = function() { ctrl.playItem(item, stack); modal.close(); };
                 } else {
                     row.style.cursor = 'default';
                     row.style.opacity = '0.45';

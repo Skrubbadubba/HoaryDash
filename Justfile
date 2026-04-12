@@ -1,9 +1,11 @@
+# Go running
 air:
     cd hoarydash/server && IS_DEV=true air
 
 run:
     cd hoarydash/server && IS_DEV=true go run .
 
+# Release workflow
 feature name:
     git checkout main
     git pull
@@ -57,12 +59,18 @@ patch version:
 tags:
     git push && git push --tags
 
+# Docker
 docker:
-    docker compose up --build
+    sudo docker compose up --build
 
 extract-mdi:
     cd hoarydash && sudo sh -c 'docker build --target icons -t mdi-extract . && docker run --rm mdi-extract cat /build/mdi.json > mdi.json'
 
+
+# For testing on a live HAOS instance
+dev-mount ip="" user="" pass="":
+    sudo mount -t cifs //{{ip}}/addons /mnt/haos-addons \
+      -o username={{user}},password={{pass}},uid=$(id -u),gid=$(id -g) 2>/dev/null || true
 dev-sync:
     rsync -av --inplace --no-compress --exclude='config.yaml' ./hoarydash/ /mnt/haos-addons/hoarydash-dev/
     sed 's/slug: hoarydash/slug: hoarydash_dev/' hoarydash/config.yaml \

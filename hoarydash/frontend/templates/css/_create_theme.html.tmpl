@@ -79,25 +79,29 @@
 {{if .Colors.Interactive}}
 {{$p}} .interactive { color: {{.Colors.Interactive | css}}; fill: {{.Colors.Interactive | css}}; }
 {{$p}} .interactive-bg { background-color: {{.Colors.Interactive | css}}; }
-{{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb {
+    background-color: {{.Colors.Interactive | css}};
+}
 {{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
     background-color: {{.Colors.Interactive | css}};
 }
 {{end}}
-
 {{if .Colors.InteractiveMuted}}
 {{$p}} .interactive-muted { color: {{.Colors.InteractiveMuted | css}}; fill: {{.Colors.InteractiveMuted | css}}; }
 {{$p}} .interactive-muted-bg { background-color: {{.Colors.InteractiveMuted | css}}; }
-{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb {
+    background-color: {{.Colors.InteractiveMuted | css}};
+}
 {{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
     background-color: {{.Colors.InteractiveMuted | css}};
 }
 {{end}}
-
 {{if .Colors.InteractiveDisabled}}
 {{$p}} .interactive-disabled { color: {{.Colors.InteractiveDisabled | css}}; fill: {{.Colors.InteractiveDisabled | css}}; }
 {{$p}} .interactive-disabled-bg { background-color: {{.Colors.InteractiveDisabled | css}}; }
-{{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb,
+{{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb {
+    opacity: 0;
+}
 {{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
     opacity: 0;
 }
@@ -151,20 +155,35 @@
 {{end}}
 
 {{/* Geometry */}}
+{{if .Shapes.WideBorderRadius}}
+    {{$p}} .border-wide { border-radius: {{.Shapes.WideBorderRadius}}; }
+{{end}}
 {{if .Shapes.MediumBorderRadius}}
     {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
+{{end}}
+
+{{if .Shapes.TightBorderRadius}}
+    {{$p}} .border-tight { border-radius: {{.Shapes.TightBorderRadius}}; }
+{{end}}
+{{if .Shapes.BorderThin}}
+    {{$p}} .border-thin { border-width: {{.Shapes.BorderThin}}; }
+{{end}}
+{{if .Shapes.BorderThick}}
+    {{$p}} .border-thick { border-width: {{.Shapes.BorderThick}}; }
+{{end}}
+
+{{if or .Shapes.Borders .Colors.Border}}
+{{$p}} .border {
+    {{if .Shapes.Borders}}
+    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
+    {{end}}
+    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
+}
 {{end}}
 
 {{/* --- CARD-LIKE DEFAULT ASSIGNMENTS --- */}}
 {{/* Colors and geometry assigned from semantic theme values.              */}}
 {{/* CardStyle override blocks below take precedence via specificity.      */}}
-
-{{if .Shapes.Borders}}
-{{$p}} .border {
-    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
-    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
-}
-{{end}}
 
 {{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
 {{$p}} .card {
