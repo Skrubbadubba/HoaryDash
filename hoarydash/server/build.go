@@ -19,8 +19,7 @@ var mdiIcons map[string]string
 type TemplateData struct {
 	Dashboard
 	Config
-	Name  string
-	IsDev bool
+	Name string
 }
 
 func domain(entityID string) string {
@@ -313,6 +312,7 @@ func BuildDash() {
 		globals := map[string]any{
 			"Animations": dash.Animations,
 			"Lang":       lang,
+			"IsDev":      isDev,
 		}
 		funcMap["globals"] = makeGlobals(globals)
 
@@ -327,7 +327,7 @@ func BuildDash() {
 
 		built[name] = builtDash{
 			tmpl: dashTmpl.Funcs(funcMap),
-			data: TemplateData{dash, cfg.Config, name, isDev},
+			data: TemplateData{dash, cfg.Config, name},
 		}
 	}
 

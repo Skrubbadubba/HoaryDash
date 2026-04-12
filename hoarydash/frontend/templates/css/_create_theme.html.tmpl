@@ -151,20 +151,35 @@
 {{end}}
 
 {{/* Geometry */}}
+{{if .Shapes.WideBorderRadius}}
+    {{$p}} .border-wide { border-radius: {{.Shapes.WideBorderRadius}}; }
+{{end}}
 {{if .Shapes.MediumBorderRadius}}
     {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
+{{end}}
+
+{{if .Shapes.TightBorderRadius}}
+    {{$p}} .border-tight { border-radius: {{.Shapes.TightBorderRadius}}; }
+{{end}}
+{{if .Shapes.BorderThin}}
+    {{$p}} .border-thin { border-width: {{.Shapes.BorderThin}}; }
+{{end}}
+{{if .Shapes.BorderThick}}
+    {{$p}} .border-thick { border-width: {{.Shapes.BorderThick}}; }
+{{end}}
+
+{{if or .Shapes.Borders .Colors.Border}}
+{{$p}} .border {
+    {{if .Shapes.Borders}}
+    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
+    {{end}}
+    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
+}
 {{end}}
 
 {{/* --- CARD-LIKE DEFAULT ASSIGNMENTS --- */}}
 {{/* Colors and geometry assigned from semantic theme values.              */}}
 {{/* CardStyle override blocks below take precedence via specificity.      */}}
-
-{{if .Shapes.Borders}}
-{{$p}} .border {
-    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
-    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
-}
-{{end}}
 
 {{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
 {{$p}} .card {

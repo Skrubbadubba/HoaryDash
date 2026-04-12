@@ -24,6 +24,7 @@
                     {{if .Entities}}{{range .Entities.Cards}}"{{.EntityID}}",{{end}}{{end}}
                     {{if .Widgets}}{{range .Widgets.Cards}}"{{.EntityID}}",{{end}}{{end}}
                     {{range .Groups}}{{range .Cards}} "{{.EntityID}}",{{end}}{{end}}
+                    {{if .EntityID}}{{.EntityID}},{{end}}
                 {{end}}
                 ],
             locale: locale,
@@ -51,8 +52,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 </head>
 <body>
-    {{/* <p>{{json .Dashboard.Screens}}</p> */}}
-    {{if .IsDev}}
+    {{if globals "IsDev"}}
         {{template "isdev"}}
     {{end}}
     {{$config := .Config}}
@@ -62,14 +62,15 @@
         function component(script) {
             var root = document.currentScript.previousElementSibling;
             while (root.tagName === 'SCRIPT') {
-                console.log("component scripts previous sibling was a script, ioterating back one node")
+                {{if globals "IsDev"}}
+                console.log("component scripts previous sibling was a script, iterating back one node")
+                {{end}}
                 root = root.previousElementSibling
             }
             script(root);
         };
         function normalizeSize(container) {
             var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
             var tallest = 0;
             var widest = 0;
             for (var i = 0; i < divs.length; i++) {
@@ -85,7 +86,6 @@
         }
         function normalizeHeight(container) {
             var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
             var tallest = 0;
             for (var i = 0; i < divs.length; i++) {
                 if (divs[i].tagName == "SCRIPT") { continue; }
@@ -98,7 +98,6 @@
         }
         function normalizeWidth(container) {
             var divs = container.children;
-            console.log("container: ", container, "divs: ", divs)
             var widest = 0;
             for (var i = 0; i < divs.length; i++) {
                 if (divs[i].tagName == "SCRIPT") { continue; }
@@ -111,7 +110,6 @@
         }
     </script>
     <div class="screens">
-        <div>{{json .Dashboard.Theme}}</div>
     <style>
         .screens {
             display: -webkit-box;
@@ -165,7 +163,7 @@
         {{if .Dashboard.Navbar.Enabled}}
         {{$position := .Dashboard.Navbar.Position | default "bottom"}}
          .navbar-padding {
-            {{if eq $position "bottom"}}padding-bottom: 4.5em;{{end}}
+            {{if eq $position "bottom"}}padding-bottom: 5em;{{end}}
             {{if eq $position "top"}}padding-top: 5em;{{end}}
             {{if eq $position "left"}}padding-left: 5.5em;{{end}}
             {{if eq $position "right"}}padding-right: 5.5em;{{end}}
@@ -220,21 +218,17 @@
             {{end}}
             {{end}}
             {{/* <p>{{json .}}</p> */}}
-            {{$layoutDict := (dict 
-                "Config" $config
-                "Screen" $screen
-            )}}
             {{if isFull $screen.Layout}}
                 <div class="layout-container">
             {{else}}
-                <div class="layout-container layout-padding">
+                <div class="layout-container layout-padding navbar-padding">
             {{end}}
             {{if eq $screen.Layout "tiled"}}
-                {{template "tiled-layout" $layoutDict}}
+                {{template "tiled-layout" $screen}}
                 {{else if eq $screen.Layout "media-full"}}
-                    {{template "fullscreen-media-layout" $layoutDict}}
+                    {{template "fullscreen-media-layout" $screen}}
                 {{else}}
-                    {{template "centered-layout" $layoutDict}}
+                    {{template "centered-layout" $screen}}
                 {{end}}
             </div>
             {{if $showHints}}
@@ -325,12 +319,21 @@
             if (index < 0 || index >= screens.length) { return; }
             currentIndex = index;
             screenEl = screens[currentIndex];
+
+            // Avoid automatic scroll by using history API instead of location.hash
             history.pushState({}, '', "#" + screenEl.id);
             for (var i = 0; i < screens.length; i++) {
                 screens[i].style.transform = "translateX(" + (xOffset - index)*100 + "%)";
             }
             dispatchNavigate();
         };
+
+        function realign() {
+            // Use native scroll to realign by changing hash
+            location.hash = screens[currentIndex].id
+        }
+
+        window.addEventListener("resize", realign)
 
 
         {{if enabledByDefault .Dashboard.Swipe}}

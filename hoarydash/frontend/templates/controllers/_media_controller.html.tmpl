@@ -18,7 +18,9 @@
         var updateListeners = [];
     
         function handleUpdate(newState, newAttributes) {
+            {{if globals "IsDev"}}
             console.log("media controller recieved: ", newState, newAttributes)
+            {{end}}
             var stateChanged = (newState !== undefined && newState !== cachedState);
             var changedAttrs = diffAttributes(newAttributes);
 
@@ -128,6 +130,7 @@
         }
 
         function playItem(item, stack) {
+            console.log("media controller playItem refdievec stack: ", stack)
             if (!options.spotifyPlus) return _playNormalItem(item);
             var spMsg = {
                 type: 'call_service',

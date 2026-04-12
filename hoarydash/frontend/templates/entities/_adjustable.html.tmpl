@@ -180,7 +180,7 @@ component(function(wrapper) {
   var entityId = '{{.EntityID}}';
   var domain = '{{domain .EntityID}}';
   var chevron  = wrapper.querySelector('.ha-adjustable-chevron');
-  console.log("wrapper: ", wrapper, "chevron: ", chevron)
+  {{/* console.log("wrapper: ", wrapper, "chevron: ", chevron) */}}
 
   {{if eq $domain "light"}}
   var dimRow   = wrapper.querySelector('.ha-slider-row.dim');
@@ -198,7 +198,7 @@ component(function(wrapper) {
 
   // Hard set width to initial value, long values with decimals dont stretch the wrapper
   var speedValInitWidth = speedVal.clientWidth;
-  console.log("initial width of speed val: ", speedValInitWidth)
+  {{/* console.log("initial width of speed val: ", speedValInitWidth) */}}
   speedVal.style.width = speedValInitWidth;
   {{end}}
 

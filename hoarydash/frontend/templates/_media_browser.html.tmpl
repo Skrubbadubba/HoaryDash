@@ -261,7 +261,7 @@ component(function(modal) {
                     playBtn.title = 'Play';
                     playBtn.onclick = function(e) {
                         e.stopPropagation();
-                        ctrl.playItem(item);
+                        ctrl.playItem(item, stack);
                         modal.close();
                     };
                     row.appendChild(playBtn);
@@ -271,7 +271,7 @@ component(function(modal) {
                 if (item.can_expand) {
                     row.onclick = function() { navigateTo(item); };
                 } else if (item.can_play) {
-                    row.onclick = function() { ctrl.playItem(item); modal.close(); };
+                    row.onclick = function() { ctrl.playItem(item, stack); modal.close(); };
                 } else {
                     row.style.cursor = 'default';
                     row.style.opacity = '0.45';

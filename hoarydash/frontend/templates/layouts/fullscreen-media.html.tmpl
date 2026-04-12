@@ -155,10 +155,8 @@
         height: 11.5em;
         -webkit-flex-shrink: 0;
         flex-shrink: 0;
-        border-radius: 0.4em;
         background: rgba(255,255,255,0.08);
         overflow: hidden;
-        border: 0.05em solid rgba(255,255,255,0.12);
         display: -webkit-box;
         display: -webkit-flex;
         display: flex;
@@ -361,8 +359,6 @@
 </style>
 {{end}}
 {{template "media-controller"}}
-
-
 <div class="fml-container">
     <div class="fml-backdrop">
         <img class="fml-backdrop-art" src="" alt="" />
@@ -371,24 +367,24 @@
 
     <div class="fml-layout navbar-padding">
         <div class="fml-top-row">
-            {{if enabledByDefault .Screen.Dateclock.Enabled}}
+            {{if enabledByDefault .Dateclock.Enabled}}
             <div class="fml-clock">
                 {{template "_dateclock"}}
-                {{template "dateclock-controller" .Screen.Dateclock}}
+                {{template "dateclock-controller" .Dateclock}}
             </div>
             {{else}}
             <div></div>
             {{end}}
 
             <div class="fml-top-right">
-                {{if .Screen.Badges}}
+                {{if .Badges}}
                 <div class="fml-badges">
                     <div class="fml-badge surface-subtle on-surface-muted badge border">
-                        <div class="fml-badge-icon icon">{{icon .Screen.Badges.Badge.Icon}}</div>
-                        <span class="fml-badge-name">{{.Screen.Badges.Badge.Label}}</span>
+                        <div class="fml-badge-icon icon">{{icon .Badges.Badge.Icon}}</div>
+                        <span class="fml-badge-name">{{.Badges.Badge.Label}}</span>
                     </div>
-                    {{if .Screen.Badges.Sensors}}
-                    {{range .Screen.Badges.Sensors}}
+                    {{if .Badges.Sensors}}
+                    {{range .Badges.Sensors}}
                         <div class="fml-sensor surface-subtle on-surface-muted badge border">
                             {{if .Icon}}
                             <div class="fml-sensor-icon icon">{{icon .Icon}}</div>
@@ -411,19 +407,19 @@
                     <span class="fml-source-name">-</span>
                 </button>
                 
-                {{if .Screen.ShowBrowser}}
+                {{if .ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
                 </button>
-                <div class="fml-media-browser">{{template "media-browser" .Screen}}</div>
+                <div class="fml-media-browser">{{template "media-browser" }}</div>
                 {{end}}
                 <div class="fml-source-browser">{{template "modal"}}</div>
             </div>
         </div>
 
         <div class="fml-mid">
-            <div class="fml-cover medium-border">
+            <div class="fml-cover border-tight border-thin border">
                 <div class="fml-cover-placeholder accent">{{icon "music"}}</div>
             </div>
             <div class="fml-song-block">
@@ -459,10 +455,10 @@
 </div>
 <script>
 component(function(wrapper) {
-    var entityId = '{{.Screen.EntityID}}';
+    var entityId = '{{.EntityID}}';
     if (!entityId) { return; }
 
-    var ctrl = makeMediaController(entityId{{if .Screen.Spotifyplus}}, { spotifyPlus: true }{{end}});
+    var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
     var progressInterval;
     var currentDuration;
 
@@ -560,14 +556,14 @@ component(function(wrapper) {
     elSourceBtn.onclick = elSourceBrowser.open;
     
 
-    {{if .Screen.ShowBrowser}}
+    {{if .ShowBrowser}}
     var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
     if (elBrowseBtn) {
         elBrowseBtn.onclick = elMediaBrowser.mediaBrowserOpen;
     }
     {{end}}
 
-    {{if disabledByDefault .Screen.Rotate}}
+    {{if disabledByDefault .Rotate}}
     var backdropRotationDeg = 0;
     setInterval(function() {
         elBackdropArt.style.transform = "rotate(" + backdropRotationDeg + "deg)"
@@ -617,7 +613,7 @@ component(function(wrapper) {
         }
     });
 
-    // song info + cover art
+    // song info
     ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
         var title  = attrs.media_title   || '';
         var artist = attrs.media_artist  || '';
@@ -630,7 +626,7 @@ component(function(wrapper) {
         var html = '';
         if (title)  { html += '<span class="fml-song-title on-surface">'  + title  + '</span>'; }
         if (artist) { html += '<span class="fml-song-artist on-surface-muted">' + artist + '</span>'; }
-        {{if .Screen.ShowAlbum}}
+        {{if enabledByDefault .ShowAlbum}}
         if (album)  { html += '<span class="fml-song-album on-surface-subtle">' + album  + '</span>'; }
         {{end}}
         elSongBlock.innerHTML = html;

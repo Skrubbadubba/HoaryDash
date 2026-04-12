@@ -202,7 +202,7 @@
         <div class="todo-info">
             <span class="todo-icon"></span>
             <span class="todo-name on-surface">Todos</span>
-            <span> - </span>
+            <span class="on-surface-subtle"> - </span>
             <span class="todo-statistic on-surface-muted">0/0</span>
         </div>
         <div class="todo-controls on-surface">
@@ -221,7 +221,7 @@
                 class="todo-input" 
                 placeholder="Add a todo..."
             >
-            <button class="todo-add-btn">
+            <button class="todo-add-btn interactive">
                 ＋
             </button>
         </div>
@@ -241,7 +241,6 @@
 component(function(wrapper) {
 var POLL_INTERVAL = 10 * 60 * 1000;
 var entityId = {{ .EntityID }};
-console.log("todo entity id is: ", entityId)
 if (!entityId) { return; }
 
 var locale   = window.CONFIG.locale;
