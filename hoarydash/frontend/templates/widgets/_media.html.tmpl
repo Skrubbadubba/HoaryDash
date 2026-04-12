@@ -199,11 +199,9 @@
         cursor: pointer;
     }
 
-    .media-vol-slider::-moz-range-thumb, .media-vol-slider::-webkit-slider-thumb {
-        width: 1.8em;
-        height: 1.8em;
-        background: #949494;
-    }
+    {{$thumbStyle := "width: 1.8em; height: 1.8em; background: #949494;" | css}}
+    .media-vol-slider::-webkit-slider-thumb { {{$thumbStyle}} }
+    .media-vol-slider::-moz-range-thumb { {{$thumbStyle}} }
 
     .media-browser-button {
         background: none;

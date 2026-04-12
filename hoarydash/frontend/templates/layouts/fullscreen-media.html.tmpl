@@ -306,10 +306,9 @@
         cursor: pointer;
     }
 
-    .fml-vol-slider::-webkit-slider-thumb, .fml-vol-slider::-moz-range-thumb {
-        width: 1.6em;
-        height: 1.6em;
-    }
+    {{ $thumbStyle := "width: 1.6em; height: 1.6em;" | css}}
+    .fml-vol-slider::-webkit-slider-thumb { {{$thumbStyle}} }
+    .fml-vol-slider::-moz-range-thumb { {{$thumbStyle}} }
 
     .fml-progress-row {
         width: 100%;
@@ -412,7 +411,7 @@
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
                 </button>
-                <div class="fml-media-browser">{{template "media-browser" }}</div>
+                <div class="fml-media-browser">{{template "media-browser" .}}</div>
                 {{end}}
                 <div class="fml-source-browser">{{template "modal"}}</div>
             </div>
@@ -472,6 +471,7 @@ component(function(wrapper) {
     var elRepeat        = wrapper.querySelector('.fml-ctrl-btn.repeat');
     var elVolSlider     = wrapper.querySelector('.fml-vol-slider');
     var elMediaBrowser  = wrapper.querySelector('.fml-media-browser .modal-container');
+    console.log("media browser element: ", elMediaBrowser)
     var elSourceBrowser = wrapper.querySelector('.fml-source-browser .modal-container');
     var elTimeElapsed   = wrapper.querySelector('.fml-progress-duration.elapsed');
     var elTimeLeft      = wrapper.querySelector('.fml-progress-duration.left');
@@ -559,7 +559,9 @@ component(function(wrapper) {
     {{if .ShowBrowser}}
     var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
     if (elBrowseBtn) {
-        elBrowseBtn.onclick = elMediaBrowser.mediaBrowserOpen;
+        elBrowseBtn.onclick = function() {
+            if (elMediaBrowser) { console.log("tried running open on: ", elMediaBrowser); elMediaBrowser.mediaBrowserOpen();  }
+        };
     }
     {{end}}
 

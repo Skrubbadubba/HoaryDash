@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"maps"
+	"math"
 	"os"
 	"reflect"
 	"regexp"
@@ -123,7 +124,6 @@ func createDefaultModal() *CardStyle {
 func createDefaultBadge() *CardStyle {
 	bs := CardStyle{
 		BorderColor: "rgba(255,255,255,0.15)",
-		BorderWidth: "0.2px",
 		Padding:     "0.35em 0.60em",
 	}
 	return &bs
@@ -178,7 +178,7 @@ var defaultTheme = Theme{
 		WideBorderRadius:   "2em",
 		MediumBorderRadius: "1em",
 		BorderThick:        "1.8px",
-		BorderThin:         "0.5px",
+		BorderThin:         "0.75px",
 	},
 	Modals:       createDefaultModal(),
 	Badges:       createDefaultBadge(),
@@ -189,6 +189,13 @@ var defaultTheme = Theme{
 
 type ThemesMap map[string]Theme
 
+func toRGBAString(c csscolorparser.Color) string {
+	r := int(math.Round(c.R * 255))
+	g := int(math.Round(c.G * 255))
+	b := int(math.Round(c.B * 255))
+	return fmt.Sprintf("rgba(%d, %d, %d, %.4g)", r, g, b, c.A)
+}
+
 func deriveAlpha(base template.CSS, alpha float64) template.CSS {
 	if base == "" {
 		return ""
@@ -198,7 +205,7 @@ func deriveAlpha(base template.CSS, alpha float64) template.CSS {
 		return base
 	}
 	c.A = c.A * alpha
-	return template.CSS(c.RGBString())
+	return template.CSS(toRGBAString(c))
 }
 
 func (t *Theme) ComputeDerivatives() {
@@ -328,7 +335,7 @@ func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CS
 			return match
 		}
 		c.A = alpha
-		return c.RGBString()
+		return toRGBAString(c)
 	})
 
 	return template.CSS(result), firstErr

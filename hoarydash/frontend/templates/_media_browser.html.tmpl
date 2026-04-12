@@ -148,8 +148,9 @@ component(function(modal) {
 
     var elBackdrop  = modal.querySelector('.modal-backdrop');
     var elList      = modal.querySelector('.modal-list');
-    
+    {{if globals "IsDev"}}
     console.log("media browser root is: ", modal);
+    {{end}}
     modal.querySelector('.modal-header').innerHTML = 
               '<button class="mbrowser-back on-surface" disabled>{{icon "chevron-left"}}</button>'
             + '<div class="mbrowser-breadcrumbs"></div>'
