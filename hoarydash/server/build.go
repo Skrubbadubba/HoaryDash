@@ -22,6 +22,15 @@ type TemplateData struct {
 	Name string
 }
 
+func jsonStr(j interface{}) string { // For debugging
+	var out []byte
+	out, err := json.Marshal(j)
+	if err != nil {
+		return ""
+	}
+	return string(out)
+}
+
 func domain(entityID string) string {
 	parts := strings.SplitN(entityID, ".", 2)
 	if len(parts) < 2 {
@@ -161,14 +170,7 @@ var funcMap = template.FuncMap{
 		}
 		return false
 	},
-	"json": func(j interface{}) string { // For debugging
-		var out []byte
-		out, err := json.Marshal(j)
-		if err != nil {
-			return ""
-		}
-		return string(out)
-	},
+	"json": jsonStr,
 	"merge": func(maps ...any) (map[string]any, error) {
 		result := map[string]any{}
 		for _, m := range maps {
@@ -238,13 +240,13 @@ var funcMap = template.FuncMap{
 func BuildDash() {
 	cfg, err := parseConfig()
 	if err != nil {
-		log.Printf("could not load config when building dashboard: %v", err)
+		log.Printf("Could not load config when building dashboard: %v", err)
 		return
 	}
 
 	parsedThemes, err := parseThemes()
 	if err != nil {
-		log.Printf("could not load themes when building dashboard: %v", err)
+		log.Printf("Could not load themes when building dashboard: %v", err)
 		return
 	}
 	allNamed := ThemesMap{}
@@ -252,6 +254,10 @@ func BuildDash() {
 		allNamed[k] = v
 	}
 	for k, v := range cfg.Themes {
+		if err := v.Finalize(); err != nil {
+			log.Printf("Error finalizing config theme %s: %v", k, err)
+			continue
+		}
 		allNamed[k] = v
 	}
 
@@ -301,6 +307,9 @@ func BuildDash() {
 			dereffedTheme = *resolvedTheme
 		}
 		dash.Theme = mergeTheme(defaultTheme, dereffedTheme)
+		if isDev {
+			log.Printf("Resolved dashboard theme is: %s", jsonStr(dash.Theme))
+		}
 
 		funcMap["once"] = makeOnceFunc()
 

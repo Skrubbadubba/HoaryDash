@@ -1,21 +1,10 @@
-# Patch: v0.11.3
+# Patch: v0.11.4
 
-- Remove leftover debug values rendered on the dashboard
-- Fix media browser not playing from spotify context
-- Realign screen positions on viewport resize
-- Adjusted padding around the navbar
-- Fix fullscreen media layout not subscribing to its entity
-- Based border around album cover on fullscreen media layout on theme
-- Fix unresponsive browse button on the media widget
-- Fix some styling not being compatible with old chromium
+- Fixed themes without a vars key not getting derived colors
 
-### ⚠ Caution!
+### Image build crash thing
 
-I have since of recent a local dev copy of the addon on my own HAOS to test with. More than 3 times now, rebuilding the application has caused an i/o error and corrupted my entire HAOS VM. 
-
-This might very well be due to my incredibely old and weak hardware HAOS is running on. But, the build process of the addon's image has a step utilizing node (javascript) to download and convert the entire mdi js library to a large json file. This step _could_ be the reason, as it is somewhat resource intensive for atleast my hardware.
-
-As mentioned this could be a me problem, but I still urge everyone to backup their HA installation in some way before updating HoaryDash.
+Don't worry about the last message guys, it was just my proxmox running out of space. Updating HoaryDash will not make your HAOS explode 😅 
 
 ---
 

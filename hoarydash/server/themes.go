@@ -237,11 +237,25 @@ func (t *Theme) ComputeDerivatives() {
 	}
 
 	// Precalculated derivations
+	if isDev {
+		log.Printf("[derive] StateOn=%q Positive=%q Negative=%q StateOff=%q StateDisabled=%q",
+			t.Colors.StateOn,
+			t.Colors.Positive,
+			t.Colors.Negative,
+			t.Colors.StateOff,
+			t.Colors.StateDisabled,
+		)
+	}
 	t.Derived.PositiveMuted = deriveAlpha(t.Colors.Positive, 0.5)
 	t.Derived.NegativeMuted = deriveAlpha(t.Colors.Negative, 0.5)
-	t.Derived.StateOnMuted = deriveAlpha(t.Colors.StateOn, 0.35)
-	t.Derived.StateOffMuted = deriveAlpha(t.Colors.StateOff, 0.35)
-	t.Derived.StateDisabledMuted = deriveAlpha(t.Colors.StateDisabled, 0.35)
+	t.Derived.StateOnMuted = deriveAlpha(t.Colors.StateOn, 0.3)
+	t.Derived.StateOffMuted = deriveAlpha(t.Colors.StateOff, 0.3)
+	t.Derived.StateDisabledMuted = deriveAlpha(t.Colors.StateDisabled, 0.3)
+	if isDev {
+		log.Printf("[derive] result: StateOnMuted=%q StateOffMuted=%q PositiveMuted=%q",
+			t.Derived.StateOnMuted, t.Derived.StateOffMuted, t.Derived.PositiveMuted,
+		)
+	}
 }
 
 func (t *Theme) Clone() Theme {
@@ -361,32 +375,30 @@ func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
 }
 
 func (t *Theme) Finalize() error {
-	if t.Vars == nil {
-		return nil
-	}
-
-	if err := resolveCSS(&t.Colors, t.Vars); err != nil {
-		return err
-	}
-	if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
-		return err
-	}
-	if t.Background != "" {
-		resolved, err := resolveColor(t.Background, t.Vars)
-		if err != nil {
+	if t.Vars != nil {
+		if err := resolveCSS(&t.Colors, t.Vars); err != nil {
 			return err
 		}
-		t.Background = resolved
-	}
-
-	// CardStyles
-	for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
-		t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
-		if cs == nil {
-			continue
-		}
-		if err := resolveCSS(cs, t.Vars); err != nil {
+		if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
 			return err
+		}
+		if t.Background != "" {
+			resolved, err := resolveColor(t.Background, t.Vars)
+			if err != nil {
+				return err
+			}
+			t.Background = resolved
+		}
+
+		// CardStyles
+		for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
+			t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
+			if cs == nil {
+				continue
+			}
+			if err := resolveCSS(cs, t.Vars); err != nil {
+				return err
+			}
 		}
 	}
 

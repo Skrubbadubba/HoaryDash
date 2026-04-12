@@ -99,7 +99,7 @@ func main() {
 	cfg, err := parseConfig()
 	check(err, "Config loaded successfully")
 	if isDev {
-		// log.Printf("Config is: %+v", cfg)
+		// log.Printf("Config is: %s", jsonStr(cfg))
 	}
 	go yamlWatcher.Start(1 * time.Second)
 
