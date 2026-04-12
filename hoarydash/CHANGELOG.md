@@ -1,10 +1,6 @@
-# Patch: v0.11.1
+# Patch: v0.11.2
 
-Fix theme parsing:
-
-- Predefined themes are now bundled into the image in /app/themes.bundle.yaml
-- User defined themes live in their own file in /config/themes.yaml
-- User defined themes overrides bundled ones on name collison
+Remove leftover code causing js crash
 
 Logging is cleaned up a bit aswell
 
