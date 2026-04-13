@@ -211,7 +211,7 @@
         <div id="{{$id}}" class="screen">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
-                <div class="swipe-hint left">
+                <div class="swipe-hint left on-bg">
                     {{icon "chevron-left"}}
                     {{if .Icon}}{{icon .Icon}}{{end}}
                 </div>
@@ -233,7 +233,7 @@
             </div>
             {{if $showHints}}
             {{with nextScreen $.Dashboard $i}}
-            <div class="swipe-hint right">
+            <div class="swipe-hint right on-bg">
                 {{if .Icon}}{{icon .Icon}}{{end}}
                 {{icon "chevron-right"}}
             </div>

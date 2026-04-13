@@ -109,7 +109,7 @@
 
 {{/* --- STATES & PILL BACKGROUNDS --- */}}
 
-{{/* The ::after is for the thumb itself, it should be the full, opaque color */}}
+{{/* The ::after is for the slider thumbs */}}
 {{if .Colors.StateOn}}
 {{$p}} .state.on, {{$p}} .on .state { color: {{.Colors.StateOn | css}}; fill: {{.Colors.StateOn | css}}; }
 {{$p}} .state-border.on, {{$p}} .on .state-border { border-color: {{.Colors.StateOn | css}}; }
@@ -127,7 +127,7 @@
 {{end}}
 
 
-{{/* The ::before is for the track, which uses the new Derived muted color */}}
+{{/* The ::before is for the track */}}
 {{if .Derived.StateOnMuted}}
 {{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_before"}} }
 {{end}}

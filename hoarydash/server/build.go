@@ -261,6 +261,8 @@ func BuildDash() {
 		allNamed[k] = v
 	}
 
+	defaultTheme.Finalize()
+
 	var tmpl *template.Template
 
 	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")

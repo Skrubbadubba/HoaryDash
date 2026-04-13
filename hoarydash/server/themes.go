@@ -162,6 +162,7 @@ var defaultTheme = Theme{
 		OnSurface:        "#ffffff",
 		OnSurfaceMuted:   "#dbdbdb",
 		OnSurfaceSubtle:  "#989898",
+		OnBackground:     "#ffffff",
 		Accent:           "hsl(210, 90%, 65%)",
 		Interactive:      "hsl(210, 90%, 65%)",
 		StateOn:          "hsl(134, 60%, 45%)",
