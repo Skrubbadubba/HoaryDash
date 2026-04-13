@@ -21,8 +21,8 @@
 </div>
 
 <p align="center">
-  <img src="docs/centered.png" width="49%" />
-  <img src="docs/media.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/Skrubbadubba/HoaryDash/refs/heads/main/docs/centered.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/Skrubbadubba/HoaryDash/refs/heads/main/docs/media.png" width="49%" />
 </p>
 <div align="center">
   <sub>Centered layout &nbsp;·&nbsp; Media-full layout</sub>
