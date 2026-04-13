@@ -1,10 +1,7 @@
-# Patch: v0.11.4
+# Patch: v0.11.5
 
-- Fixed themes without a vars key not getting derived colors
-
-### Image build crash thing
-
-Don't worry about the last message guys, it was just my proxmox running out of space. Updating HoaryDash will not make your HAOS explode 😅 
+- Fixed some elements not getting proper theme colors
+- Fixed default theme not precalculating all colors
 
 ---
 

@@ -76,7 +76,7 @@ Save the file. The dashboard will regenerate automatically — no restart needed
 
 Each entry under `dashboards` will become its own dashboard with its own endpoint, reachable on \<HoaryDash-url\>/\<dashboard-name\>. So from the example above one dashboard would be created at <a href="">http://homeassistant.local:4567/dash</a>
 
-Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/CONFIG.md)
+Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md)
 
 ---
 
@@ -87,13 +87,12 @@ Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/
 3. Click **Create Token**, give it a name (e.g. `hoarydash`)
 4. Copy the token and paste it into `HA_TOKEN` in your config
 
-## Security
-
-### There are no regards to security yet!
-
-If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something.
-
-
+> [!WARNING]
+> ## Security
+>
+> **There are no regards to security yet!**
+>
+> If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something. In practice, this simply only means someone in your home could use hoarydash for full access to home assistant.
 
 ## Fully Kiosk Setup
 
@@ -106,8 +105,9 @@ Enable the javascript interface:
 
 - **Advanced Web Settings → Enable JavaScript Interface:** Enable
 
-
+> [!NOTE]
+> This is to make the screensaver toggle work, its not important beyond that.
 
 ## Config Reference
 
-See [go struct](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/server/main.go#L16). The yaml annotation to the right of fields dictate the field name in yaml. The ones that dont have an annotation are just lowercased in yaml.
+See [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md), it should guide you through everything. The canonical definition would be the [go struct](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/server/config.go#L197) itself. The yaml annotation to the right of fields dictate the field name in yaml. The ones that dont have an annotation are just lowercased in yaml.
