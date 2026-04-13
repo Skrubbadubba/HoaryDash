@@ -15,6 +15,8 @@ Chromium 44 (Android 6+) via Fully Kiosk Browser.
 
 ## Configuration
 
+> Read the full guide in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md)
+
 After first start, a folder called `hoarydash` will appear in your addon config
 directory. You can reach it via:
 
@@ -46,10 +48,10 @@ dashboards:
       cards:
         - entity_id: button.doorbell
           label: Ring doorbell
-          icon: 🔔
+          icon: doorbell
         - entity_id: light.ceiling
           label: Ceiling light
-          icon: 💡
+          icon: lightbulb
     widgets:
       cards:
         - entity_id: weather.home
@@ -70,13 +72,11 @@ home_assistant:
   token: "your_long_lived_token_here"
 ```
 
-Save the file. The dashboard will regenerate automatically — no restart needed. Restart the addon if it doesn't work
+Save the file. The dashboard will regenerate automatically each time the file is saved.
 
 ### Separate dashboards
 
 Each entry under `dashboards` will become its own dashboard with its own endpoint, reachable on \<HoaryDash-url\>/\<dashboard-name\>. So from the example above one dashboard would be created at <a href="">http://homeassistant.local:4567/dash</a>
-
-Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md)
 
 ---
 
@@ -85,7 +85,7 @@ Find more details in [CONFIG.md](https://github.com/Skrubbadubba/HoaryDash/blob/
 1. In Home Assistant, click your username in the bottom-left
 2. Scroll to **Long-Lived Access Tokens**
 3. Click **Create Token**, give it a name (e.g. `hoarydash`)
-4. Copy the token and paste it into `HA_TOKEN` in your config
+4. Copy the token and paste it into `home_assistant.token` in your config, or as environment variable `HA_TOKEN` if you are using docker
 
 > [!WARNING]
 > ## Security
