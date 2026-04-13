@@ -28,13 +28,6 @@
   <sub>Centered layout &nbsp;·&nbsp; Media-full layout</sub>
 </div>
 
-
-<h5 align="center">
-Leave a star if you like the project! ⭐️
-</h5>
-
-
-
 ## What
 
 A lightweight Home Assistant frontend for old Android tablets. It runs as an addon (app), and is configurable with yaml. It runs a server in go exposed on port 4567, which you simply point your kiosk browser to.
@@ -114,4 +107,4 @@ The current stack was chosen mostly because adding PostCSS and such requires nod
 >
 > **There are no regards to security yet!**
 >
-> If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something. In practice, this simply only means someone in your home could use hoarydash for full access to home assistant.
+> If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA!** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something. In practice, this simply only means someone in your home could use hoarydash for full access to home assistant.
