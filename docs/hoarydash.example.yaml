@@ -1,9 +1,14 @@
+themes:
+  tight-borders:
+    shapes:
+      medium_border_radius: 10px
+
 dashboards:
   dash:
     swipe: true
     show_hints: true
     animations: true
-
+    theme: forest
     navbar:
       enabled: true
       position: bottom
@@ -17,6 +22,7 @@ dashboards:
     screens:
       - name: Main
         icon: home
+        theme: tight-borders
         layout: centered
         # Default order
         order:
@@ -43,9 +49,6 @@ dashboards:
               forecast_interval: twice_daily
               forecast_times: 5
               internal_borders: false
-            - entity_id: media_player.spotify
-              show_album: true
-              internal_borders: false
         sensors:
           style:
             borders: false
@@ -55,8 +58,28 @@ dashboards:
               label: Temperature
               unit: °C
 
+      - name: media
+        icon: radio
+        layout: media-full
+        badges:
+          sensors:
+            - entity_id: sensor.living_room_temperature
+              label: Temperature
+              unit: °C
+              icon: thermometer
+          badge:
+            label: Spotify
+            icon: spotify
+        entity_id: media_player.spotifyplus_skrubba
+        show_album: true
+        show_browser: true
+        spotifyplus: true
+        queue: true
+        rotate: true
+
       - name: Tiles
         icon: view-grid
+        theme: tight-borders
         layout: tiled
         dateclock:
           enabled: true
@@ -76,16 +99,6 @@ dashboards:
             cards:
               - entity_id: light.ceiling
                 label: Ceiling
-
-    theme:
-      background_gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
-      font_color: "#e0f7fa"
-      secondary_font_color: "#80cbc4"
-      icon_color: "#4dd0e1"
-      cards:
-        borders: true
-        border_color: "rgba(255, 255, 255, 0.12)"
-        background: "rgba(255, 255, 255, 0.08)"
 
 localization:
   locale: "sv-SE"

@@ -1,35 +1,60 @@
-# ⚠🛠 Under heavy development 🛠⚠
-
-This is very early alpha. Works fine, looks fine, but you can expect breaking changes at any update. Be sure to read in the changelog if you need to reconfigure after an update
+> [!IMPORTANT]
+> Under development - expect breaking changes. Check the changelog and configuration guide before updating.
 
 ---
 
-# HoaryDash
+<div align="center">
+    <h1 align="centered">
+        HoaryDash
+    </h1>
+    <p>
+        <a href="https://github.com/Skrubbadubba/HoaryDash/releases/latest">
+            <img src="https://img.shields.io/github/v/release/Skrubbadubba/HoaryDash?style=flat-square" alt="Release" />
+        </a>
+        <a href="https://go.dev">
+            <img src="https://img.shields.io/badge/Go-1.24-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go" />
+        </a>
+        <a href="https://www.home-assistant.io">
+            <img src="https://img.shields.io/badge/Home%20Assistant-app-41BDF5?style=flat-square&logo=homeassistant&logoColor=white" alt="Home Assistant" />
+        </a>
+    </p>
+</div>
 
-<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/0e3753f0-7097-40cf-8f3e-74270ed4aaa7" />
-<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/812e9f3c-207d-43b5-95eb-d1fe0ea7d994" />
-<img width="2540" height="1420" alt="image" src="https://github.com/user-attachments/assets/fae82044-86a4-4aec-9b61-1eb8df014a49" />
+<p align="center">
+  <img src="docs/centered.png" width="49%" />
+  <img src="docs/media.png" width="49%" />
+</p>
+<div align="center">
+  <sub>Centered layout &nbsp;·&nbsp; Media-full layout</sub>
+</div>
+
+
+<h5 align="center">
+Leave a star if you like the project! ⭐️
+</h5>
+
 
 
 ## What
 
-A lightweight Home Assistant dashboard for old Android tablets. It runs as an addon, and is configurable with yaml. It runs a server in go exposed on port 4567, which you simply point your kiosk browser to.
+A lightweight Home Assistant frontend for old Android tablets. It runs as an addon (app), and is configurable with yaml. It runs a server in go exposed on port 4567, which you simply point your kiosk browser to.
 
 ### Features
 
-- Runs comfortably on Chromium 44 / Android 6 tablets via Fully Kiosk Browser
+- Runs comfortably on Chromium 44 / Android 6 tablets via Fully Kiosk Browser.
 - Live entity state via HA WebSocket (no polling)
-- Sensor widgets, clock, nightlight mode, keep-screen-on toggle
+- Sensor widgets, clock, nightlight, keep-screen-on toggle, media 
 - Multiple screens with swipe or navbar navigation
 - Multiple dashboards on separate endpoints
-- Fully Kiosk Browser integration (screensaver control, brightness)
-- Config-driven — edit one YAML file, dashboard regenerates automatically
-- Designed as an HA addon, also runnable as a standalone Docker container
+- Fully Kiosk Browser integration (screensaver toggle)
+- Config-driven - edit one YAML file, dashboard regenerates automatically
+- Designed as an HA app, also runnable as a standalone Docker container
 
 ### Requirements
 
 - Home Assistant with Supervisor (HAOS or supervised install)
-- Fully Kiosk Browser on your tablet
+  > (Or any machine with docker)
+- A browser on your tablet
 - A long-lived access token from Home Assistant
 
 
@@ -39,7 +64,7 @@ See [DOCS.md](https://github.com/Skrubbadubba/HoaryDash/blob/main/hoarydash/DOCS
 
 ## Plans/Goals
 
-I have a bunch of features planned. The idea is to make a feature rich configurable dashboard that not only works with old browser, but is good enough to where someone might even want use as an alternative to lovelace. That being said, I hyper-focus and switch interests easily. I have no idea how long this will be motivating for me. I also don't when I will have time for it. Anyways, goals:
+I have a bunch of features planned. The idea is to make a feature rich configurable dashboard that not only works with old browser, but is good enough to where someone might even want use as an alternative to lovelace. That being said, I hyper-focus and switch interests easily. I have no idea how long this will be motivating for me. I also don't know when I will have time for it. Anyways, goals:
 
 - [x] More complex widgets
 - [x] Multiple screens per dashboard
@@ -57,6 +82,9 @@ I have a bunch of features planned. The idea is to make a feature rich configura
     - [ ] Configure timezone and language based on HA configuration
 - [ ] Create a default configuration based on available HA entities on first install
 - [ ] A drag and drop editor (this one is really out of scope though, dont get your hopes up)
+
+> [!NOTE]
+> Last updated: v0.11.0
 
 ## Why
 
@@ -81,8 +109,9 @@ The other option were to have it be a custom integration. That would allow for a
 
 The current stack was chosen mostly because adding PostCSS and such requires node. Docker allows that easily and then we just control it from go. I dont know if thats even possibly in HAs python environment. The other reason is I like go and docker. I think python is and should stay a scripting language. The friction of adding features in python when you also need to follow HAs requirments is much higher than in just go + html.
 
-## Security
-
-### There are no regards to security yet!
-
-If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something.
+> [!WARNING]
+> ## Security
+>
+> **There are no regards to security yet!**
+>
+> If the project gathers interest I _will_ add security before a v1 release. Right now, the go server allows anyone to connect to its websocket, after which it will automatically authenticate with HA and proxy any messages. **Anyone with access to the HoaryDash server has access to everything in HA! In practice this means anyone on your LAN can do anything in HA.** However HoaryDash is never exposed to the internet unless you explicitly port forward it on your router or something. In practice, this simply only means someone in your home could use hoarydash for full access to home assistant.
