@@ -3,82 +3,101 @@
 <style>
     .dateclock-container {
         z-index: 20;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        -webkit-align-items: center;
-        align-items: center;
         pointer-events: none;
+        -webkit-flex-grow: 1;
         flex-grow: 1;
-        font-size: calc(8vw + 1em);
-        min-width: 7ch;
+        text-align: center;
+        font-size: calc(7vw + 1em);
     }
     .clock {
         font-weight: 600;
-        margin-bottom: 0rem;
         letter-spacing: -0.02em;
-        text-align: center;
     }
-
     .date {
-        font-size: 0.5em;
         font-weight: 600;
+        font-size: 0.5em;
     }
 </style>
 {{end}}
-<div class="dateclock-container on-bg">
-    <div class="clock"></div>
-    <div class="date"></div>
+{{ $id := concat "dateclock-" uid}}
+{{if or .DateSize .DateWeight .TimeSize .TimeWeight .FontSize .Align}}
+<style>
+    {{if or .FontSize .Align}}
+    #{{$id}} {
+        {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
+        {{if .Align}}
+        text-align: {{if eq .Align "left"}}left{{else if eq .Align "right"}}right{{else if eq .Align "center"}}center{{end}};
+        {{end}}
+    }
+    {{end}}
+    {{if or .TimeSize .TimeWeight}}
+    #{{$id}} .clock {
+        {{if .TimeSize}}
+            font-size: {{.TimeSize}}em;
+        {{end}}
+        {{if .TimeWeight}}
+            font-weight: {{.TimeWeight}}
+        {{end}}
+    }
+    {{end}}
+    {{if or .DateSize .DateWeight}}
+    #{{$id}} .date {
+        {{if .DateSize}}
+            font-size: {{.DateSize}}em;
+        {{end}}
+        {{if .DateWeight}}
+            font-weight: {{.DateWeight}}
+        {{end}}
+    }
+    {{end}}
+</style>
+{{end}}
+<div class="dateclock-container on-bg" id="{{$id}}">
+    {{if enabledByDefault .ShowTime}}<div class="clock"></div>{{end}}
+    {{if enabledByDefault .ShowDate}}<div class="date"></div>{{end}}
 </div>
 {{end}}
 {{define "dateclock-controller"}}
 <script>
     component(function(root) {
-    var clockEl = root.querySelector(".clock")
-    var dateEl = root.querySelector(".date")
-
-    var locale = window.CONFIG.locale;
-    var timezone = window.CONFIG.timezone;
-    var hour12 = {{if .Hour12}}true{{else}}false{{end}};
-
-    function updateTime() {
-        var now = new Date();
-
-        var time = now.toLocaleTimeString(locale, {
-            hour: '2-digit',
-            minute: '2-digit',
-            {{if .ShowSeconds}}
-                second: '2-digit',
+        var clockEl = root.querySelector(".clock");
+        var dateEl = root.querySelector(".date");
+        var locale = window.CONFIG.locale;
+        var timezone = window.CONFIG.timezone;
+        var hour12 = {{if .Hour12}}true{{else}}false{{end}};
+        function updateTime() {
+            var now = new Date();
+            {{if enabledByDefault .ShowTime}}
+            var time = now.toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit',
+                {{if .ShowSeconds}}second: '2-digit',{{end}}
+                hour12: hour12,
+                timeZone: timezone
+            });
+            clockEl.textContent = time;
             {{end}}
-            hour12: hour12,
-            timeZone: timezone
-        });
-
-        var day = now.toLocaleDateString(locale, {
-            weekday: 'long',
-            timeZone: timezone
-        });
-
-        var date = now.toLocaleDateString(locale, {
-            dateStyle: 'short',
-            timeZone: timezone
-        });
-        {{if .CapitaliseDay}}
-        day = day.charAt(0).toUpperCase() + day.slice(1);
-        {{end}}
-        var date = now.toLocaleDateString(locale);
-
-        clockEl.textContent = time;
-        dateEl.textContent = day + ', ' + date;
-    }
-
-    setInterval(updateTime, 1000);
-    updateTime();
+            {{if enabledByDefault .ShowDate}}
+            var day = now.toLocaleDateString(locale, {
+                weekday: 'long',
+                timeZone: timezone
+            });
+            var date = now.toLocaleDateString(locale, {
+                dateStyle: 'short',
+                timeZone: timezone
+            });
+            {{if .CapitaliseDay}}
+            day = day.charAt(0).toUpperCase() + day.slice(1);
+            {{end}}
+            dateEl.textContent = day + ', ' + date;
+            {{end}}
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
     });
 </script>
 {{end}}
 {{define "dateclock"}}
-{{template "_dateclock"}}
+{{template "_dateclock" .}}
 {{template "dateclock-controller" .}}
 {{end}}

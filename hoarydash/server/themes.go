@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 
-	"dario.cat/mergo"
 	"github.com/mazznoer/csscolorparser"
 	"go.yaml.in/yaml/v4"
 )
@@ -27,7 +26,7 @@ type Theme struct {
 
 	Shapes
 	// Font size
-	FontSize int `yaml:"font_size"`
+	FontSize float64 `yaml:"font_size"`
 
 	// Structural styles
 	Cards        *CardStyle
@@ -171,7 +170,7 @@ var defaultTheme = Theme{
 		Positive:         "hsl(140, 60%, 55%)",
 		Negative:         "hsl(0, 70%, 55%)",
 	},
-	FontSize: 18,
+	FontSize: 1.0,
 	Shapes: Shapes{
 		Padding:            "0",
 		Borders:            newBool(true),
@@ -239,13 +238,13 @@ func (t *Theme) ComputeDerivatives() {
 
 	// Precalculated derivations
 	if isDev {
-		log.Printf("[derive] StateOn=%q Positive=%q Negative=%q StateOff=%q StateDisabled=%q",
-			t.Colors.StateOn,
-			t.Colors.Positive,
-			t.Colors.Negative,
-			t.Colors.StateOff,
-			t.Colors.StateDisabled,
-		)
+		// log.Printf("[derive] StateOn=%q Positive=%q Negative=%q StateOff=%q StateDisabled=%q",
+		// 	t.Colors.StateOn,
+		// 	t.Colors.Positive,
+		// 	t.Colors.Negative,
+		// 	t.Colors.StateOff,
+		// 	t.Colors.StateDisabled,
+		// )
 	}
 	t.Derived.PositiveMuted = deriveAlpha(t.Colors.Positive, 0.5)
 	t.Derived.NegativeMuted = deriveAlpha(t.Colors.Negative, 0.5)
@@ -253,9 +252,9 @@ func (t *Theme) ComputeDerivatives() {
 	t.Derived.StateOffMuted = deriveAlpha(t.Colors.StateOff, 0.3)
 	t.Derived.StateDisabledMuted = deriveAlpha(t.Colors.StateDisabled, 0.3)
 	if isDev {
-		log.Printf("[derive] result: StateOnMuted=%q StateOffMuted=%q PositiveMuted=%q",
-			t.Derived.StateOnMuted, t.Derived.StateOffMuted, t.Derived.PositiveMuted,
-		)
+		// log.Printf("[derive] result: StateOnMuted=%q StateOffMuted=%q PositiveMuted=%q",
+		// 	t.Derived.StateOnMuted, t.Derived.StateOffMuted, t.Derived.PositiveMuted,
+		// )
 	}
 }
 
@@ -287,11 +286,7 @@ func (t *Theme) Clone() Theme {
 	return clone
 }
 
-func mergeTheme(base, override Theme) Theme {
-	result := base.Clone()
-	mergo.Merge(&result, override, mergo.WithOverride)
-	return result
-}
+var mergeTheme = mergeOverride[Theme, Theme]
 
 func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {

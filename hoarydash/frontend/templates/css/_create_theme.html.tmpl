@@ -16,7 +16,7 @@
 {{/* Base layout */}}
 {{if or .FontSize .Background}}
 {{$p}} {
-    {{if .FontSize}}font-size: {{.FontSize}}px;{{end}}
+    {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
     {{if .Background}}background: {{.Background | css}};{{end}}
 }
 {{end}}

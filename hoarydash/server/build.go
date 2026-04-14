@@ -9,6 +9,8 @@ import (
 	"os"
 	"reflect"
 	"strings"
+
+	"dario.cat/mergo"
 )
 
 //go:embed mdi.json
@@ -71,6 +73,11 @@ func makeDomainTranslations(lang string) func(domain string) (map[string]string,
 	}
 }
 
+func mergeOverride[T any, U any](base T, override U) T {
+	mergo.Merge(&base, override, mergo.WithOverride)
+	return base
+}
+
 func nilfunc() any { return nil }
 
 var uid = 0
@@ -94,6 +101,7 @@ var funcMap = template.FuncMap{
 
 		return val
 	},
+	"mergeDateclock": mergeOverride[map[string]any, Dateclock],
 	"bool": func(val *bool) bool {
 		if val != nil {
 			return *val
@@ -310,7 +318,7 @@ func BuildDash() {
 		}
 		dash.Theme = mergeTheme(defaultTheme, dereffedTheme)
 		if isDev {
-			log.Printf("Resolved dashboard theme is: %s", jsonStr(dash.Theme))
+			// log.Printf("Resolved dashboard theme is: %s", jsonStr(dash.Theme))
 		}
 
 		funcMap["once"] = makeOnceFunc()

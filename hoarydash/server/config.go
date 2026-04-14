@@ -29,15 +29,10 @@ type Dashboard struct {
 }
 
 type Screen struct {
-	Layout    string
-	Name      string
-	Icon      *string
-	Dateclock struct {
-		Enabled       *bool
-		Hour12        bool
-		CapitaliseDay bool `yaml:"capitalise_day"`
-		ShowSeconds   bool `yaml:"show_seconds"`
-	}
+	Layout string
+	Name   string
+	Icon   *string
+	Dateclock
 	// Centered-layout specific
 	Widgets  *CardGroup
 	Sensors  *CardGroup
@@ -68,6 +63,21 @@ type Screen struct {
 	ThemeRef ThemeRef `yaml:"theme"`
 	Theme    *Theme   `yaml:"_"`
 	Rotate   *bool
+}
+
+type Dateclock struct {
+	Enabled       *bool
+	Hour12        bool
+	CapitaliseDay bool    `yaml:"capitalise_day"`
+	ShowDate      *bool   `yaml:"show_date"`
+	ShowTime      *bool   `yaml:"show_time"`
+	ShowSeconds   bool    `yaml:"show_seconds"`
+	DateSize      float64 `yaml:"date_size"`
+	DateWeight    int     `yaml:"date_weight"`
+	TimeSize      float64 `yaml:"time_size"`
+	TimeWeight    int     `yaml:"time_weight"`
+	Align         string
+	FontSize      float64 `yaml:"font_size"`
 }
 
 type ThemeRef struct {

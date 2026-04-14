@@ -60,20 +60,6 @@
         box-sizing: border-box;
     }
 
-    .fml-clock .dateclock-container {
-        align-items: start;
-        font-size: 1.3em;
-    }
-    .fml-clock  .clock {
-        font-size: 2em;
-        font-weight: 400;
-    }
-
-    .fml-clock .date {
-        font-size: 1em;
-        font-weight: 300;
-    }
-
     .fml-top-row {
         display: -webkit-box;
         display: -webkit-flex;
@@ -368,8 +354,14 @@
         <div class="fml-top-row">
             {{if enabledByDefault .Dateclock.Enabled}}
             <div class="fml-clock">
-                {{template "_dateclock"}}
-                {{template "dateclock-controller" .Dateclock}}
+                {{template "dateclock" mergeDateclock (dict
+                    "Align"      "left"
+                    "FontSize"   1.3
+                    "TimeSize"   2.0
+                    "TimeWeight" 400
+                    "DateSize"   1.0
+                    "DateWeight" 300
+                ) .Dateclock}}
             </div>
             {{else}}
             <div></div>
