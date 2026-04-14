@@ -47,11 +47,11 @@
   .weather-temp-unit {
     font-size: 0.9em;
     font-weight: 400;
-    color: #a08060};
+    color: #a08060;
   }
 
   .weather-divider {
-    width: 0.05em;
+    width: 0.1em;
     background: rgba(120, 180, 255, 0.15);
     -webkit-align-self: stretch;
     align-self: stretch;
@@ -156,7 +156,7 @@
 </style>
 {{end}}
 <div class="weather-container widget card border">
-  <div class="weather-main">
+  <div class="weather-main padding">
     <div class="weather-current">
       <div class="weather-icon">🌡️</div>
       <div>
@@ -278,7 +278,7 @@ component(function(wrapper) {
       var icon      = iconForCondition(day.condition);
       var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
       var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
-      html += '<div class="forecast-day" {{if enabledByDefault .InternalBorders}}style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"{{end}}>'
+      html += '<div class="forecast-day padding" {{if enabledByDefault .InternalBorders}}style="border-right: 0.05em solid rgba(120, 180, 255, 0.12);"{{end}}>'
         + '<div class="forecast-day-name on-surface">'  + timeLabel + '</div>'
         + '<div class="forecast-day-icon">'  + icon    + '</div>'
         + '<div class="forecast-day-temps">'

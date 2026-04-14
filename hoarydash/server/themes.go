@@ -100,7 +100,7 @@ type CardStyle struct {
 	Background   template.CSS
 	Padding      template.CSS `yaml:"padding"`
 	BorderColor  template.CSS `yaml:"border_color"`
-	FontSize     int          `yaml:"font_size"`
+	FontSize     float64      `yaml:"font_size"`
 	Custom       template.CSS
 }
 
@@ -113,38 +113,8 @@ func newFalse() *bool {
 	return &f
 }
 
-func createDefaultModal() *CardStyle {
-	ms := CardStyle{
-		BorderColor: "rgba(130,185,255,0.15)",
-	}
-	return &ms
-}
-
-func createDefaultBadge() *CardStyle {
-	bs := CardStyle{
-		BorderColor: "rgba(255,255,255,0.15)",
-		Padding:     "0.35em 0.60em",
-	}
-	return &bs
-}
-
-func createDefaultBadgeButton() *CardStyle {
-	bs := createDefaultBadge()
-	bs.Padding = "0.4em 0.7em"
-	return bs
-}
-
-func createDefaultButton() *CardStyle {
-	return &CardStyle{
-		Padding: "1em",
-		Borders: newFalse(),
-	}
-}
-
-func createDefaultTooltip() *CardStyle {
-	return &CardStyle{
-		Padding: "1em",
-	}
+func createCardStyle(cs CardStyle) *CardStyle {
+	return &cs
 }
 
 var defaultTheme = Theme{
@@ -172,7 +142,7 @@ var defaultTheme = Theme{
 	},
 	FontSize: 1.0,
 	Shapes: Shapes{
-		Padding:            "0",
+		Padding:            "0.6em",
 		Borders:            newBool(true),
 		TightBorderRadius:  "0.2em",
 		WideBorderRadius:   "2em",
@@ -180,11 +150,27 @@ var defaultTheme = Theme{
 		BorderThick:        "1.8px",
 		BorderThin:         "0.75px",
 	},
-	Modals:       createDefaultModal(),
-	Badges:       createDefaultBadge(),
-	BadgeButtons: createDefaultBadgeButton(),
-	Buttons:      createDefaultButton(),
-	Tooltips:     createDefaultTooltip(),
+	Entities: createCardStyle(CardStyle{
+		Padding: "0.4em 0.75em",
+	}),
+	Modals: createCardStyle(CardStyle{
+		BorderColor: "rgba(130,185,255,0.15)",
+	}),
+	Badges: createCardStyle(CardStyle{
+		BorderColor: "rgba(255,255,255,0.15)",
+		Padding:     "0.35em 0.60em",
+	}),
+	BadgeButtons: createCardStyle(CardStyle{
+		BorderColor: "rgba(255,255,255,0.15)",
+		Padding:     "0.4em 0.7em",
+	}),
+	Buttons: createCardStyle(CardStyle{
+		Padding: "1em",
+		Borders: newFalse(),
+	}),
+	Tooltips: createCardStyle(CardStyle{
+		Padding: "1em",
+	}),
 }
 
 type ThemesMap map[string]Theme

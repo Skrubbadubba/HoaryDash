@@ -212,7 +212,7 @@
 {{end}}
 {{template "media-controller"}}
 <div class="media-container widget card border">
-    <div class="media-top-row">
+    <div class="media-top-row padding">
         <div class="media-info">
             <div class="media-cover">
                 <div class="media-cover-placeholder accent">{{icon "music"}}</div>
@@ -227,7 +227,7 @@
         </div>
         {{end}}
     </div>
-    <div class="media-bottom-row"
+    <div class="media-bottom-row padding"
     {{if enabledByDefault .InternalBorders}}
         style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"
     {{end}}>

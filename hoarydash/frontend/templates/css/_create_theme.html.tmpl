@@ -155,6 +155,11 @@
 {{end}}
 
 {{/* Geometry */}}
+{{if .Shapes.Padding}}
+    {{$p}} .padding {
+        padding: {{.Shapes.Padding}}
+    }
+{{end}}
 {{if .Shapes.WideBorderRadius}}
     {{$p}} .border-wide { border-radius: {{.Shapes.WideBorderRadius}}; }
 {{end}}
@@ -215,7 +220,7 @@
 {{end}}
 
 {{if or .Colors.SurfaceProminent .Shapes.MediumBorderRadius}}
-{{$p}} .btn {
+{{$p}} .button {
     {{if .Colors.SurfaceProminent}}background-color: {{.Colors.SurfaceProminent | css}};{{end}}
     {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
 }
@@ -274,7 +279,7 @@
 {{end}}
 
 {{if .Buttons}}
-{{$p}} .btn {
+{{$p}} .button {
     {{template "create-card-theme" .Buttons}}
 }
 {{end}}

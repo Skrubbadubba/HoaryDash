@@ -72,9 +72,10 @@
     
     button:focus { outline: none; }
 
+    
+
     .btn {
-        width: 4.5em;
-        height: 4.5em;
+        background: none;
         border: none;
         cursor: pointer;
         outline: none;
@@ -84,18 +85,25 @@
         align-items: center;
         -webkit-justify-content: center;
         justify-content: center;
-        z-index: 50;
+        font: inherit;
     }
-    .btn svg {
+
+    .btn:active {
+        -webkit-transform: scale(0.92);
+        transform: scale(0.92);
+    }
+
+    .button {
+        z-index: 50;
+        font-size: initial;
+    }
+
+    .button svg {
         width: 2.33em;
         height: 2.33em;
     }
-    .btn:active {
-        -webkit-transform: scale(0.88);
-        transform: scale(0.88);
-    }
 
-    .card, .card-opaque {
+    .card {
         height: 100%;
         width: 100%;
     }

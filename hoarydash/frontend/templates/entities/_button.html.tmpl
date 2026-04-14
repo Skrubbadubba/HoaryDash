@@ -10,35 +10,12 @@
     cursor: pointer;
     overflow: visible;
   }
-  .ha-button-body {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-justify-content: space-between;
-    justify-content: space-between;
-    padding: 0.4em 0.75em;
-    background: none;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    width: 100%;
-    color: inherit;
-    font: inherit;
-  }
     
   .ha-button-content {
     display: flex;
     align-items: center;
   }
 
-  .ha-button:active {
-    -webkit-transform: scale(0.88);
-    transform: scale(0.88);
-    opacity: 0.7;
-  }
 
   .ha-button-icon {
     font-size: 1.6em;
@@ -60,8 +37,8 @@
 {{end}}
 {{end}}
 {{define "_button"}}
-<div class="ha-button entity card transition-fast border">
-  <button class="ha-button-body" title="{{.Label}}">
+<div class="ha-button entity card padding transition-fast border">
+  <button class="ha-button-body btn" title="{{.Label}}">
     <div class="ha-button-content">
     {{if .Icon}}
       <span class="ha-button-icon interactive-muted">
