@@ -26,6 +26,8 @@ type Theme struct {
 	Derived derivedColors `yaml:"-"`
 
 	Shapes
+	Typography
+
 	// Font size
 	FontSize float64 `yaml:"font_size"`
 
@@ -41,6 +43,13 @@ type Theme struct {
 	Tooltips     *CardStyle
 }
 
+type Typography struct {
+	FontFamily    template.CSS `yaml:"font_family"`
+	FontWeight    template.CSS `yaml:"font_weight"`
+	FontStyle     template.CSS `yaml:"font_style"`
+	TextTransform template.CSS `yaml:"text_transform"`
+	LetterSpacing template.CSS `yaml:"letter_spacing"`
+}
 type BackgroundLayer struct {
 	Color     template.CSS `yaml:"color"`
 	Image     template.CSS `yaml:"image"`
@@ -247,6 +256,24 @@ func (t *Theme) ComputeDerivatives() {
 		// 	t.Derived.StateOnMuted, t.Derived.StateOffMuted, t.Derived.PositiveMuted,
 		// )
 	}
+
+	var cssValueRegex = regexp.MustCompile(`^([0-9\.]+)\s*([a-zA-Z%]*)$`)
+
+	if t.Shapes.BorderThin == "" && t.Shapes.BorderThick != "" {
+		matches := cssValueRegex.FindStringSubmatch(strings.TrimSpace(string(t.Shapes.BorderThick)))
+
+		if len(matches) == 3 {
+			value, err := strconv.ParseFloat(matches[1], 64)
+
+			if err == nil {
+				thinValue := value / 2.0
+				unit := matches[2]
+
+				t.Shapes.BorderThin = template.CSS(fmt.Sprintf("%g%s", thinValue, unit))
+			}
+		}
+	}
+
 }
 
 func clonePtr[T any](ptr *T) *T {
@@ -370,6 +397,9 @@ func (t *Theme) Finalize() error {
 			return err
 		}
 		if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
+			return err
+		}
+		if err := resolveCSS(&t.Typography, t.Vars); err != nil {
 			return err
 		}
 		if t.Background != nil {

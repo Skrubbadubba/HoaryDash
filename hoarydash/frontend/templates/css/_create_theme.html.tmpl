@@ -15,11 +15,19 @@
 <style>
 
 {{/* Base layout */}}
-{{if .FontSize}}
 {{$p}} {
-    font-size: {{.FontSize}}em;
-}
+    {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
+
+    {{/* Apply global typography styles */}}
+    {{with .Typography}}
+        {{if .FontFamily}}font-family: {{.FontFamily | css}};{{end}}
+        {{if .FontWeight}}font-weight: {{.FontWeight | css}};{{end}}
+        {{if .FontStyle}}font-style: {{.FontStyle | css}};{{end}}
+        {{if .TextTransform}}text-transform: {{.TextTransform | css}};{{end}}
+        {{if .LetterSpacing}}letter-spacing: {{.LetterSpacing | css}};{{end}}
 {{end}}
+}
+
 {{/* Layered background support */}}
 {{if or .Background .BackgroundOverlay}}
 {{$p}} {
