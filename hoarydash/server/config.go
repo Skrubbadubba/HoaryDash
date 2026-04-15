@@ -45,9 +45,10 @@ type Screen struct {
 
 	// Tiled-layout specific
 	Groups []struct {
-		Name      string
-		Icon      string
-		CardGroup `yaml:",inline"`
+		Name            string
+		Icon            string
+		NormalizeHeight bool `yaml:"normalize_height"`
+		CardGroup       `yaml:",inline"`
 	}
 
 	// Fullscreen-layout specific

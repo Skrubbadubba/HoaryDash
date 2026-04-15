@@ -106,27 +106,32 @@
             }
         </style>
     {{end}}
-    <div class="tiled-group" id="group-{{$group.Name}}">
-        {{if or $group.Name $group.Icon}}
-        <div class="tiled-group-header on-bg">
-            {{if $group.Icon}}
-                <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
+        <div class="tiled-group" id="group-{{$group.Name}}">
+            {{if or $group.Name $group.Icon}}
+            <div class="tiled-group-header on-bg">
+                {{if $group.Icon}}
+                    <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
+                {{end}}
+                {{if $group.Name}}
+                    <span>{{$group.Name}}</span>
+                {{end}}
+                <div class="tiled-group-header-line"></div>
+            </div>
             {{end}}
-            {{if $group.Name}}
-                <span>{{$group.Name}}</span>
-            {{end}}
-            <div class="tiled-group-header-line"></div>
-        </div>
-        {{end}}
 
-        <div class="tiled-cards" id="tiled-group-{{$gi}}">
-            {{range $group.Cards}}
-                {{template "card-multiplex" .}}
-            {{end}}
+            <div class="tiled-cards" id="tiled-group-{{$gi}}">
+                {{range $group.Cards}}
+                    {{template "card-multiplex" .}}
+                {{end}}
+            </div>
+            {{if $group.NormalizeHeight}}
+                <script>
+                    component(function(group) {
+                        normalizeHeight(group)
+                    })
+                </script>
+            {{end}}   
         </div>
-
-    </div>
     {{end}}
-
 </div>
 {{end}}
