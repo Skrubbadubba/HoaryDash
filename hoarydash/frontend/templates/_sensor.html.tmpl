@@ -24,6 +24,10 @@
     
   }
 
+  .sensor-value-wrapper {
+    position: relative;
+  }
+
   .sensor-value {
     font-size: 1.9em;
     font-weight: 600;
@@ -32,8 +36,10 @@
 
   .sensor-unit {
     font-size: 0.85em;
-    opacity: 0.5;
     margin-top: 0.25rem;
+    position: absolute;
+    bottom: 0;
+    width: max-content;
   }
 </style>
 {{end}}
@@ -42,8 +48,10 @@
 {{define "_sensor"}}
 <div class="sensor card">
     <div class="sensor-label on-surface-muted">{{.Label}}</div>
-    <div class="sensor-value on-surface">—</div>
-    <div class="sensor-unit on-surface-muted">{{.Unit}}</div>
+    <div class="sensor-value-wrapper">
+      <span class="sensor-value on-surface">—</span>
+      <span class="sensor-unit on-surface-subtle">{{.Unit}}</span>
+    </div>
 </div>
 {{end}}
 {{define "_sensor-script"}}

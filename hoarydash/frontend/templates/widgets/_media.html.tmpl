@@ -42,7 +42,6 @@
         height: 2.8em;
         -webkit-flex-shrink: 0;
         flex-shrink: 0;
-        border-radius: 0.2em;
         background: rgba(255, 255, 255, 0.08);
         overflow: hidden;
         margin-right: 0.6em;
@@ -130,7 +129,7 @@
         -webkit-align-items: center;
         align-items: center;
         padding: 0.2em 0.2em;
-        justify-content: space-evenly;
+        justify-content: space-between;
     }
 
     .media-play-controls {
@@ -211,10 +210,10 @@
 </style>
 {{end}}
 {{template "media-controller"}}
-<div class="media-container widget card border">
-    <div class="media-top-row padding">
+<div class="media-container widget card border card-wrapper">
+    <div class="media-top-row padding widget card card-inner">
         <div class="media-info">
-            <div class="media-cover">
+            <div class="media-cover border-tight">
                 <div class="media-cover-placeholder accent">{{icon "music"}}</div>
             </div>
             <div class="media-song-info">
@@ -227,10 +226,10 @@
         </div>
         {{end}}
     </div>
-    <div class="media-bottom-row padding"
     {{if enabledByDefault .InternalBorders}}
-        style="border-top: 0.05em solid rgba(120, 180, 255, 0.12);"
-    {{end}}>
+        <div class="divider horizontal thin"></div>
+    {{end}}
+    <div class="media-bottom-row padding widget card card-inner">
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls">
             <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>

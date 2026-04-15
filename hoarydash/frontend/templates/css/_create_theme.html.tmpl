@@ -13,7 +13,6 @@
 {{define "create-theme"}}
 {{$p := .Prefix}}
 <style>
-
 {{/* Base layout */}}
 {{$p}} {
     {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
@@ -25,7 +24,7 @@
         {{if .FontStyle}}font-style: {{.FontStyle | css}};{{end}}
         {{if .TextTransform}}text-transform: {{.TextTransform | css}};{{end}}
         {{if .LetterSpacing}}letter-spacing: {{.LetterSpacing | css}};{{end}}
-{{end}}
+    {{end}}
 }
 
 {{/* Layered background support */}}
@@ -100,6 +99,11 @@
 
 {{if .Colors.Highlight}}
 {{$p}} .highlight { background-color: {{.Colors.Highlight | css}}; }
+{{end}}
+
+{{if .Colors.Border}}
+    {{$p}} .border { border-color: {{.Colors.Border}}; }
+    {{$p}} .divider { background-color: {{.Colors.Border}}; }
 {{end}}
 
 {{/* Text + Icons */}}
@@ -227,17 +231,18 @@
 {{end}}
 {{if .Shapes.BorderThin}}
     {{$p}} .border-thin { border-width: {{.Shapes.BorderThin}}; }
+    {{$p}} .divider.horizontal.thin { height: {{.Shapes.BorderThin}}; }
+    {{$p}} .divider.vertical.thin { width: {{.Shapes.BorderThin}}; }
 {{end}}
 {{if .Shapes.BorderThick}}
     {{$p}} .border-thick { border-width: {{.Shapes.BorderThick}}; }
+    {{$p}} .divider.horizontal.thick { height: {{.Shapes.BorderThick}}; }
+    {{$p}} .divider.vertical.thick { width: {{.Shapes.BorderThick}}; }
 {{end}}
 
-{{if or .Shapes.Borders .Colors.Border}}
+{{if .Shapes.Borders}}
 {{$p}} .border {
-    {{if .Shapes.Borders}}
     border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
-    {{end}}
-    {{if .Colors.Border}}border-color: {{.Colors.Border | css}};{{end}}
 }
 {{end}}
 

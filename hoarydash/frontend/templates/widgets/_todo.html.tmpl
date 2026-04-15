@@ -134,9 +134,6 @@
         list-style: none;
         margin: 0.25em 0.1em 0 0.1em;
     }
-    .todo.template {
-        display: none;
-    }
 
     .todo-label {
         display: flex;
@@ -194,11 +191,8 @@
     }
 </style>
 {{end}}
-<div class="todo-container widget card border">
-    <div class="todo-header"
-    {{if enabledByDefault .InternalBorders}}
-        style="border-bottom: 0.05em solid rgba(120, 180, 255, 0.12);"
-    {{end}}>
+<div class="todo-container widget card border card-wrapper">
+    <div class="todo-header widget card card-inner">
         <div class="todo-info">
             <span class="todo-icon"></span>
             <span class="todo-name on-surface">Todos</span>
@@ -214,7 +208,10 @@
             </button>
         </div>
     </div>
-    <div class="todo-list">
+    {{if enabledByDefault .InternalBorders}}
+        <div class="divider horizontal thin"></div>
+    {{end}}
+    <div class="todo-list widget card card-inner">
         <div class="todo-add">
             <input 
                 type="text" 
@@ -297,7 +294,7 @@ function renderStatistic() {
     
 function clearOldTodos() {
     var nodes = todosEl.querySelectorAll("li");
-    console.log("nodes in clear olöd: ", nodes)
+    console.log("nodes in clear old: ", nodes)
     for (var i = nodes.length - 1; i >= 1; i--) { // stop at 1 to not remove todo template
         var node = nodes[i];
         var id = node.id.slice(5);

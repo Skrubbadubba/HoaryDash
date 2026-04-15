@@ -10,10 +10,6 @@
     overflow: visible;
   }
 
-  .ha-toggle-body {
-    background: none !important;
-  }
-
   .ha-toggle-left {
     display: -webkit-flex;
     display: flex;
@@ -68,8 +64,8 @@
 </style>
 {{end}}
 {{define "_toggle-open"}}
-<div class="ha-toggle card border off">
-  <button class="ha-toggle-body card entity transition-fast btn" title="{{.Label}}">
+<div class="ha-toggle card entity border off card-wrapper">
+  <button class="ha-toggle-body card entity transition-fast btn card-inner" title="{{.Label}}">
     <div class="ha-toggle-left">
       {{if .Icon}}
       <span class="ha-toggle-icon interactive">
