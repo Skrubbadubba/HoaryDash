@@ -18,9 +18,10 @@ import (
 )
 
 type Theme struct {
-	IsLight    bool
-	Vars       map[string]template.CSS
-	Background template.CSS `yaml:"background"`
+	IsLight           bool
+	Vars              map[string]template.CSS
+	Background        *BackgroundLayer `yaml:"background"`
+	BackgroundOverlay *BackgroundLayer `yaml:"background_overlay"`
 	Colors
 	Derived derivedColors `yaml:"-"`
 
@@ -38,6 +39,17 @@ type Theme struct {
 	BadgeButtons *CardStyle `yaml:"badge_buttons"`
 	Buttons      *CardStyle
 	Tooltips     *CardStyle
+}
+
+type BackgroundLayer struct {
+	Color     template.CSS `yaml:"color"`
+	Image     template.CSS `yaml:"image"`
+	Size      template.CSS `yaml:"size"`
+	Position  template.CSS `yaml:"position"`
+	Repeat    template.CSS `yaml:"repeat"`
+	BlendMode template.CSS `yaml:"blend_mode"`
+	Filter    template.CSS `yaml:"filter"`
+	Opacity   *float64     `yaml:"opacity"`
 }
 
 type Colors struct {
@@ -104,22 +116,15 @@ type CardStyle struct {
 	Custom       template.CSS
 }
 
-func newBool(b bool) *bool {
-	return &b
-}
-
-func newFalse() *bool {
-	f := false
-	return &f
-}
-
-func createCardStyle(cs CardStyle) *CardStyle {
-	return &cs
+func newPtr[T any](val T) *T {
+	return &val
 }
 
 var defaultTheme = Theme{
-	IsLight:    false,
-	Background: "#0f0f0f",
+	IsLight: false,
+	Background: newPtr(BackgroundLayer{
+		Color: "#0f0f0f",
+	}),
 	Colors: Colors{
 		Surface:          "rgba(18,18,18,0.75)",
 		SurfaceOpaque:    "#1a1a1a",
@@ -143,32 +148,32 @@ var defaultTheme = Theme{
 	FontSize: 1.0,
 	Shapes: Shapes{
 		Padding:            "0.6em",
-		Borders:            newBool(true),
+		Borders:            newPtr(true),
 		TightBorderRadius:  "0.2em",
 		WideBorderRadius:   "2em",
 		MediumBorderRadius: "1em",
 		BorderThick:        "1.8px",
 		BorderThin:         "0.75px",
 	},
-	Entities: createCardStyle(CardStyle{
+	Entities: newPtr(CardStyle{
 		Padding: "0.4em 0.75em",
 	}),
-	Modals: createCardStyle(CardStyle{
+	Modals: newPtr(CardStyle{
 		BorderColor: "rgba(130,185,255,0.15)",
 	}),
-	Badges: createCardStyle(CardStyle{
+	Badges: newPtr(CardStyle{
 		BorderColor: "rgba(255,255,255,0.15)",
 		Padding:     "0.35em 0.60em",
 	}),
-	BadgeButtons: createCardStyle(CardStyle{
+	BadgeButtons: newPtr(CardStyle{
 		BorderColor: "rgba(255,255,255,0.15)",
 		Padding:     "0.4em 0.7em",
 	}),
-	Buttons: createCardStyle(CardStyle{
+	Buttons: newPtr(CardStyle{
 		Padding: "1em",
-		Borders: newFalse(),
+		Borders: newPtr(false),
 	}),
-	Tooltips: createCardStyle(CardStyle{
+	Tooltips: newPtr(CardStyle{
 		Padding: "1em",
 	}),
 }
@@ -244,29 +249,32 @@ func (t *Theme) ComputeDerivatives() {
 	}
 }
 
+func clonePtr[T any](ptr *T) *T {
+	if ptr == nil {
+		return nil
+	}
+	b := *ptr
+	return &b
+}
+
 func (t *Theme) Clone() Theme {
 	clone := *t
 
-	cloneCard := func(cs *CardStyle) *CardStyle {
-		if cs == nil {
-			return nil
-		}
-		c := *cs
-		return &c
-	}
+	clone.Background = clonePtr(t.Background)
+	clone.BackgroundOverlay = clonePtr(t.BackgroundOverlay)
 
-	clone.Cards = cloneCard(t.Cards)
-	clone.Entities = cloneCard(t.Entities)
-	clone.Sensors = cloneCard(t.Sensors)
-	clone.Widgets = cloneCard(t.Widgets)
-	clone.Badges = cloneCard(t.Badges)
-	clone.BadgeButtons = cloneCard(t.BadgeButtons)
-	clone.Tooltips = cloneCard(t.Tooltips)
-	clone.Modals = cloneCard(t.Modals)
-	clone.Buttons = cloneCard(t.Buttons)
+	clone.Cards = clonePtr(t.Cards)
+	clone.Entities = clonePtr(t.Entities)
+	clone.Sensors = clonePtr(t.Sensors)
+	clone.Widgets = clonePtr(t.Widgets)
+	clone.Badges = clonePtr(t.Badges)
+	clone.BadgeButtons = clonePtr(t.BadgeButtons)
+	clone.Tooltips = clonePtr(t.Tooltips)
+	clone.Modals = clonePtr(t.Modals)
+	clone.Buttons = clonePtr(t.Buttons)
 
 	if t.Shapes.Borders != nil {
-		clone.Shapes.Borders = newBool(*t.Shapes.Borders)
+		clone.Shapes.Borders = newPtr(*t.Shapes.Borders)
 	}
 
 	return clone
@@ -364,12 +372,15 @@ func (t *Theme) Finalize() error {
 		if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
 			return err
 		}
-		if t.Background != "" {
-			resolved, err := resolveColor(t.Background, t.Vars)
-			if err != nil {
+		if t.Background != nil {
+			if err := resolveCSS(t.Background, t.Vars); err != nil {
 				return err
 			}
-			t.Background = resolved
+		}
+		if t.BackgroundOverlay != nil {
+			if err := resolveCSS(t.BackgroundOverlay, t.Vars); err != nil {
+				return err
+			}
 		}
 
 		// CardStyles

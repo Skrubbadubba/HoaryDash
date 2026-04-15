@@ -1,4 +1,4 @@
-{{define "_before"}}
+{{define "_pseudo"}}
     content: '';
     position: absolute;
     width: 100%;
@@ -7,6 +7,7 @@
     z-index: -1;
     top: 0;
     right: 0;
+    pointer-events: none;
 {{end}}
 
 {{define "create-theme"}}
@@ -14,11 +15,57 @@
 <style>
 
 {{/* Base layout */}}
-{{if or .FontSize .Background}}
+{{if .FontSize}}
 {{$p}} {
-    {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
-    {{if .Background}}background: {{.Background | css}};{{end}}
+    font-size: {{.FontSize}}em;
 }
+{{end}}
+{{/* Layered background support */}}
+{{if or .Background .BackgroundOverlay}}
+{{$p}} {
+    position: relative;
+    z-index: 1; /* Establish a stacking context */
+}
+
+{{$p}} > * {
+    position: relative;
+    z-index: 3; /* Ensure content is above overlays */
+}
+
+{{$p}}::before, {{$p}}::after {
+    {{template "_pseudo"}}
+}
+
+{{if .Background}}
+{{$p}}::before {
+    z-index: 1;
+    {{with .Background}}
+        {{if .Color}}background-color: {{.Color | css}};{{end}}
+        {{if .Image}}background-image: {{.Image | css}};{{end}}
+        {{if .Size}}background-size: {{.Size | css}};{{end}}
+        {{if .Position}}background-position: {{.Position | css}};{{end}}
+        {{if .Repeat}}background-repeat: {{.Repeat | css}};{{end}}
+        {{if .BlendMode}}-webkit-background-blend-mode: {{.BlendMode | css}}; background-blend-mode: {{.BlendMode | css}};{{end}}
+        {{if .Filter}}-webkit-filter: {{.Filter | css}}; filter: {{.Filter | css}};{{end}}
+        {{if .Opacity}}opacity: {{.Opacity}};{{end}}
+    {{end}}
+}
+{{end}}
+
+{{if .BackgroundOverlay}}
+{{$p}}::after {
+    z-index: 2; /* The overlay sits on top of the base background */
+    {{with .BackgroundOverlay}}
+        {{if .Image}}background-image: {{.Image | css}};{{end}}
+        {{if .Size}}background-size: {{.Size | css}};{{end}}
+        {{if .Position}}background-position: {{.Position | css}};{{end}}
+        {{if .Repeat}}background-repeat: {{.Repeat | css}};{{end}}
+        {{if .BlendMode}}-webkit-background-blend-mode: {{.BlendMode | css}}; background-blend-mode: {{.BlendMode | css}};{{end}}
+        {{if .Filter}}-webkit-filter: {{.Filter | css}}; filter: {{.Filter | css}};{{end}}
+        {{if .Opacity}}opacity: {{.Opacity}};{{end}}
+    {{end}}
+}
+{{end}}
 {{end}}
 
 {{/* --- SEMANTIC UTILITY CLASSES --- */}}
@@ -129,13 +176,13 @@
 
 {{/* The ::before is for the track */}}
 {{if .Derived.StateOnMuted}}
-{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_before"}} }
+{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_pseudo"}} }
 {{end}}
 {{if .Derived.StateOffMuted}}
-{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.Derived.StateOffMuted | css}}; {{template "_before"}} }
+{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.Derived.StateOffMuted | css}}; {{template "_pseudo"}} }
 {{end}}
 {{if .Derived.StateDisabledMuted}}
-{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.Derived.StateDisabledMuted | css}}; {{template "_before"}} }
+{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.Derived.StateDisabledMuted | css}}; {{template "_pseudo"}} }
 {{end}}
 
 

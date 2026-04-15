@@ -1,5 +1,6 @@
 light:
-  background: "#f9f5d7"
+  background:
+    color: "#f9f5d7"
   colors:        # light0_hard
     surface: "rgba(235, 219, 178, 0.55)"   # light1 tinted
     surface_alt: "rgba(213, 196, 161, 0.5)"  # light2, slightly more receded
@@ -44,7 +45,8 @@ gruvbox-dark:
     bright_purple: "#d3869b"
     bright_aqua: "#8ec07c"
     bright_orange: "#fe8019"
-  background: "$dark0"
+  background:
+    color: "$dark0"
   colors:
     surface: "$dark1:0.7"
     surface_alt: "$dark0_hard:0.85"
@@ -88,7 +90,8 @@ gruvbox-light:
     faded_blue: "#076678"
     faded_aqua: "#427b58"
     faded_orange: "#af3a03"
-  background: "$light0"
+  background:
+    color: "$light0"
   colors:
     surface: "$light1:0.65"
     surface_alt: "$light3:0.45"
@@ -130,7 +133,8 @@ nord:
     nord13: "#ebcb8b"
     nord14: "#a3be8c"
     nord15: "#b48ead"
-  background: "$nord0"
+  background:
+    color: "$nord0"
   colors:
     surface: "$nord1:0.7"
     surface_alt: "$nord2"
@@ -157,7 +161,8 @@ nord:
   #   padding: 2em
 
 sepia:
-  background: "#f4ecd8"
+  background:
+    color: "#f4ecd8"
   colors:
     surface: "rgba(237, 224, 200, 0.6)"
     surface_alt: "rgba(201, 168, 122, 0.35)"
@@ -183,7 +188,8 @@ sepia:
 
 
 aurora:
-  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+  background:
+    color: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
   colors:
     surface: "rgba(255, 255, 255, 0.06)"
     surface_alt: "rgba(28, 24, 41, 0.6)"           # surface_opaque tinted, lets gradient show
@@ -208,7 +214,8 @@ aurora:
     negative: "#ef9a9a"
 
 sunset:
-  background: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
+  background:
+    color: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
   colors:
     surface: "rgba(255, 100, 30, 0.09)"
     surface_alt: "rgba(0, 0, 0, 0.4)"
@@ -233,7 +240,8 @@ sunset:
     negative: "#ef5350"
 
 forest:
-  background: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
+  background:
+    color: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
   colors:
     surface: "rgba(255, 255, 255, 0.05)"
     surface_alt: "rgba(0, 0, 0, 0.38)"
@@ -258,7 +266,8 @@ forest:
     negative: "#ef9a9a"
 
 synthwave:
-  background: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
+  background:
+    color: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
   colors:
     surface: "rgba(255, 0, 255, 0.07)"
     surface_alt: "rgba(0, 0, 0, 0.45)"
