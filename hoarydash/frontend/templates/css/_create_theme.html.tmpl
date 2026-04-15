@@ -117,6 +117,7 @@
 
 {{if .Colors.OnSurfaceSubtle}}
 {{$p}} .on-surface-subtle { color: {{.Colors.OnSurfaceSubtle | css}}; fill: {{.Colors.OnSurfaceSubtle | css}}; }
+{{$p}} input[type=text]::placeholder { {{.Colors.OnSurfaceSubtle | css}}; }
 {{end}}
 
 {{if .Colors.OnBackground}}

@@ -25,6 +25,11 @@
   }
 
   .sensor-value-wrapper {
+    text-align: center;
+  }
+
+  .sensor-value-anchor {
+    display: inline-block;
     position: relative;
   }
 
@@ -32,14 +37,14 @@
     font-size: 1.9em;
     font-weight: 600;
     line-height: 1;
+    display: inline-block;
   }
 
   .sensor-unit {
-    font-size: 0.85em;
-    margin-top: 0.25rem;
     position: absolute;
+    left: 100%;
     bottom: 0;
-    width: max-content;
+    white-space: nowrap;
   }
 </style>
 {{end}}
@@ -49,8 +54,10 @@
 <div class="sensor card">
     <div class="sensor-label on-surface-muted">{{.Label}}</div>
     <div class="sensor-value-wrapper">
-      <span class="sensor-value on-surface">—</span>
-      <span class="sensor-unit on-surface-subtle">{{.Unit}}</span>
+      <span class="sensor-value-anchor">
+        <span class="sensor-value on-surface">—</span>
+        <span class="sensor-unit on-surface-subtle">{{.Unit}}</span>
+      </span>
     </div>
 </div>
 {{end}}

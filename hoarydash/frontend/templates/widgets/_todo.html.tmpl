@@ -93,15 +93,11 @@
         -webkit-flex: 1;
         flex: 1;
         padding: 0.4em;
-        border: 0.125em solid rgba(120, 180, 255, 0.2);
-        background: transparent;
         color: inherit;
         outline: none;
         font-size: 1em;
-    }
-
-    .todo-input::placeholder {
-        color: rgba(200, 200, 200, 0.5);
+        background: transparent;
+        border: none;
     }
 
     .todo-add-btn {
@@ -109,7 +105,6 @@
         padding: 0 0.6em;
         font-size: 1em;
         cursor: pointer;
-        border: 0.125em solid rgba(120, 180, 255, 0.2);
         background: transparent;
         color: inherit;
     }
@@ -200,10 +195,10 @@
             <span class="todo-statistic on-surface-muted">0/0</span>
         </div>
         <div class="todo-controls on-surface">
-            <button class="todo-btn complete positive-bg">
+            <button class="todo-btn btn complete positive-bg">
                 <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
-            <button class="todo-btn delete negative-bg">
+            <button class="todo-btn btn delete negative-bg">
                 <span style="margin-top: 0.3em">{{icon "delete"}}</span><span class="divider"></span><span>Done</span>
             </button>
         </div>
@@ -212,13 +207,13 @@
         <div class="divider horizontal thin"></div>
     {{end}}
     <div class="todo-list widget card card-inner">
-        <div class="todo-add">
+        <div class="todo-add surface-subtle border border-thick on-surface">
             <input 
                 type="text" 
                 class="todo-input" 
                 placeholder="Add a todo..."
             >
-            <button class="todo-add-btn interactive">
+            <button class="todo-add-btn interactive btn">
                 ＋
             </button>
         </div>
@@ -227,7 +222,7 @@
                 <label class="todo-label">
                     <input type="checkbox" class="todo-checkbox">
                     <span class="todo-checkmark"></span>
-                    <span class="todo-text">dummy</span>
+                    <span class="todo-text on-surface">dummy</span>
                 </label>
             </li>
         </ol>

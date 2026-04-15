@@ -329,11 +329,10 @@
         z-index: 3;
         background-color: transparent;
      }
-     .fml-progress-bar > input::-webkit-slider-thumb,
-     .fml-progress-bar > input::-moz-range-thumb {
-        height: 1.2em;
-        width: 1.2em;
-     }
+
+     {{$thumbStyle := "height: 1.2em; width: 1.2em;" | css}}
+     .fml-progress-bar > input[type=range]::-webkit-slider-thumb { {{$thumbStyle}} }
+     .fml-progress-bar > input[type=range]::-moz-range-thumb { {{$thumbStyle}} }
 
     .fml-progress-bar-elapsed {
         position: absolute;
@@ -436,7 +435,7 @@
             <div class="fml-progress-row on-surface transition-fast">
                 <span class="fml-progress-duration elapsed">1:00</span>
                 <div class="fml-progress-bar surface-alt">
-                    <input class="thumb" type="range" min="0" max="100" value="0" />
+                    <input class="thumb surface-alt" type="range" min="0" max="100" step="1" value="0"/>
                     <div class="fml-progress-bar-elapsed surface-prominent"></div>
                 </div>
                 <span class="fml-progress-duration left">-2:00</span>
@@ -528,15 +527,17 @@ component(function(wrapper) {
     elProgressInput.oninput = function() {
         if (progressInterval) {
             clearInterval(progressInterval);
+            if (!currentDuration) return;
         }
 
-        var pct = (parseFloat(elProgressInput.value) / currentDuration) * 100;
+        var val = parseFloat(elProgressInput.value) || 0;
+        var pct = (val / currentDuration) * 100;
 
         elElapsedBar.style.width = pct + '%';
     }
 
     elProgressInput.onchange = function() { 
-        if (progressDragging) return; 
+        progressDragging = false;
         ctrl.seek(parseFloat(elProgressInput.value)); 
     };
 
@@ -637,10 +638,11 @@ component(function(wrapper) {
         var position = attrs.media_position;
 
         progressUpdater(position, duration)
+        
+        currentDuration = duration;
+        if (progressDragging) return;
         elProgressInput.value = position;
         elProgressInput.max = duration;
-
-        currentDuration = duration;
     })
 
     // cover art + backdrop blur

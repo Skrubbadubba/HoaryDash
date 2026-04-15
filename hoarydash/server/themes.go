@@ -307,7 +307,14 @@ func (t *Theme) Clone() Theme {
 	return clone
 }
 
-var mergeTheme = mergeOverride[Theme, Theme]
+func mergeTheme(base, override Theme) Theme {
+	if override.Cards != nil {
+		base.Entities = nil
+		base.Sensors = nil
+		base.Widgets = nil
+	}
+	return mergeOverride(base, override)
+}
 
 func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {
