@@ -167,6 +167,9 @@ var defaultTheme = Theme{
 	Entities: newPtr(CardStyle{
 		Padding: "0.4em 0.75em",
 	}),
+	Cards: newPtr(CardStyle{
+		Padding: "0.75em",
+	}),
 	Modals: newPtr(CardStyle{
 		BorderColor: "rgba(130,185,255,0.15)",
 	}),

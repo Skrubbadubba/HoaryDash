@@ -13,7 +13,6 @@
     -webkit-box-align: stretch;
     -webkit-align-items: stretch;
     align-items: stretch;
-    padding: 0.7em 0;
     justify-content: center;
   }
 
@@ -291,7 +290,7 @@ component(function(wrapper) {
   }
 
   function clearOldForecast() {
-    var nodes = forecastEl.querySelectorAll("li");
+    var nodes = forecastEl.querySelectorAll(".forecast-day");
     console.log("nodes in clear old forecast: ", nodes)
     for (var i = nodes.length - 1; i >= 1; i--) { // stop at 1 to not remove todo template
         var node = nodes[i];
@@ -304,6 +303,7 @@ component(function(wrapper) {
 }
 
   function renderForecast(forecast) {
+    console.log("render forecast got: ", forecast.length, forecast)
     if (!forecast || !forecast.length) {
       forecastEl.style.display = 'none';
       return;
@@ -349,9 +349,12 @@ component(function(wrapper) {
       target: { entity_id: entityId },
       return_response: true
     }).then(function(result) {
+      console.log("fetch weather got: ", result)
       var forecasts = result.response
         && result.response[entityId]
-        && result.response[entityId].forecast;
+        && result.response[entityId].forecast{{if .ForecastTimes}}.slice(0, {{.ForecastTimes}}){{end}};
+          console.log("forecast is: ", forecasts.length, forecasts)
+
       renderForecast(forecasts || []);
     });
   }

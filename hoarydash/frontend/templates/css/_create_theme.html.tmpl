@@ -17,7 +17,6 @@
 {{$p}} {
     {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
 
-    {{/* Apply global typography styles */}}
     {{with .Typography}}
         {{if .FontFamily}}font-family: {{.FontFamily | css}};{{end}}
         {{if .FontWeight}}font-weight: {{.FontWeight | css}};{{end}}
@@ -27,11 +26,11 @@
     {{end}}
 }
 
-{{/* Layered background support */}}
+{{/* Layered background */}}
 {{if or .Background .BackgroundOverlay}}
 {{$p}} {
     position: relative;
-    z-index: 1; /* Establish a stacking context */
+    z-index: 1;
 }
 
 {{$p}} > * {
@@ -61,7 +60,7 @@
 
 {{if .BackgroundOverlay}}
 {{$p}}::after {
-    z-index: 2; /* The overlay sits on top of the base background */
+    z-index: 2;
     {{with .BackgroundOverlay}}
         {{if .Image}}background-image: {{.Image | css}};{{end}}
         {{if .Size}}background-size: {{.Size | css}};{{end}}
