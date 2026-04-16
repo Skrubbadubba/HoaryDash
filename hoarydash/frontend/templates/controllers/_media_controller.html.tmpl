@@ -79,6 +79,7 @@
                         service: service, target: { entity_id: entityId } };
             if (data) { msg.service_data = data; }
             if (returnRes) { msg.return_response = true; }
+            console.log("trying to send: ", msg)
             return window.haSend(msg);
         }
         
@@ -123,9 +124,10 @@
         }
 
         function _playNormalItem(item) {
-            return callService('media_play', {
-                media_content_id: item.media_content_id,
-                media_content_type: item.media_content_type,
+            return callService('play_media', { media: {
+                    media_content_id: item.media_content_id,
+                    media_content_type: item.media_content_type,
+                }
             })
         }
 
@@ -138,8 +140,8 @@
                 service: 'player_media_play_context',
                 service_data: {
                     entity_id: entityId
-                    }
                 }
+            }
             if (item.can_expand) {
                 spMsg.service_data.context_uri = item.media_content_id;
             } else if (stack[stack.length - 1].canPlay) {

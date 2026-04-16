@@ -1,4 +1,16 @@
 {{define "navbar-default-style"}}
+<script>
+component(function(navbar) {
+    var items = navbar.children
+    requestAnimationFrame(function(){
+        for (item of items) {
+            // Add 1em to give space for text, needed because high border-radius
+            item.style.width = "calc(" + item.style.width + " + " + "1em)"; 
+        }
+
+    })
+});
+</script>
 <style>
     .navbar {
         display: -webkit-box;
@@ -19,7 +31,6 @@
 
     .navbar-item {
         opacity: 0.45;
-        padding: 0.5em 0.9em;
         cursor: pointer;
         display: -webkit-box;
         display: -webkit-flex;
@@ -31,8 +42,6 @@
         -webkit-box-align: center;
         -webkit-align-items: center;
         align-items: center;
-        -webkit-transition: opacity 0.2s ease;
-        transition: opacity 0.2s ease;
         border-radius: 2em;
         font-size: 0.85em;
     }

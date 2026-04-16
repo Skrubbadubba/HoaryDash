@@ -2,21 +2,11 @@
 {{if once "button-style"}}
 <style>
   .ha-button {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
     min-width: 5em;
     cursor: pointer;
     overflow: visible;
   }
     
-  .ha-button-content {
-    display: flex;
-    align-items: center;
-  }
-
-
   .ha-button-icon {
     font-size: 1.6em;
     line-height: 1;
@@ -37,9 +27,9 @@
 {{end}}
 {{end}}
 {{define "_button"}}
-<div class="ha-button entity card padding transition-fast border">
+<div class="ha-button entity card padding transition-fast border flex flex-col">
   <button class="ha-button-body btn" title="{{.Label}}">
-    <div class="ha-button-content">
+    <div class="ha-button-content flex align-center">
     {{if .Icon}}
       <span class="ha-button-icon interactive-muted">
         {{if isEmoji .Icon}}

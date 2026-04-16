@@ -1,0 +1,69 @@
+{{define "_transition"}}
+    {{if globals "Animations" | enabledByDefault}}
+    -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
+    transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
+    {{else}}
+    -webkit-transition: none;
+    transition: none;
+    {{end}}
+{{end}}
+
+{{define "_transition-fast"}}
+    {{if globals "Animations" | enabledByDefault}}
+    -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
+    transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
+    {{else}}
+    -webkit-transition: none;
+    transition: none;
+    {{end}}
+{{end}}
+
+{{define "_slider-thumb"}}
+    -webkit-appearance: none;
+    display: flex;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+{{end}}
+
+{{define "_pseudo"}}
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    z-index: -1;
+    top: 0;
+    right: 0;
+    pointer-events: none;
+{{end}}
+
+{{define "_flex"}}
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+{{end}}
+
+{{define "_flex-row"}}
+    -webkit-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+{{end}}
+
+{{define "_flex-col"}}
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+{{end}}
+
+{{define "_flex-grow"}}
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+{{end}}
+
+{{define "_size-full"}}
+    width: 100%;
+    height: 100%;
+{{end}}

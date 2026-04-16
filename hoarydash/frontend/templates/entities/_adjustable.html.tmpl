@@ -1,16 +1,6 @@
 {{define "_adjustable-chevron-style"}}
 <style>
   .ha-adjustable {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;
     width: 100%;
     height: max-content;
     position: relative;
@@ -29,19 +19,18 @@
     font-size: 0.6875em;
     text-align: center;
     line-height: 1;
-    -webkit-transition: color 0.12s ease, background 0.12s ease;
-    transition: color 0.12s ease, background 0.12s ease;
   }
+
   .ha-adjustable-chevron:hover {
     color: rgba(160,200,240,0.65);
     background: rgba(255,255,255,0.04);
   }
+
   .ha-adjustable-chevron-icon {
     display: inline-block;
     font-style: normal;
-    -webkit-transition: -webkit-transform 0.18s ease;
-    transition: transform 0.18s ease;
   }
+
   .ha-adjustable.expanded .ha-adjustable-chevron-icon {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
@@ -90,10 +79,6 @@
   }
 
   .ha-slider-row {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-align-items: center;
-    align-items: center;
     margin-bottom: 0.6em;
   }
 
@@ -106,15 +91,9 @@
     flex-shrink: 0;
   }
   .ha-slider-row input[type=range] {
-    -webkit-appearance: none;
-    -webkit-flex: 1;
-    flex: 1;
     height: 0.6em;
     border-radius: 2px;
     background: rgba(100,160,255,0.2);
-    outline: none;
-    border: none;
-    cursor: pointer;
     margin: 0 0.75em;
   }
   .ha-slider-row input[type=range]::-webkit-slider-thumb,
@@ -130,11 +109,7 @@
     font-size: 0.865em;
     color: #78b4f0;
     text-align: right;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
   }
-
- 
 
   /* Hidden until JS confirms the attribute exists */
   .ha-slider-row.hidden {
@@ -143,8 +118,8 @@
 </style>
 {{end}}
 {{define "_adjustable-chevron"}}
-<div class="ha-adjustable">
-  <button class="ha-adjustable-chevron">
+<div class="ha-adjustable flex flex-col flex-grow">
+  <button class="ha-adjustable-chevron transition-fast">
     <i class="ha-adjustable-chevron-icon">&#9660;</i>
   </button>
 
@@ -154,24 +129,24 @@
     {{$domain := domain .EntityID}}
 
     {{if eq $domain "light"}}
-    <div class="ha-slider-row dim">
+    <div class="ha-slider-row flex align-center dim">
       <span class="ha-slider-label">Dim</span>
       <input class="ha-slider-input thumb" type="range" min="0" max="255" value="255">
-      <span class="ha-slider-val" style="width: 3.375em;">100%</span>
+      <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">100%</span>
     </div>
-    <div class="ha-slider-row cct hidden">
+    <div class="ha-slider-row flex align-center cct hidden">
       <span class="ha-slider-label">Temp</span>
       <input class="ha-slider-input thumb" type="range" min="2700" max="6500" value="4000">
-      <span class="ha-slider-val" style="width: 3.375em;">4000K</span>
+      <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">4000K</span>
     </div>
     {{end}}
 
     {{if eq $domain "fan"}}
-    <div class="ha-slider-row speed">
+    <div class="ha-slider-row flex align-center speed">
       <span class="ha-slider-label">Speed</span>
-      <input class="ha-slider-input thumb" type="range" min="0" max="100" value="0" >
-      <span class="ha-slider-val" width="0">100%</span>
-      <span class="ha-slider-val" style="visibility: hidden;">100%</span>
+      <input class="ha-slider-input flex-grow thumb" type="range" min="0" max="100" value="0" >
+      <span class="ha-slider-val flex-shrink-0" width="0">100%</span>
+      <span class="ha-slider-val flex-shrink-0" style="visibility: hidden;">100%</span>
     </div>
     {{end}}
   </div>

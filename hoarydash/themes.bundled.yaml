@@ -1,28 +1,28 @@
 light:
   background:
     color: "#f9f5d7"
-  colors:        # light0_hard
-    surface: "rgba(235, 219, 178, 0.55)"   # light1 tinted
-    surface_alt: "rgba(213, 196, 161, 0.5)"  # light2, slightly more receded
-    surface_prominent: "#d5c4a1"  # light2 solid, clearly distinct
-    surface_opaque: "#fbf1c7"     # light0
+  colors:
+    surface: "rgba(235, 219, 178, 0.55)"
+    surface_alt: "rgba(213, 196, 161, 0.5)"
+    surface_prominent: "#d5c4a1"
+    surface_opaque: "#fbf1c7"
     surface_subtle: "rgba(213, 196, 161, 0.25)"
     border: "#d5c4a1"
-    on_surface: "#3c3836"         # dark1
-    on_surface_muted: "#665c54"   # dark3
-    on_surface_subtle: "#928374"  # gray_245
-    on_background: "#282828"      # dark0
-    accent: "#d65d0e"             # neutral_orange — warm, characterful
-    accent_muted: "#af3a03"       # faded_orange
-    interactive: "#076678"        # faded_blue — cooler, distinct from accent
+    on_surface: "#3c3836"
+    on_surface_muted: "#665c54"
+    on_surface_subtle: "#928374"
+    on_background: "#282828"
+    accent: "#d65d0e"
+    accent_muted: "#af3a03"
+    interactive: "#076678"
     interactive_muted: "rgba(7, 102, 120, 0.35)"
     interactive_disabled: "rgba(146, 131, 116, 0.3)"
-    highlight: "rgba(7, 102, 120, 0.18)"   # interactive tint, against surface_alt
-    state_on: "#79740e"           # faded_green
+    highlight: "rgba(7, 102, 120, 0.18)"
+    state_on: "#79740e"
     state_off: "rgba(60, 56, 54, 0.15)"
     state_disabled: "rgba(146, 131, 116, 0.35)"
-    positive: "#79740e"           # faded_green
-    negative: "#9d0006"           # faded_red
+    positive: "#79740e"
+    negative: "#9d0006"
 
 gruvbox-dark:
   vars:
@@ -59,7 +59,7 @@ gruvbox-dark:
     on_surface_subtle: "$dark4"
     on_background: "$light2"
     accent: "$bright_yellow"
-    accent_muted: "#d79921" # neutral_yellow
+    accent_muted: "#d79921"
     interactive: "$bright_blue"
     interactive_muted: "$bright_blue:0.4"
     interactive_disabled: "$dark2:0.5"
@@ -103,7 +103,7 @@ gruvbox-light:
     on_surface_muted: "$dark3"
     on_surface_subtle: "$dark4"
     on_background: "$dark1"
-    accent: "#d65d0e" # neutral_orange
+    accent: "#d65d0e"
     accent_muted: "$faded_orange"
     interactive: "$faded_blue"
     interactive_muted: "$faded_blue:0.3"
@@ -157,8 +157,6 @@ nord:
     state_disabled: "$nord2:0.45"
     positive: "$nord14"
     negative: "$nord11"
-  # badges:
-  #   padding: 2em
 
 sepia:
   background:
@@ -174,9 +172,9 @@ sepia:
     on_surface_muted: "#8b6f47"
     on_surface_subtle: "#b8956a"
     on_background: "#433422"
-    accent: "#a0522d"             # sienna — warm reddish brown
+    accent: "#a0522d"
     accent_muted: "#c47a45"
-    interactive: "#5a6e3a"        # muted olive green — complementary contrast
+    interactive: "#5a6e3a" 
     interactive_muted: "rgba(90, 110, 58, 0.35)"
     interactive_disabled: "rgba(184, 149, 106, 0.35)"
     highlight: "rgba(160, 82, 45, 0.15)"
@@ -189,14 +187,14 @@ sepia:
 
 aurora:
   background:
-    color: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
+    image: "linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)"
   colors:
     surface: "rgba(255, 255, 255, 0.06)"
-    surface_alt: "rgba(28, 24, 41, 0.6)"           # surface_opaque tinted, lets gradient show
+    surface_alt: "rgba(28, 24, 41, 0.6)"
     surface_prominent: "rgba(77, 208, 225, 0.13)"
     surface_opaque: "#0f1929"
     surface_subtle: "rgba(77, 208, 225, 0.15)"
-    border: "rgba(255, 255, 255, 0.09)
+    border: "rgba(255, 255, 255, 0.09)"
     on_surface: "#e0f7fa"
     on_surface_muted: "#80cbc4"
     on_surface_subtle: "#4db6ac"
@@ -215,7 +213,7 @@ aurora:
 
 sunset:
   background:
-    color: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
+    image: "linear-gradient(160deg, #0d0d0d 0%, #1a0a00 40%, #2d0a00 100%)"
   colors:
     surface: "rgba(255, 100, 30, 0.09)"
     surface_alt: "rgba(0, 0, 0, 0.4)"
@@ -227,9 +225,9 @@ sunset:
     on_surface_muted: "#ffcc80"
     on_surface_subtle: "#ff8a50"
     on_background: "#ffe0b2"
-    accent: "#ff7043"             # deep orange
+    accent: "#ff7043"
     accent_muted: "#ff8a65"
-    interactive: "#f06292"        # pink — warm but distinct, moves away from orange
+    interactive: "#f06292"
     interactive_muted: "rgba(240, 98, 146, 0.35)"
     interactive_disabled: "rgba(255, 112, 67, 0.12)"
     highlight: "rgba(255, 112, 67, 0.18)"
@@ -241,7 +239,7 @@ sunset:
 
 forest:
   background:
-    color: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
+    image: "linear-gradient(150deg, #0a1628 0%, #0d2137 50%, #0a2818 100%)"
   colors:
     surface: "rgba(255, 255, 255, 0.05)"
     surface_alt: "rgba(0, 0, 0, 0.38)"
@@ -253,9 +251,9 @@ forest:
     on_surface_muted: "#a5d6a7"
     on_surface_subtle: "#66bb6a"
     on_background: "#c8e6c9"
-    accent: "#69f06e"             # bright green
+    accent: "#69f06e"
     accent_muted: "#81c784"
-    interactive: "#4fc3f7"        # light blue — moves away from green entirely
+    interactive: "#4fc3f7"
     interactive_muted: "rgba(79, 195, 247, 0.35)"
     interactive_disabled: "rgba(102, 187, 106, 0.1)"
     highlight: "rgba(105, 240, 110, 0.13)"
@@ -267,7 +265,7 @@ forest:
 
 synthwave:
   background:
-    color: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
+    image: "linear-gradient(180deg, #0d001a 0%, #1a0030 60%, #2d0050 100%)"
   colors:
     surface: "rgba(255, 0, 255, 0.07)"
     surface_alt: "rgba(0, 0, 0, 0.45)"
@@ -279,13 +277,13 @@ synthwave:
     on_surface_muted: "#cc88ff"
     on_surface_subtle: "#aa44ff"
     on_background: "#e8d0ff"
-    accent: "#ff44cc"             # hot pink
+    accent: "#ff44cc"
     accent_muted: "#cc2299"
-    interactive: "#44e5ff"        # electric cyan — classic synthwave contrast to pink
+    interactive: "#44e5ff"
     interactive_muted: "rgba(68, 229, 255, 0.3)"
     interactive_disabled: "rgba(255, 68, 204, 0.1)"
     highlight: "rgba(255, 68, 204, 0.16)"
-    state_on: "#44ffcc"           # mint — different from both accent and interactive
+    state_on: "#44ffcc"
     state_off: "rgba(255, 255, 255, 0.07)"
     state_disabled: "rgba(255, 68, 204, 0.1)"
     positive: "#44ffcc"

@@ -28,7 +28,6 @@
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
         max-width: 100%;
-        margin-bottom: 1.2em;
         touch-action: pan-y;
     }
 
@@ -83,9 +82,8 @@
         max-width: 100%;
     }
 
-    .tiled-cards > .card-wrapper {
-        margin: 0 0.5em 0.5em 0;
-        height: fit-content;
+    .tiled-cards .card-wrapper {
+        height: 100%;
     }
 </style>
 {{end}}
@@ -99,14 +97,7 @@
     {{end}}
 
     {{range $gi, $group := .Groups}}
-    {{if $group.Style}}
-        <style>
-            #screen-{{$screen.Name}} #group-{{$group.Name}} .card {
-                {{template "create-card-theme" $group.Style}}
-            }
-        </style>
-    {{end}}
-        <div class="tiled-group" id="group-{{$group.Name}}">
+        <div class="tiled-group gap-outer gap-vertical" id="group-{{$group.Name}}">
             {{if or $group.Name $group.Icon}}
             <div class="tiled-group-header on-bg">
                 {{if $group.Icon}}
@@ -121,7 +112,7 @@
 
             <div class="tiled-cards" id="tiled-group-{{$gi}}">
                 {{range $group.Cards}}
-                    {{template "card-multiplex" .}}
+                    <div class="tiled-card-wrapper gap-inner-first gap-wrap">{{template "card-multiplex" .}}</div>
                 {{end}}
             </div>
             {{if $group.NormalizeHeight}}
@@ -132,6 +123,14 @@
                 </script>
             {{end}}   
         </div>
+
+        {{if $group.Style}}
+        <style class="gap-outer gap-vertical">
+            #screen-{{$screen.Name}} #group-{{$group.Name}} .card {
+                {{template "create-card-theme" $group.Style}}
+            }
+        </style>
+    {{end}}
     {{end}}
 </div>
 {{end}}

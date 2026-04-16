@@ -111,7 +111,9 @@ type Shapes struct {
 	MediumBorderRadius template.CSS `yaml:"medium_border_radius"`
 	BorderThick        template.CSS `yaml:"border_thick"`
 	BorderThin         template.CSS `yaml:"border_thin"`
-	Padding            template.CSS `yaml:"padding"`
+	GapInner           template.CSS `yaml:"gap_inner"`
+	GapOuter           template.CSS `yaml:"gap_outer"`
+	PaddingInner       template.CSS `yaml:"padding_inner"`
 }
 
 type CardStyle struct {
@@ -156,13 +158,14 @@ var defaultTheme = Theme{
 	},
 	FontSize: 1.0,
 	Shapes: Shapes{
-		Padding:            "0.6em",
+		GapInner:           "0.6em",
+		GapOuter:           "1em",
+		PaddingInner:       "0.4em",
 		Borders:            newPtr(true),
 		TightBorderRadius:  "0.2em",
 		WideBorderRadius:   "2em",
-		MediumBorderRadius: "1em",
-		BorderThick:        "1.8px",
-		BorderThin:         "0.75px",
+		MediumBorderRadius: "0.75em",
+		BorderThick:        "2px",
 	},
 	Entities: newPtr(CardStyle{
 		Padding: "0.4em 0.75em",
@@ -211,7 +214,7 @@ func deriveAlpha(base template.CSS, alpha float64) template.CSS {
 	return template.CSS(toRGBAString(c))
 }
 
-func (t *Theme) ComputeDerivatives() {
+func (t *Theme) ComputeDerivatives() error {
 	// Theme colors
 	if t.Colors.SurfaceProminent == "" && t.Colors.Surface != "" {
 		t.Colors.SurfaceProminent = t.Colors.Surface
@@ -260,23 +263,39 @@ func (t *Theme) ComputeDerivatives() {
 		// )
 	}
 
-	var cssValueRegex = regexp.MustCompile(`^([0-9\.]+)\s*([a-zA-Z%]*)$`)
-
 	if t.Shapes.BorderThin == "" && t.Shapes.BorderThick != "" {
-		matches := cssValueRegex.FindStringSubmatch(strings.TrimSpace(string(t.Shapes.BorderThick)))
-
-		if len(matches) == 3 {
-			value, err := strconv.ParseFloat(matches[1], 64)
-
-			if err == nil {
-				thinValue := value / 2.0
-				unit := matches[2]
-
-				t.Shapes.BorderThin = template.CSS(fmt.Sprintf("%g%s", thinValue, unit))
-			}
+		css, err := computeNumericCSS(t.Shapes.BorderThick, func(val float64) float64 { return val / 2 })
+		if err != nil {
+			return fmt.Errorf("could not derive BorderThin when finalizing theme: %v", err)
 		}
+		t.Shapes.BorderThin = css
 	}
 
+	if t.Shapes.GapInner == "" && t.Shapes.GapOuter != "" {
+		css, err := computeNumericCSS(t.Shapes.GapOuter, func(val float64) float64 { return val / 2 })
+		if err != nil {
+			return fmt.Errorf("could not derive MarginInner when finalizing theme: %v", err)
+		}
+		t.Shapes.GapInner = css
+	}
+
+	return nil
+}
+
+func computeNumericCSS(str template.CSS, calculation func(float64) float64) (template.CSS, error) {
+	var cssValueRegex = regexp.MustCompile(`^([0-9\.]+)\s*([a-zA-Z%]*)$`)
+	matches := cssValueRegex.FindStringSubmatch(strings.TrimSpace(string(str)))
+
+	if len(matches) != 3 {
+		return "", fmt.Errorf("could not match a value and unit in string '%s'", str)
+	}
+	value, err := strconv.ParseFloat(matches[1], 64)
+	if err != nil {
+		return "", fmt.Errorf("could not parse float from '%s':%w", str, err)
+	}
+	thinValue := calculation(value)
+	unit := matches[2]
+	return template.CSS(fmt.Sprintf("%g%s", thinValue, unit)), nil
 }
 
 func clonePtr[T any](ptr *T) *T {
@@ -321,15 +340,18 @@ func mergeTheme(base, override Theme) Theme {
 
 func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {
-		if namedTheme, ok := named[ref.Name]; ok {
+		name := ref.Name
+		if namedTheme, ok := named[name]; ok {
 			cloned := namedTheme.Clone()
 			return &cloned, nil
 		}
-		return nil, fmt.Errorf("theme %q not found", ref.Name)
+		return nil, fmt.Errorf("theme %q not found", name)
 	}
+
 	if ref.Theme == nil {
 		return nil, nil
 	}
+
 	cloned := ref.Theme.Clone()
 	if err := cloned.Finalize(); err != nil {
 		return nil, err

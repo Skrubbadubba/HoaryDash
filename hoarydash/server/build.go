@@ -243,6 +243,13 @@ var funcMap = template.FuncMap{
 	},
 	"translate":          nilfunc,
 	"domainTranslations": nilfunc,
+	"add": func(vals ...float64) float64 {
+		var res float64
+		for _, val := range vals {
+			res += val
+		}
+		return res
+	},
 }
 
 func BuildDash() {
@@ -263,13 +270,15 @@ func BuildDash() {
 	}
 	for k, v := range cfg.Themes {
 		if err := v.Finalize(); err != nil {
-			log.Printf("Error finalizing config theme %s: %v", k, err)
+			log.Printf("Error finalizing config theme '%s': %v", k, err)
 			continue
 		}
 		allNamed[k] = v
 	}
 
-	defaultTheme.Finalize()
+	if err := defaultTheme.Finalize(); err != nil {
+		log.Printf("Error finalizing default theme: %v", err)
+	}
 
 	var tmpl *template.Template
 

@@ -58,6 +58,7 @@
     {{end}}
     {{$config := .Config}}
     {{template "base-style" .}}
+    {{template "utility-styles"}}
     {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
     <script>
         function component(script) {
@@ -163,11 +164,15 @@
         }
         {{if .Dashboard.Navbar.Enabled}}
         {{$position := .Dashboard.Navbar.Position | default "bottom"}}
+        {{$navbarStylePad := 0}}
+        {{if eq .Dashboard.Navbar.Style "rectangle"}}
+            {{$navbarStylePad = 1.5}}
+        {{end}}
          .navbar-padding {
-            {{if eq $position "bottom"}}padding-bottom: 5em;{{end}}
-            {{if eq $position "top"}}padding-top: 5em;{{end}}
-            {{if eq $position "left"}}padding-left: 5.5em;{{end}}
-            {{if eq $position "right"}}padding-right: 5.5em;{{end}}
+            {{if eq $position "bottom"}}padding-bottom: {{add 5 $navbarStylePad}}em;{{end}}
+            {{if eq $position "top"}}padding-top: {{add 5 $navbarStylePad}}em;{{end}}
+            {{if eq $position "left"}}padding-left: {{add 5.5 $navbarStylePad}}em;{{end}}
+            {{if eq $position "right"}}padding-right: {{add 5.5 $navbarStylePad}}em;{{end}}
         }
         {{end}}
 

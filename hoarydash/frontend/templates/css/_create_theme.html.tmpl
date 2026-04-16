@@ -1,15 +1,3 @@
-{{define "_pseudo"}}
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    z-index: -1;
-    top: 0;
-    right: 0;
-    pointer-events: none;
-{{end}}
-
 {{define "create-theme"}}
 {{$p := .Prefix}}
 <style>
@@ -102,7 +90,7 @@
 
 {{if .Colors.Border}}
     {{$p}} .border { border-color: {{.Colors.Border}}; }
-    {{$p}} .divider { background-color: {{.Colors.Border}}; }
+    {{$p}} .border-bg { background-color: {{.Colors.Border}}; }
 {{end}}
 
 {{/* Text + Icons */}}
@@ -214,10 +202,16 @@
 {{end}}
 
 {{/* Geometry */}}
-{{if .Shapes.Padding}}
-    {{$p}} .padding {
-        padding: {{.Shapes.Padding}}
-    }
+{{if .Shapes.PaddingInner}}
+    {{$p}} .padding.inner { padding: {{.Shapes.PaddingInner}}; }
+{{end}}
+{{if .Shapes.GapOuter}}
+    {{$p}} .gap-outer + .gap-outer { margin: {{.Shapes.GapOuter}}; }
+    {{$p}} .gap-outer-first { margin: {{.Shapes.GapOuter}}; }
+{{end}}
+{{if .Shapes.GapInner}}
+    {{$p}} .gap-inner + .gap-inner { margin: {{.Shapes.GapInner}}; }
+    {{$p}} .gap-inner-first { margin: {{.Shapes.GapInner}}; }
 {{end}}
 {{if .Shapes.WideBorderRadius}}
     {{$p}} .border-wide { border-radius: {{.Shapes.WideBorderRadius}}; }
@@ -225,19 +219,16 @@
 {{if .Shapes.MediumBorderRadius}}
     {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
 {{end}}
-
 {{if .Shapes.TightBorderRadius}}
     {{$p}} .border-tight { border-radius: {{.Shapes.TightBorderRadius}}; }
 {{end}}
 {{if .Shapes.BorderThin}}
     {{$p}} .border-thin { border-width: {{.Shapes.BorderThin}}; }
-    {{$p}} .divider.horizontal.thin { height: {{.Shapes.BorderThin}}; }
-    {{$p}} .divider.vertical.thin { width: {{.Shapes.BorderThin}}; }
+    {{$p}} .divider-thin { height: {{.Shapes.BorderThin}}; width: {{.Shapes.BorderThin}}; }
 {{end}}
 {{if .Shapes.BorderThick}}
     {{$p}} .border-thick { border-width: {{.Shapes.BorderThick}}; }
-    {{$p}} .divider.horizontal.thick { height: {{.Shapes.BorderThick}}; }
-    {{$p}} .divider.vertical.thick { width: {{.Shapes.BorderThick}}; }
+    {{$p}} .divider-thick { height: {{.Shapes.BorderThick}}; width: {{.Shapes.BorderThick}}; }
 {{end}}
 
 {{if .Shapes.Borders}}

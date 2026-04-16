@@ -1,7 +1,7 @@
 {{define "navbar"}}
 <nav class="navbar surface-alt">
     {{range $i, $screen := .}}
-    <div class="navbar-item{{if eq $i 0}} highlight active{{end}}" onclick="window.navigateTo({{$i}})">
+    <div class="navbar-item{{if eq $i 0}} highlight active{{end}} padding inner" onclick="window.navigateTo({{$i}})">
         <div class="navbar-icon accent">
             {{if $screen.Icon}}
                 {{icon $screen.Icon}}
@@ -17,15 +17,15 @@
 component(function(navbar) {
     // Needed because absolute positioned elements are apprantly
     // not layed until a second paint
-    requestAnimationFrame(function() {normalizeWidth(navbar)});
+    requestAnimationFrame(function(){ normalizeWidth(navbar) });
 
     var items = navbar.querySelectorAll('.navbar-item');
     window.addEventListener('screen-navigate', function(e) {
         for (var i = 0; i < items.length; i++) {
             if (i === e.detail.index) {
-                items[i].className = 'navbar-item active highlight';
+                items[i].classList.add("active", "highlight");
             } else {
-                items[i].className = 'navbar-item';
+                items[i].classList.remove("active","highlight");
             }
         }
     })

@@ -1,10 +1,6 @@
 {{define "_toggle-style"}}
 <style>
   .ha-toggle {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
     min-width: 80px;
     cursor: pointer;
     overflow: visible;
@@ -12,15 +8,7 @@
 
   .ha-toggle-body {
     height: fit-content;
-  }
-
-  .ha-toggle-left {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
     flex-direction: row;
-    -webkit-align-items: center;
-    align-items: center;
   }
 
   .ha-toggle-icon {
@@ -28,6 +16,7 @@
     line-height: 1;
     margin-right: 4px;
   }
+
   .ha-toggle.off .ha-toggle-icon {
     opacity: 0.38;
   }
@@ -46,12 +35,11 @@
     border-radius: 0.625em;
     border: 1px solid;
     position: relative;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
     pointer-events: none;
     margin-left: 0.5em;
     margin-right: 0.1em;
   }
+  
   .ha-toggle-pill::after {
     content: '';
     position: absolute;
@@ -68,9 +56,9 @@
 </style>
 {{end}}
 {{define "_toggle-open"}}
-<div class="ha-toggle card entity border off card-wrapper">
+<div class="ha-toggle card entity border off card-wrapper flex flex-col">
   <button class="ha-toggle-body card entity transition-fast btn card-inner" title="{{.Label}}">
-    <div class="ha-toggle-left">
+    <div class="ha-toggle-left flex flex-row align-center">
       {{if .Icon}}
       <span class="ha-toggle-icon interactive">
         {{if isEmoji .Icon}}
@@ -82,7 +70,7 @@
       {{end}}
       <span class="ha-toggle-label entity-label on-surface">{{.Label}}</span>
     </div>
-    <div class="ha-toggle-pill state-bg state-border"></div>
+    <div class="ha-toggle-pill flex-shrink-0 state-bg state-border"></div>
   </button>
 {{end}}
 {{define "_toggle-script"}}
