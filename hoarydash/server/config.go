@@ -118,6 +118,7 @@ type Card struct {
 }
 
 type WeatherOptions struct {
+	ShowForecast     bool              `yaml:"show_corecast"`
 	ForecastInterval *ForecastInterval `yaml:"forecast_interval"`
 	ForecastTimes    *int              `yaml:"forecast_times"`
 	Hour12           *bool

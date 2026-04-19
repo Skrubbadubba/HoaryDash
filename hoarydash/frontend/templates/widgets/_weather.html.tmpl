@@ -105,7 +105,7 @@
       </div>
     </div>
     <div class="weather-divider divider-thin divider-vertical accent-bg gap-outer gap-horizontal"></div>
-    <div class="weather-details gap-outer gap-horizontal flex flex-col align-center flex-grow">
+    <div class="weather-details gap-outer gap-horizontal flex flex-col align-center">
       <div class="weather-condition accent-muted">Loading...</div>
       <div class="weather-meta on-surface-muted">
         <span class="weather-wind"></span>
@@ -114,24 +114,26 @@
       </div>
     </div>
   </div>
-  {{if .InternalBorders}}
-    <div class="gap-horizontal divider-thin divider-horizontal border-bg"></div>
-  {{end}}
-  <div class="weather-forecast flex">
-    <div class="forecast-day template flex flex-row align-center">
-      <div class="forecast-day-content widget card card-inner flex flex-grow flex-col align-center">
-        <div class="forecast-day-name on-surface">  timeLabel </div>
-        <div class="forecast-day-icon">  icon    </div>
-        <div class="forecast-day-temps flex align-baseline">
-          <span class="forecast-temp-high on-surface"> high </span>
-          <span class="forecast-temp-low on-surface-muted"> low </span>
+  {{if .ShowForecast}}
+    {{if .InternalBorders}}
+      <div class="gap-horizontal divider-thin divider-horizontal border-bg"></div>
+    {{end}}
+    <div class="weather-forecast flex">
+      <div class="forecast-day template flex flex-row align-center">
+        <div class="forecast-day-content widget card card-inner flex flex-grow flex-col align-center">
+          <div class="forecast-day-name on-surface">  timeLabel </div>
+          <div class="forecast-day-icon">  icon    </div>
+          <div class="forecast-day-temps flex align-baseline">
+            <span class="forecast-temp-high on-surface"> high </span>
+            <span class="forecast-temp-low on-surface-muted"> low </span>
+          </div>
         </div>
+        {{if .InternalBorders}}
+          <div class="divider-vertical divider-thin border-bg"></div>
+        {{end}}
       </div>
-      {{if .InternalBorders}}
-        <div class="divider-vertical divider-thin border-bg"></div>
-      {{end}}
     </div>
-  </div>
+  {{end}}
 </div>
 
 <script>
@@ -145,6 +147,8 @@ component(function(wrapper) {
 
   var forecastEl = wrapper.querySelector(".weather-forecast");
   var forecastDayTmpl = wrapper.querySelector(".forecast-day.template");
+
+  var translations = {{domainTranslations "weather"}};
 
   var conditionIcons = {
     'clear-night':     '🌙',
@@ -172,6 +176,27 @@ component(function(wrapper) {
     return Math.round(parseFloat(n) * 10) / 10;
   }
 
+  function renderCurrent(state, attributes) {
+    var condLabel = translations[state] || (state || '').replace(/-/g, ' ');
+    wrapper.querySelector('.weather-icon').textContent      = iconForCondition(state);
+    wrapper.querySelector('.weather-temp').textContent      = round1(attributes.temperature || 0);
+    wrapper.querySelector('.weather-condition').textContent = condLabel;
+    wrapper.querySelector('.weather-wind').textContent      = attributes.wind_speed
+      ? '💨 ' + attributes.wind_speed + ' ' + (attributes.wind_speed_unit || 'm/s')
+      : '';
+    wrapper.querySelector('.weather-humidity').textContent  = attributes.humidity
+      ? '💧 ' + attributes.humidity + '%'
+      : '';
+    wrapper.querySelector('.weather-feels').textContent     = attributes.apparent_temperature
+      ? 'Feels ' + round1(attributes.apparent_temperature) + '°'
+      : '';
+  }
+
+  window.entityListeners[entityId].push(function(state, attributes) {
+      if (state !== undefined) { renderCurrent(state, attributes); }
+  });
+
+  {{if .ShowForecast}}
   function dayNameFromDatetime(datetimeStr) {
     var date = new Date(datetimeStr);
     return date.toLocaleDateString(locale, {
@@ -202,22 +227,6 @@ component(function(wrapper) {
           weekday: 'short',
           timeZone: timezone
       });
-  }
-
-  function renderCurrent(state, attributes) {
-    var condLabel = translations[state] || (state || '').replace(/-/g, ' ');
-    wrapper.querySelector('.weather-icon').textContent      = iconForCondition(state);
-    wrapper.querySelector('.weather-temp').textContent      = round1(attributes.temperature || 0);
-    wrapper.querySelector('.weather-condition').textContent = condLabel;
-    wrapper.querySelector('.weather-wind').textContent      = attributes.wind_speed
-      ? '💨 ' + attributes.wind_speed + ' ' + (attributes.wind_speed_unit || 'm/s')
-      : '';
-    wrapper.querySelector('.weather-humidity').textContent  = attributes.humidity
-      ? '💧 ' + attributes.humidity + '%'
-      : '';
-    wrapper.querySelector('.weather-feels').textContent     = attributes.apparent_temperature
-      ? 'Feels ' + round1(attributes.apparent_temperature) + '°'
-      : '';
   }
 
   function clearOldForecast() {
@@ -265,9 +274,7 @@ component(function(wrapper) {
     }
   }
 
-  var translations = {{domainTranslations "weather"}};
-
-   function fetchForecast() {
+  function fetchForecast() {
     return window.haSend({
       type: 'call_service',
       domain: 'weather',
@@ -286,34 +293,32 @@ component(function(wrapper) {
     });
   }
 
+  
   var MAX_TRIES = 15;
   var tries = 0;
   function tryFetch() {
     {{/* console.log("ran tryFetch") */}}
     if (tries >= MAX_TRIES) {
-        {{/* console.log("max tries reached, cooling down") */}}
-        setTimeout(function() {tries = 0; tryFetch()}, 3 * 60 * 1000)
-        return;
+      {{/* console.log("max tries reached, cooling down") */}}
+      setTimeout(function() {tries = 0; tryFetch()}, 3 * 60 * 1000)
+      return;
     }
     if (window.haSocketReady) {
-          fetchForecast();
-        {{/* console.log("tried running fetchWeather") */}}
-    } else {
-        ++tries;
-        setTimeout(tryFetch, 1000);
-    }
-  }
-
-  window.entityListeners[entityId].push(function(state, attributes) {
-      if (state !== undefined) { renderCurrent(state, attributes); }
-  });
-
-  window.onHaReady.push(function() {
       fetchForecast();
-      setInterval(fetchForecast, POLL_INTERVAL);
+      {{/* console.log("tried running fetchWeather") */}}
+      } else {
+          ++tries;
+          setTimeout(tryFetch, 1000);
+        }
+    }
+          
+  window.onHaReady.push(function() {
+    fetchForecast();
+    setInterval(fetchForecast, POLL_INTERVAL);
   });
-
+    
   tryFetch();
-});
+  {{end}}
+  });
 </script>
 {{end}}
