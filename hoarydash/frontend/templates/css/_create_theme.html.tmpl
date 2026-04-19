@@ -335,5 +335,9 @@
 }
 {{end}}
 
+{{if .Custom}}
+    {{resolveThis .Custom $p | css}}
+{{end}}
+
 </style>
 {{end}}

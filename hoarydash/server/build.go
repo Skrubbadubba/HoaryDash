@@ -250,6 +250,7 @@ var funcMap = template.FuncMap{
 		}
 		return res
 	},
+	"resolveThis": resolveThis,
 }
 
 func BuildDash() {

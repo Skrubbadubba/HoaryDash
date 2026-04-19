@@ -28,6 +28,8 @@ type Theme struct {
 	Shapes
 	Typography
 
+	Custom template.CSS
+
 	// Font size
 	FontSize float64 `yaml:"font_size"`
 
@@ -195,6 +197,8 @@ var defaultTheme = Theme{
 
 type ThemesMap map[string]Theme
 
+type VarResolver func(varName string, alpha *float64) (string, error)
+
 func toRGBAString(c csscolorparser.Color) string {
 	r := int(math.Round(c.R * 255))
 	g := int(math.Round(c.G * 255))
@@ -359,7 +363,46 @@ func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	return &cloned, nil
 }
 
-func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CSS, error) {
+func resolveThis(input template.CSS, this string) template.CSS {
+	resolver := func(varName string, _ *float64) (string, error) {
+		if varName == "this" {
+			return this, nil
+		}
+		return varName, nil
+	}
+
+	if output, err := replaceVars(input, resolver); err != nil {
+		return input
+	} else {
+		return output
+	}
+}
+
+func createResolveVar(vars map[string]template.CSS) VarResolver {
+	return func(varName string, alpha *float64) (string, error) {
+		if varName == "this" {
+			return "", nil
+		}
+
+		rawColor, ok := vars[varName]
+		if !ok {
+			return "", fmt.Errorf("variable %q not found", varName)
+		}
+
+		if alpha == nil {
+			return string(rawColor), nil
+		}
+
+		c, err := csscolorparser.Parse(string(rawColor))
+		if err != nil {
+			return "", fmt.Errorf("could not parse color %s: %v", rawColor, err)
+		}
+		c.A = *alpha
+		return toRGBAString(c), nil
+	}
+}
+
+func replaceVars(input template.CSS, replacer VarResolver) (template.CSS, error) {
 	val := string(input)
 	if !strings.Contains(val, "$") {
 		return input, nil
@@ -373,38 +416,37 @@ func resolveColor(input template.CSS, vars map[string]template.CSS) (template.CS
 		if firstErr != nil {
 			return match
 		}
+
 		parts := re.FindStringSubmatch(match)
 		varName := parts[1]
-
-		rawColor, ok := vars[varName]
-		if !ok {
-			firstErr = fmt.Errorf("variable %q not found", varName)
-			return match
+		var alpha *float64 = nil
+		if parts[2] != "" {
+			alphaConcrete, err := strconv.ParseFloat(parts[2], 64)
+			if err != nil {
+				firstErr = fmt.Errorf("invalid alpha for %s: %v", varName, err)
+				return match
+			}
+			alpha = &alphaConcrete
 		}
 
-		if parts[2] == "" {
-			return string(rawColor)
-		}
+		resolved, err := replacer(varName, alpha)
 
-		alpha, err := strconv.ParseFloat(parts[2], 64)
 		if err != nil {
-			firstErr = fmt.Errorf("invalid alpha for %s: %v", varName, err)
+			firstErr = err
+		}
+
+		if resolved != "" {
+			return resolved
+		} else {
 			return match
 		}
 
-		c, err := csscolorparser.Parse(string(rawColor))
-		if err != nil {
-			firstErr = fmt.Errorf("could not parse color %s: %v", rawColor, err)
-			return match
-		}
-		c.A = alpha
-		return toRGBAString(c)
 	})
 
 	return template.CSS(result), firstErr
 }
 
-func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
+func resolveCSSFields(ptr interface{}, repl VarResolver) error {
 	v := reflect.ValueOf(ptr).Elem()
 	t := v.Type()
 	cssType := reflect.TypeOf(template.CSS(""))
@@ -414,7 +456,7 @@ func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
 		if !field.CanSet() || field.Type() != cssType {
 			continue
 		}
-		resolved, err := resolveColor(template.CSS(field.String()), vars)
+		resolved, err := replaceVars(template.CSS(field.String()), repl)
 		if err != nil {
 			return fmt.Errorf("field %s: %w", t.Field(i).Name, err)
 		}
@@ -425,22 +467,23 @@ func resolveCSS(ptr interface{}, vars map[string]template.CSS) error {
 
 func (t *Theme) Finalize() error {
 	if t.Vars != nil {
-		if err := resolveCSS(&t.Colors, t.Vars); err != nil {
+		resolver := createResolveVar(t.Vars)
+		if err := resolveCSSFields(&t.Colors, resolver); err != nil {
 			return err
 		}
-		if err := resolveCSS(&t.Shapes, t.Vars); err != nil {
+		if err := resolveCSSFields(&t.Shapes, resolver); err != nil {
 			return err
 		}
-		if err := resolveCSS(&t.Typography, t.Vars); err != nil {
+		if err := resolveCSSFields(&t.Typography, resolver); err != nil {
 			return err
 		}
 		if t.Background != nil {
-			if err := resolveCSS(t.Background, t.Vars); err != nil {
+			if err := resolveCSSFields(t.Background, resolver); err != nil {
 				return err
 			}
 		}
 		if t.BackgroundOverlay != nil {
-			if err := resolveCSS(t.BackgroundOverlay, t.Vars); err != nil {
+			if err := resolveCSSFields(t.BackgroundOverlay, resolver); err != nil {
 				return err
 			}
 		}
@@ -451,9 +494,17 @@ func (t *Theme) Finalize() error {
 			if cs == nil {
 				continue
 			}
-			if err := resolveCSS(cs, t.Vars); err != nil {
+			if err := resolveCSSFields(cs, resolver); err != nil {
 				return err
 			}
+		}
+
+		if t.Custom != "" {
+			resolved, err := replaceVars(t.Custom, resolver)
+			if err != nil {
+				return err
+			}
+			t.Custom = resolved
 		}
 	}
 
