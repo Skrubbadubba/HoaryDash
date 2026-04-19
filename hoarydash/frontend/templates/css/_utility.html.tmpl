@@ -126,6 +126,10 @@
         -webkit-align-items: baseline;
         align-items: baseline;
     }
+    .flex-wrap {
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
     .flex-grow { {{template "_flex-grow"}} }
     .flex-shrink-0 {
         -webkit-flex-shrink: 0;
@@ -133,5 +137,10 @@
     }
 
     .size-full { {{template "_size-full"}} }
+
+    .scroll-y {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
 </style>
 {{end}}

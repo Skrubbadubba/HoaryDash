@@ -2,47 +2,17 @@
 {{if once "centered-layout-style"}}
 <style>
     .main-container {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        justify-content: space-between;
-        height: 100%;
-        width: 100%;
         padding: 0 0 1em 0;
-        overflow-x: hidden;
-        overflow-y: auto;
     }
-    
-    {{/* .main-container .card-wrapper {
-        height: fit-content;
-    } */}}
 </style>
 {{end}}
 {{$theme := .Theme}}
-<div class="main-container">
+<div class="main-container scroll-y flex flex-col align-center justify-between size-full">
     {{if .Entities}}
         {{if once "centered-entities-style"}}
         <style>
             .entities-container {
-                display: -webkit-flex;
-                display: flex;
-                -webkit-flex-wrap: wrap;
-                flex-wrap: wrap;
-                -webkit-justify-content: center;
-                justify-content: center;
-                -webkit-align-items: stretch;
-                align-items: stretch;
                 max-width: 75vw;
-            }
-            .entities-container > .card-wrapper {
-                margin: 5px;
             }
         </style>
         {{end}}
@@ -53,9 +23,9 @@
                 }
             </style>
         {{end}}
-        <div class="entities-container" style="order: {{.Order.Entities}}">
+        <div class="entities-container flex align-stretch justify-center flex-wrap" style="order: {{.Order.Entities}}">
         {{range .Entities.Cards}}
-            {{template "card-multiplex" .}}
+            <div class="centered-entity-wrapper gap-horizontal gap-inner">{{template "card-multiplex" .}}</div>
         {{end}}
         </div>
 
@@ -67,12 +37,6 @@
     {{if once "centered-center-style"}}
         <style>
             .center-container {
-                display: -webkit-box;
-                display: -webkit-flex;
-                display: flex;
-                -webkit-box-align: center;
-                -webkit-align-items: center;
-                align-items: center;
                 width: 100%;
                 margin-bottom: 1em;
                 padding: 2em;
@@ -82,7 +46,7 @@
             }
         </style>
     {{end}}
-    <div class="center-container" style="order: {{.Order.Widgets}}">
+    <div class="center-container flex align-center" style="order: {{.Order.Widgets}}">
         {{if enabledByDefault .Dateclock.Enabled}}
             {{template "dateclock" .Dateclock}}
         {{end}}
@@ -92,15 +56,12 @@
             {{if once "centered-widgets-style"}}
             <style>
                 .widgets-container {
-                    display: flex;
-                    flex-direction: column;
-                    max-width: 38vw;
+                    min-width: 37vw;
+                    max-width: 40vw;
                     min-height: 0;
-                    flex-grow: 1;
                 }
                 .widgets-container > div {
                     min-height: 0;
-                    margin: 5px 0;
                 }
                 </style>
             {{end}}
@@ -111,9 +72,9 @@
                     }
                 </style>
             {{end}}
-            <div class="widgets-container">
+            <div class="widgets-container flex flex-col flex-grow">
             {{range .Widgets.Cards}}
-                {{template "card-multiplex" .}}
+                <div class="centered-widget-wrapper gap-vertical gap-inner">{{template "card-multiplex" .}}</div>
             {{end}}
             </div>
         {{end}}
@@ -123,24 +84,8 @@
         {{if once "centered-sensors-style"}}
         <style>
             .sensors-container {
-                display: flex;
-                -webkit-transition: opacity 0.8s ease, margin-bottom 0.5s ease;
-                transition: opacity 0.8s ease, margin-bottom 0.5s ease;
                 width: 75vw;
-                justify-content: space-around;;
-                flex-wrap: wrap;
-                align-items: center;
-            }
-            .sensors-container .card-wrapper {
-                display:flex;
-                justify-content:center;
-            }
-            .sensors-container .card.sensor {
-                height: fit-content;
-                width: fit-content;
-                align-self: center;
-                height: 100%;
-                width: 100%;
+                justify-content: space-around;
             }
         </style>
         {{end}}
@@ -151,7 +96,7 @@
                 }
             </style>
         {{end}}
-        <div class="sensors-container" style="order: {{.Order.Sensors}}">
+        <div class="sensors-container flex flex-wrap align-center" style="order: {{.Order.Sensors}}">
         {{range .Sensors.Cards}}
             {{template "card-multiplex" .}}
         {{end}}

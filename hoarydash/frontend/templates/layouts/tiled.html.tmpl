@@ -1,23 +1,6 @@
 {{define "tiled-layout"}}
 {{if once "tiled-layout-style"}}
 <style>
-    .tiled-container {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
     .tiled-clock {
         width: 100%;
         margin-bottom: 1em;
@@ -32,16 +15,6 @@
     }
 
     .tiled-group-header {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-box-direction: normal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
         margin-bottom: 0.5em;
         opacity: 0.5;
         font-size: 0.75em;
@@ -51,34 +24,14 @@
 
     .tiled-group-header-icon {
         margin-right: 0.4em;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
     }
 
     .tiled-group-header-line {
-        -webkit-box-flex: 1;
-        -webkit-flex: 1;
-        flex: 1;
-        height: 1px;
-        background: currentColor;
-        opacity: 0.2;
+        background-color: currentColor;
         margin-left: 0.6em;
     }
 
     .tiled-cards {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-box-direction: normal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-flex-wrap: wrap;
-        flex-wrap: wrap;
         max-width: 100%;
     }
 
@@ -89,7 +42,7 @@
 {{end}}
 
 {{$screen := .}}
-<div class="tiled-container">
+<div class="tiled-container flex flex-col align-center size-full scroll-y">
     {{if enabledByDefault .Dateclock.Enabled}}
         <div class="tiled-clock">
             {{template "dateclock" .Dateclock}}
@@ -99,18 +52,18 @@
     {{range $gi, $group := .Groups}}
         <div class="tiled-group gap-outer gap-vertical" id="group-{{$group.Name}}">
             {{if or $group.Name $group.Icon}}
-            <div class="tiled-group-header on-bg">
+            <div class="tiled-group-header on-bg flex flex-row align-center gap-inner-first gap-wrap">
                 {{if $group.Icon}}
                     <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
                 {{end}}
                 {{if $group.Name}}
                     <span>{{$group.Name}}</span>
                 {{end}}
-                <div class="tiled-group-header-line"></div>
+                <div class="tiled-group-header-line divider-thin divider-horizontal"></div>
             </div>
             {{end}}
 
-            <div class="tiled-cards" id="tiled-group-{{$gi}}">
+            <div class="tiled-cards flex flex-row flex-wrap" id="tiled-group-{{$gi}}">
                 {{range $group.Cards}}
                     <div class="tiled-card-wrapper gap-inner-first gap-wrap">{{template "card-multiplex" .}}</div>
                 {{end}}
