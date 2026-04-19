@@ -310,14 +310,14 @@ func BuildDash() {
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
 		for i, screen := range dash.Screens {
-			resolvedTheme, err := resolveTheme(allNamed, screen.ThemeRef)
+			resolvedTheme, err := calculateTheme(allNamed, screen.ThemeRef)
 			if err != nil {
 				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
 				return
 			}
 			dash.Screens[i].Theme = resolvedTheme
 		}
-		resolvedTheme, err := resolveTheme(allNamed, dash.ThemeRef)
+		resolvedTheme, err := calculateTheme(allNamed, dash.ThemeRef)
 		if err != nil {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
 			return

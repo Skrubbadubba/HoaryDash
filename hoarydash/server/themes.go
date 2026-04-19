@@ -19,6 +19,7 @@ import (
 
 type Theme struct {
 	IsLight           bool
+	Base              *string
 	Vars              map[string]template.CSS
 	Background        *BackgroundLayer `yaml:"background"`
 	BackgroundOverlay *BackgroundLayer `yaml:"background_overlay"`
@@ -342,6 +343,44 @@ func mergeTheme(base, override Theme) Theme {
 	return mergeOverride(base, override)
 }
 
+func calculateTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
+	return _calculateTheme(named, ref, make(map[string]bool))
+}
+
+func _calculateTheme(named ThemesMap, ref ThemeRef, seen map[string]bool) (*Theme, error) {
+	theme, err := resolveTheme(named, ref)
+	if err != nil {
+		return nil, fmt.Errorf("error when resolving theme: %w", err)
+	}
+
+	mergedTheme := theme
+
+	if theme != nil && theme.Base != nil {
+		if seen[*theme.Base] {
+			return nil, fmt.Errorf("cyclic theme reference: %s", *theme.Base)
+		}
+		seen[*theme.Base] = true
+
+		baseTheme, err := _calculateTheme(named, ThemeRef{*theme.Base, nil}, seen)
+		if err != nil {
+			return nil, fmt.Errorf("error calculating base theme '%s': %w", *theme.Base, err)
+		}
+
+		maps.Copy(mergedTheme.Vars, baseTheme.Vars)
+
+		if baseTheme != nil {
+			newMergedTheme := mergeTheme(*baseTheme, *mergedTheme)
+			mergedTheme = &newMergedTheme
+		}
+	}
+
+	if err := mergedTheme.Finalize(); err != nil {
+		return nil, err
+	}
+
+	return mergedTheme, nil
+}
+
 func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	if ref.Name != "" {
 		name := ref.Name
@@ -357,9 +396,6 @@ func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	}
 
 	cloned := ref.Theme.Clone()
-	if err := cloned.Finalize(); err != nil {
-		return nil, err
-	}
 	return &cloned, nil
 }
 
@@ -466,49 +502,52 @@ func resolveCSSFields(ptr interface{}, repl VarResolver) error {
 }
 
 func (t *Theme) Finalize() error {
-	if t.Vars != nil {
-		resolver := createResolveVar(t.Vars)
-		if err := resolveCSSFields(&t.Colors, resolver); err != nil {
-			return err
-		}
-		if err := resolveCSSFields(&t.Shapes, resolver); err != nil {
-			return err
-		}
-		if err := resolveCSSFields(&t.Typography, resolver); err != nil {
-			return err
-		}
-		if t.Background != nil {
-			if err := resolveCSSFields(t.Background, resolver); err != nil {
+	if t != nil {
+		if t.Vars != nil {
+			resolver := createResolveVar(t.Vars)
+			if err := resolveCSSFields(&t.Colors, resolver); err != nil {
 				return err
 			}
-		}
-		if t.BackgroundOverlay != nil {
-			if err := resolveCSSFields(t.BackgroundOverlay, resolver); err != nil {
+			if err := resolveCSSFields(&t.Shapes, resolver); err != nil {
 				return err
 			}
-		}
+			if err := resolveCSSFields(&t.Typography, resolver); err != nil {
+				return err
+			}
+			if t.Background != nil {
+				if err := resolveCSSFields(t.Background, resolver); err != nil {
+					return err
+				}
+			}
+			if t.BackgroundOverlay != nil {
+				if err := resolveCSSFields(t.BackgroundOverlay, resolver); err != nil {
+					return err
+				}
+			}
 
-		// CardStyles
-		for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
-			t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
-			if cs == nil {
-				continue
+			// CardStyles
+			for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
+				t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
+				if cs == nil {
+					continue
+				}
+				if err := resolveCSSFields(cs, resolver); err != nil {
+					return err
+				}
 			}
-			if err := resolveCSSFields(cs, resolver); err != nil {
-				return err
-			}
-		}
 
-		if t.Custom != "" {
-			resolved, err := replaceVars(t.Custom, resolver)
-			if err != nil {
-				return err
+			if t.Custom != "" {
+				resolved, err := replaceVars(t.Custom, resolver)
+				if err != nil {
+					return err
+				}
+				t.Custom = resolved
 			}
-			t.Custom = resolved
+
 		}
+		t.ComputeDerivatives()
 	}
 
-	t.ComputeDerivatives()
 	return nil
 }
 
