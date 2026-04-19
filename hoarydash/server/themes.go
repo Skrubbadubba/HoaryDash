@@ -343,60 +343,84 @@ func mergeTheme(base, override Theme) Theme {
 	return mergeOverride(base, override)
 }
 
-func calculateTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
-	return _calculateTheme(named, ref, make(map[string]bool))
-}
+func buildTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
+	theme, err := lookupThemeRef(named, ref)
+	if err != nil || theme == nil {
+		return theme, err
+	}
 
-func _calculateTheme(named ThemesMap, ref ThemeRef, seen map[string]bool) (*Theme, error) {
-	theme, err := resolveTheme(named, ref)
+	built, err := buildThemeRec(named, *theme, map[string]bool{})
 	if err != nil {
-		return nil, fmt.Errorf("error when resolving theme: %w", err)
-	}
-
-	mergedTheme := theme
-
-	if theme != nil && theme.Base != nil {
-		if seen[*theme.Base] {
-			return nil, fmt.Errorf("cyclic theme reference: %s", *theme.Base)
-		}
-		seen[*theme.Base] = true
-
-		baseTheme, err := _calculateTheme(named, ThemeRef{*theme.Base, nil}, seen)
-		if err != nil {
-			return nil, fmt.Errorf("error calculating base theme '%s': %w", *theme.Base, err)
-		}
-
-		maps.Copy(mergedTheme.Vars, baseTheme.Vars)
-
-		if baseTheme != nil {
-			newMergedTheme := mergeTheme(*baseTheme, *mergedTheme)
-			mergedTheme = &newMergedTheme
-		}
-	}
-
-	if err := mergedTheme.Finalize(); err != nil {
 		return nil, err
 	}
 
-	return mergedTheme, nil
+	return &built, nil
 }
 
-func resolveTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
-	if ref.Name != "" {
-		name := ref.Name
-		if namedTheme, ok := named[name]; ok {
-			cloned := namedTheme.Clone()
-			return &cloned, nil
+func buildThemeRec(named ThemesMap, theme Theme, seen map[string]bool) (Theme, error) {
+	if theme.Base != nil {
+		name := *theme.Base
+
+		if seen[name] {
+			return Theme{}, fmt.Errorf("cyclic theme reference: %s", name)
 		}
-		return nil, fmt.Errorf("theme %q not found", name)
+		seen[name] = true
+
+		base, err := lookupThemeName(named, name)
+		if err != nil {
+			return Theme{}, err
+		}
+
+		baseTheme, err := buildThemeRec(named, base, seen)
+		if err != nil {
+			return Theme{}, fmt.Errorf("error calculating base theme '%s': %w", name, err)
+		}
+
+		theme = inheritTheme(baseTheme, theme)
 	}
 
-	if ref.Theme == nil {
-		return nil, nil
+	if err := theme.Finalize(); err != nil {
+		return Theme{}, err
 	}
 
-	cloned := ref.Theme.Clone()
-	return &cloned, nil
+	return theme, nil
+}
+
+func inheritTheme(base, child Theme) Theme {
+	result := base.Clone()
+
+	if result.Vars == nil {
+		result.Vars = map[string]template.CSS{}
+	}
+	for k, v := range child.Vars {
+		result.Vars[k] = v
+	}
+	return mergeTheme(result, child)
+}
+
+func lookupThemeName(named ThemesMap, name string) (Theme, error) {
+	spec, ok := named[name]
+	if !ok {
+		return Theme{}, fmt.Errorf("theme %q not found", name)
+	}
+	return spec.Clone(), nil
+}
+
+func lookupThemeRef(named ThemesMap, ref ThemeRef) (*Theme, error) {
+	if ref.Name != "" {
+		t, err := lookupThemeName(named, ref.Name)
+		if err != nil {
+			return nil, err
+		}
+		return &t, nil
+	}
+
+	if ref.Theme != nil {
+		cloned := ref.Theme.Clone()
+		return &cloned, nil
+	}
+
+	return nil, nil
 }
 
 func resolveThis(input template.CSS, this string) template.CSS {
@@ -576,14 +600,8 @@ func parseThemes() (*ThemesMap, error) {
 		for name, theme := range user {
 			merged[name] = theme
 		}
-		log.Printf("parsed themes: %+v", slices.Collect(maps.Keys(user)))
+		log.Printf("parsed user themes: %+v", slices.Collect(maps.Keys(user)))
 	}
 
-	for name, theme := range merged {
-		if err := theme.Finalize(); err != nil {
-			return nil, fmt.Errorf("theme %s: %w", name, err)
-		}
-		merged[name] = theme
-	}
 	return &merged, nil
 }
