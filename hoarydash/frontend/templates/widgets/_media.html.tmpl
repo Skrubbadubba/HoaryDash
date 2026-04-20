@@ -7,16 +7,6 @@
     }
 
     .media-top-row {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: start;
-        -webkit-align-items: start;
-        align-items: start;
-        padding: 0.7em;
         position: relative;
     }
 
@@ -43,30 +33,10 @@
     }
 
     .media-cover-placeholder {
-        width: 100%;
-        height: 100%;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
         font-size: 1.4em;
     }
 
     .media-song-info {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        -webkit-box-pack: center;
-        -webkit-justify-content: center;
-        justify-content: center;
         min-width: 0;
     }
 
@@ -74,18 +44,12 @@
         font-size: 0.7em;
         font-weight: 600;
         color: #e0f0ff;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         display: block;
     }
 
     .media-artist {
         font-size: 0.6em;
         color: #8899aa;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         display: block;
         margin-top: 0.15em;
     }
@@ -93,9 +57,6 @@
     .media-album {
         font-size: 0.55em;
         color: #8899aa;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         display: block;
         margin-top: 0.1em;
         opacity: 0.7;
@@ -107,34 +68,6 @@
         font-style: italic;
     }
 
-    .media-bottom-row {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        padding: 0.2em 0.2em;
-        justify-content: space-between;
-    }
-
-    .media-play-controls {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-        -webkit-flex-shrink: 0;
-        flex-shrink: 0;
-        padding-top: 0.2em;
-    }
 
     .media-ctrl-btn {
         background: none;
@@ -144,7 +77,6 @@
         line-height: 1;
         line-height: 1;
         opacity: 0.85;
-        -webkit-tap-highlight-color: transparent;
         color: #c0d8f0;
     }
 
@@ -158,18 +90,6 @@
     }
 
 
-    .media-vol-controls {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-box-orient: horizontal;
-        -webkit-flex-direction: row;
-        flex-direction: row;
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
-    }
-
     .media-vol-icon {
         padding: 0 0.3em;
         height: 1em;
@@ -177,9 +97,6 @@
     }
 
     .media-vol-slider {
-        -webkit-appearance: none;
-        -webkit-flex: 1;
-        flex: 1;
         height: 0.6em;
         border-radius: 0.2em;
         background: rgba(255, 255, 255, 0.15);
@@ -203,9 +120,9 @@
     <div class="media-top-row padding widget card card-inner flex flex-row align-start">
         <div class="media-info flex flex-row align-center flex-grow">
             <div class="media-cover border-tight">
-                <div class="media-cover-placeholder accent flex size-full flex justify-center align-center">{{icon "music"}}</div>
+                <div class="media-cover-placeholder accent flex size-full justify-center align-center">{{icon "music"}}</div>
             </div>
-            <div class="media-song-info flex flex-col align-start text-ellipsis">
+            <div class="media-song-info flex flex-col align-start justify-center text-ellipsis">
                 <span class="media-idle on-surface-subtle">Idle</span>
             </div>
         </div>
@@ -218,14 +135,14 @@
     {{if enabledByDefault .InternalBorders}}
         <div class="divider-horizontal divider-thin border-bg"></div>
     {{end}}
-    <div class="media-bottom-row padding widget card card-inner flex-row align-center">
+    <div class="media-bottom-row widget card card-inner flex flex-row align-center justify-between">
         {{if enabledByDefault .ShowVolume }}
-        <div class="media-vol-controls gap-horizontal gap-outer">
+        <div class="media-vol-controls gap-horizontal gap-outer flex flex-row align-center">
             <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
-        <div class="media-play-controls gap-horizontal gap-outer flex flex-row align-center">
+        <div class="media-play-controls gap-horizontal gap-outer flex flex-row align-center flex-shrink-0">
             <button class="media-ctrl-btn gap-inner gap-horizontal shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
             <button class="media-ctrl-btn gap-inner gap-horizontal back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
             <button class="media-ctrl-btn gap-inner gap-horizontal play on-surface" title="Play-Pause">{{icon "play"}}</button>

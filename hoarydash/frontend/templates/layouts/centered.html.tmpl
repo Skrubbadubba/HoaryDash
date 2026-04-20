@@ -18,7 +18,7 @@
         {{end}}
         {{if .Entities.Style}}
             <style>
-                #screen-{{.Name}} .entities-container .card {
+                #screen-{{.Name}} .entities-container .card.entity {
                     {{template "create-card-theme" .Entities.Style}}
                 }
             </style>
@@ -44,20 +44,34 @@
             .center-container > .card-wrapper {
                 margin: 0 2rem 0 2rem;
             }
+
+            {{/* Only fit content (so no flex basis) unless widgets are present */}}
+            {{if .Widgets}}
+            .centered-dateclock-wrapper {
+                width: 40%
+            }
+            .centered-dateclock {
+                width: fit-content;
+            }
+            .centered-spacer {
+                width: 20%;
+            }
+            {{end}}
         </style>
     {{end}}
-    <div class="center-container flex align-center" style="order: {{.Order.Widgets}}">
+    <div class="center-container flex align-center justify-center" style="order: {{.Order.Widgets}}">
         {{if enabledByDefault .Dateclock.Enabled}}
-            {{template "dateclock" .Dateclock}}
+            <div class="centered-dateclock-wrapper flex justify-center">
+                <div class="centered-dateclock">{{template "dateclock" .Dateclock}}</div>
+            </div>
         {{end}}
 
         {{if .Widgets}}
-            <div style="flex-grow:1;"></div>
+            <div class="centered-spacer"></div>
             {{if once "centered-widgets-style"}}
             <style>
                 .widgets-container {
-                    min-width: 37vw;
-                    max-width: 40vw;
+                    width: 40%;
                     min-height: 0;
                 }
                 .widgets-container > div {
@@ -67,14 +81,16 @@
             {{end}}
             {{if .Widgets.Style}}
                 <style>
-                    #screen-{{.Name}} .widgets-container .card {
+                    #screen-{{.Name}} .widgets-container .card.widget {
                         {{template "create-card-theme" .Widgets.Style}}
                     }
                 </style>
             {{end}}
-            <div class="widgets-container flex flex-col flex-grow">
+            <div class="widgets-container flex flex-col">
             {{range .Widgets.Cards}}
-                <div class="centered-widget-wrapper gap-vertical gap-inner">{{template "card-multiplex" .}}</div>
+                <div class="centered-widget-wrapper gap-vertical gap-inner">
+                    {{template "card-multiplex" .}}
+                </div>
             {{end}}
             </div>
         {{end}}
@@ -91,7 +107,7 @@
         {{end}}
         {{if .Sensors.Style}}
             <style>
-                #screen-{{.Name}} .sensors-container .card {
+                #screen-{{.Name}} .sensors-container .card.sensor {
                     {{template "create-card-theme" .Sensors.Style}}
                 }
             </style>

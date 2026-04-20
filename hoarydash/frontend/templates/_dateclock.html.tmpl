@@ -4,10 +4,8 @@
     .dateclock-container {
         z-index: 20;
         pointer-events: none;
-        -webkit-flex-grow: 1;
-        flex-grow: 1;
         text-align: center;
-        font-size: calc(7vw + 1em);
+        font-size: 6em;
     }
     .clock {
         font-weight: 600;
@@ -51,7 +49,7 @@
     {{end}}
 </style>
 {{end}}
-<div class="dateclock-container on-bg" id="{{$id}}">
+<div class="dateclock-container on-bg size-full" id="{{$id}}">
     {{if enabledByDefault .ShowTime}}<div class="clock"></div>{{end}}
     {{if enabledByDefault .ShowDate}}<div class="date"></div>{{end}}
 </div>
