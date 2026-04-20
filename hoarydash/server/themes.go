@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/mazznoer/csscolorparser"
+	"github.com/mitchellh/reflectwalk"
 	"go.yaml.in/yaml/v4"
 )
 
@@ -198,7 +199,7 @@ var defaultTheme = Theme{
 
 type ThemesMap map[string]Theme
 
-type VarResolver func(varName string, alpha *float64) (string, error)
+type CSSResolver func(varName string, alpha *float64) (string, error)
 
 func toRGBAString(c csscolorparser.Color) string {
 	r := int(math.Round(c.R * 255))
@@ -431,14 +432,14 @@ func resolveThis(input template.CSS, this string) template.CSS {
 		return varName, nil
 	}
 
-	if output, err := replaceVars(input, resolver); err != nil {
+	if output, err := resolveCSS(input, resolver); err != nil {
 		return input
 	} else {
 		return output
 	}
 }
 
-func createResolveVar(vars map[string]template.CSS) VarResolver {
+func createVarSolver(vars map[string]template.CSS) CSSResolver {
 	return func(varName string, alpha *float64) (string, error) {
 		if varName == "this" {
 			return "", nil
@@ -462,7 +463,7 @@ func createResolveVar(vars map[string]template.CSS) VarResolver {
 	}
 }
 
-func replaceVars(input template.CSS, replacer VarResolver) (template.CSS, error) {
+func resolveCSS(input template.CSS, replacer CSSResolver) (template.CSS, error) {
 	val := string(input)
 	if !strings.Contains(val, "$") {
 		return input, nil
@@ -506,73 +507,81 @@ func replaceVars(input template.CSS, replacer VarResolver) (template.CSS, error)
 	return template.CSS(result), firstErr
 }
 
-func resolveCSSFields(ptr interface{}, repl VarResolver) error {
-	v := reflect.ValueOf(ptr).Elem()
-	t := v.Type()
-	cssType := reflect.TypeOf(template.CSS(""))
+type WalkerCallback func(f reflect.StructField, v *reflect.Value) error
 
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		if !field.CanSet() || field.Type() != cssType {
-			continue
-		}
-		resolved, err := replaceVars(template.CSS(field.String()), repl)
-		if err != nil {
-			return fmt.Errorf("field %s: %w", t.Field(i).Name, err)
-		}
-		field.Set(reflect.ValueOf(resolved))
+type cssWalker struct {
+	cb  WalkerCallback
+	err error
+}
+
+func (w *cssWalker) Struct(reflect.Value) error { return nil }
+func (w *cssWalker) StructField(f reflect.StructField, v reflect.Value) error {
+	if w.err != nil {
+		return nil
 	}
+	if v.Type() == reflect.TypeOf((*Theme)(nil)) || v.Type() == reflect.TypeOf(Theme{}) {
+		return reflectwalk.SkipEntry
+	}
+	if v.Type() != reflect.TypeOf(template.CSS("")) || v.String() == "" {
+		return nil
+	}
+	w.err = w.cb(f, &v)
 	return nil
 }
 
-func (t *Theme) Finalize() error {
-	if t != nil {
-		if t.Vars != nil {
-			resolver := createResolveVar(t.Vars)
-			if err := resolveCSSFields(&t.Colors, resolver); err != nil {
-				return err
-			}
-			if err := resolveCSSFields(&t.Shapes, resolver); err != nil {
-				return err
-			}
-			if err := resolveCSSFields(&t.Typography, resolver); err != nil {
-				return err
-			}
-			if t.Background != nil {
-				if err := resolveCSSFields(t.Background, resolver); err != nil {
-					return err
-				}
-			}
-			if t.BackgroundOverlay != nil {
-				if err := resolveCSSFields(t.BackgroundOverlay, resolver); err != nil {
-					return err
-				}
-			}
-
-			// CardStyles
-			for _, cs := range []*CardStyle{t.Cards, t.Entities, t.Sensors, t.Widgets,
-				t.Modals, t.Badges, t.BadgeButtons, t.Buttons, t.Tooltips} {
-				if cs == nil {
-					continue
-				}
-				if err := resolveCSSFields(cs, resolver); err != nil {
-					return err
-				}
-			}
-
-			if t.Custom != "" {
-				resolved, err := replaceVars(t.Custom, resolver)
-				if err != nil {
-					return err
-				}
-				t.Custom = resolved
-			}
-
-		}
-		t.ComputeDerivatives()
+func walkCSS(target any, cb WalkerCallback) error {
+	w := &cssWalker{cb: cb}
+	if err := reflectwalk.Walk(target, w); err != nil {
+		return err
 	}
+	return w.err
+}
 
-	return nil
+func walkAndResolveCSS(target any, t *Theme) error {
+	resolver := createVarSolver(t.Vars)
+	return walkCSS(target, func(f reflect.StructField, v *reflect.Value) error {
+		if !v.CanSet() {
+			return nil
+		}
+		resolved, err := resolveCSS(template.CSS(v.String()), resolver)
+		if err != nil {
+			return fmt.Errorf("field %s: %w", f.Name, err)
+		}
+		v.Set(reflect.ValueOf(resolved))
+		return nil
+	})
+}
+
+func (t *Theme) seedSemanticVars() {
+	if t.Vars == nil {
+		t.Vars = map[string]template.CSS{}
+	}
+	for _, strct := range []any{t.Colors, t.Shapes, t.Typography} {
+		walkCSS(strct, func(f reflect.StructField, v *reflect.Value) error {
+			var tag string
+			yamlTag := f.Tag.Get("yaml")
+			if yamlTag == "" || yamlTag == "-" {
+				tag = strings.ToLower(f.Name)
+			}
+			tag = strings.SplitN(yamlTag, ",", 2)[0]
+			if _, exists := t.Vars[tag]; !exists {
+				t.Vars[tag] = template.CSS(v.String())
+			}
+			return nil
+		})
+	}
+}
+
+func (t *Theme) Finalize() error {
+	if t == nil {
+		return nil
+	}
+	t.seedSemanticVars()
+
+	if err := walkAndResolveCSS(t, t); err != nil {
+		return err
+	}
+	return t.ComputeDerivatives()
 }
 
 func parseThemes() (*ThemesMap, error) {

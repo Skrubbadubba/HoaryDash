@@ -309,14 +309,6 @@ func BuildDash() {
 	// is copied after it has been executed
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
-		for i, screen := range dash.Screens {
-			resolvedTheme, err := buildTheme(allNamed, screen.ThemeRef)
-			if err != nil {
-				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
-				return
-			}
-			dash.Screens[i].Theme = resolvedTheme
-		}
 		resolvedTheme, err := buildTheme(allNamed, dash.ThemeRef)
 		if err != nil {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
@@ -327,6 +319,22 @@ func BuildDash() {
 			dereffedTheme = *resolvedTheme
 		}
 		dash.Theme = mergeTheme(defaultTheme, dereffedTheme)
+
+		for i, screen := range dash.Screens {
+			resolvedTheme, err := buildTheme(allNamed, screen.ThemeRef)
+			if err != nil {
+				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
+				return
+			}
+			dash.Screens[i].Theme = resolvedTheme
+			usedScreenTheme := resolvedTheme
+			if usedScreenTheme == nil {
+				usedScreenTheme = &dash.Theme
+			}
+			if err := walkAndResolveCSS(&dash.Screens[i], usedScreenTheme); err != nil {
+				log.Printf("Error resolving css fields at screen[%d] (%s): %v", i, screen.Name, err)
+			}
+		}
 		if isDev {
 			// log.Printf("Resolved dashboard theme is: %s", jsonStr(dash.Theme))
 		}
