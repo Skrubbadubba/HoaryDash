@@ -42,7 +42,7 @@
 {{end}}
 
 {{$screen := .}}
-<div class="tiled-container flex flex-col align-center size-full scroll-y">
+<div class="tiled-container flex flex-col align-center size-full scroll-y gap-outer gap-vertical">
     {{if enabledByDefault .Dateclock.Enabled}}
         <div class="tiled-clock">
             {{template "dateclock" .Dateclock}}
@@ -50,9 +50,9 @@
     {{end}}
 
     {{range $gi, $group := .Groups}}
-        <div class="tiled-group gap-outer gap-vertical" id="group-{{$group.Name}}">
+        <div class="tiled-group gap-inner gap-vertical" id="group-{{$group.Name}}">
             {{if or $group.Name $group.Icon}}
-            <div class="tiled-group-header on-bg flex flex-row align-center gap-inner-first gap-wrap">
+            <div class="tiled-group-header on-bg flex flex-row align-center">
                 {{if $group.Icon}}
                     <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
                 {{end}}
@@ -63,9 +63,9 @@
             </div>
             {{end}}
 
-            <div class="tiled-cards flex flex-row flex-wrap" id="tiled-group-{{$gi}}">
+            <div class="tiled-cards flex flex-row flex-wrap gap-inner gap-after gap-from-first" id="tiled-group-{{$gi}}">
                 {{range $group.Cards}}
-                    <div class="tiled-card-wrapper gap-inner-first gap-wrap">{{template "card-multiplex" .}}</div>
+                    <div class="tiled-card-wrapper">{{template "card-multiplex" .}}</div>
                 {{end}}
             </div>
             {{if $group.NormalizeHeight}}

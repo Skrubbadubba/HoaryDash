@@ -2,22 +2,11 @@
 {{if once "sensor-style"}}
 <style>
   .sensor.card {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
     padding: 1em;
   }
 
   .sensor-label {
     color: rgba(255,255,255,0.6);
-    font-size: 1em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.35em;
@@ -34,7 +23,6 @@
   }
 
   .sensor-value {
-    font-size: 1.9em;
     font-weight: 600;
     line-height: 1;
     display: inline-block;
@@ -51,12 +39,12 @@
 {{end}}
 
 {{define "_sensor"}}
-<div class="sensor card">
-    <div class="sensor-label on-surface-muted">{{.Label}}</div>
+<div class="sensor card flex flex-col align-center justify-center">
+    <div class="sensor-label on-surface-muted font-md">{{.Label}}</div>
     <div class="sensor-value-wrapper">
       <span class="sensor-value-anchor">
-        <span class="sensor-value on-surface">—</span>
-        <span class="sensor-unit on-surface-subtle">{{.Unit}}</span>
+        <span class="sensor-value on-surface font-xl">—</span>
+        <span class="sensor-unit on-surface-subtle font-md">{{.Unit}}</span>
       </span>
     </div>
 </div>

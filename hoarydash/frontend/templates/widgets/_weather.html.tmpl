@@ -7,30 +7,17 @@
   }
 
   .weather-icon {
-    font-size: 1.8em;
     line-height: 1;
   }
 
   .weather-temp {
-    font-size: 1.9em;
     font-weight: 700;
-    color: #f0e0c0;
     line-height: 1;
   }
 
   .weather-temp-unit {
-    font-size: 0.9em;
     font-weight: 400;
     color: #a08060;
-  }
-
-  .weather-divider {
-    {{/* background: rgba(120, 180, 255, 0.15);
-    -webkit-align-self: stretch;
-    align-self: stretch;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0; */}}
-    height: unset !important;
   }
 
   .weather-details > div {
@@ -38,19 +25,16 @@
   }
 
   .weather-condition {
-    font-size: 0.65em;
-    font-weight: 600;
     color: #d0c8b8;
     text-transform: capitalize;
   }
 
-  .weather-meta {
-    font-size: 0.55em;
-    color: #8899aa;
-  }
-
   .weather-meta span {
     margin-right: 0.5em;
+  }
+
+  .weather-divider {
+    height: 3em !important;
   }
 
   .weather-forecast {
@@ -97,17 +81,17 @@
 </style>
 {{end}}
 <div class="weather-container widget card border card-wrapper">
-  <div class="weather-main widget card card-inner flex flex-row align-stretch justify-center">
-    <div class="weather-current gap-outer gap-horizontal flex align-center flex-auto">
-      <div class="weather-icon gap-inner gap-horizontal">🌡️</div>
-      <div class="weather-temp-wrapper gap-inner gap-horizontal">
-        <span class="weather-temp on-surface">--</span><span class="weather-temp-unit on-surface-muted">°C</span>
+  <div class="weather-main widget card card-inner flex flex-row align-center justify-center gap-outer gap-horizontal">
+    <div class="weather-current flex align-center flex-auto">
+      <div class="weather-icon font-xl">🌡️</div>
+      <div class="weather-temp-wrapper">
+        <span class="weather-temp on-surface font-xl">--</span><span class="weather-temp-unit on-surface-muted font-xs">°C</span>
       </div>
     </div>
-    <div class="weather-divider divider-thin divider-vertical accent-bg gap-outer gap-horizontal"></div>
-    <div class="weather-details gap-outer gap-horizontal flex flex-col align-center">
-      <div class="weather-condition accent-muted">Loading...</div>
-      <div class="weather-meta on-surface-muted">
+    <div class="weather-divider divider-thin accent-bg"></div>
+    <div class="weather-details flex flex-col align-center">
+      <div class="weather-condition accent-muted font-sm">Loading...</div>
+      <div class="weather-meta on-surface-muted font-xs">
         <span class="weather-wind"></span>
         <span class="weather-humidity"></span>
         <span class="weather-feels"></span>
@@ -121,11 +105,11 @@
     <div class="weather-forecast flex">
       <div class="forecast-day template flex flex-row align-center">
         <div class="forecast-day-content widget card card-inner flex flex-grow flex-col align-center">
-          <div class="forecast-day-name on-surface">  timeLabel </div>
-          <div class="forecast-day-icon">  icon    </div>
+          <div class="forecast-day-name on-surface font-sm">  timeLabel </div>
+          <div class="forecast-day-icon font-lg">  icon    </div>
           <div class="forecast-day-temps flex align-baseline">
-            <span class="forecast-temp-high on-surface"> high </span>
-            <span class="forecast-temp-low on-surface-muted"> low </span>
+            <span class="forecast-temp-high on-surface font-sm"> high </span>
+            <span class="forecast-temp-low on-surface-muted font-xs"> low </span>
           </div>
         </div>
         {{if .InternalBorders}}

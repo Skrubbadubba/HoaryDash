@@ -1,80 +1,43 @@
 {{define "_adjustable-chevron-style"}}
 <style>
-  .ha-adjustable {
+  .ha-adjustable-chevron-wrapper {
     width: 100%;
     height: max-content;
     position: relative;
+    overflow: clip;
   }
+
   .ha-adjustable-chevron {
     display: block;
     width: 100%;
     flex: 1;
-    padding: 0.1875em 0 0.25em;
     background: none;
     border: none;
     border-top: 0.0625em solid rgba(255,255,255,0.07);
-    border-radius: 0 0 0.75em 0.75em;
+    overflow: clip;
     cursor: pointer;
-    color: rgba(160,200,240,0.28);
-    font-size: 0.6875em;
     text-align: center;
     line-height: 1;
   }
 
   .ha-adjustable-chevron:hover {
-    color: rgba(160,200,240,0.65);
     background: rgba(255,255,255,0.04);
   }
 
   .ha-adjustable-chevron-icon {
     display: inline-block;
     font-style: normal;
+    margin-top: 0.1em;
   }
 
-  .ha-adjustable.expanded .ha-adjustable-chevron-icon {
+  .ha-adjustable-chevron.expanded .ha-adjustable-chevron-icon {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
   }
 
-  .ha-adjustable-overlay {
-    display: none;
-    position: absolute;
-    top: calc(100% + 0.5em);
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    background: rgba(7,16,34,0.96);
-    border: 0.0625em solid rgba(130,185,255,0.15);
-    border-radius: 0.625em;
-    padding: 0.8125em 0.9375em 0.6875em;
-    z-index: 200;
-    -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.55);
-    width: fit-content;
-    font-size: 1.3em;
-  }
-  .ha-adjustable.expanded .ha-adjustable-overlay {
-    display: block;
-  }
-  .ha-adjustable-overlay::before {
-    content: '';
-    position: absolute;
-    top: -0.3125em;
-    left: 50%;
-    width: 0.5625em;
-    height: 0.5625em;
-    background: rgba(7,16,34,0.96);
-    border-left: 0.0625em solid rgba(130,185,255,0.15);
-    border-top: 0.0625em solid rgba(130,185,255,0.15);
-    -webkit-transform: translateX(-50%) rotate(45deg);
-    transform: translateX(-50%) rotate(45deg);
-  }
-
   .ha-adjustable-overlay-title {
-    font-size: 0.5625em;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgb(130,180,230);
     margin-bottom: 0.625em;
   }
 
@@ -83,31 +46,26 @@
   }
 
   .ha-slider-label {
-    font-size: 0.5625em;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(130,180,230,1);
     -webkit-flex-shrink: 0;
     flex-shrink: 0;
   }
   .ha-slider-row input[type=range] {
     height: 0.6em;
-    border-radius: 2px;
+    border-radius: 0.2em;
     background: rgba(100,160,255,0.2);
     margin: 0 0.75em;
   }
   .ha-slider-row input[type=range]::-webkit-slider-thumb,
   .ha-slider-row input[type=range]::-moz-range-thumb {
-    width: 1.25em;
-    height: 1.25em;
-    background: #78b4f0;
-    -webkit-box-shadow: 0 0 8px rgba(90,175,255,0.44);
-    box-shadow: 0 0 8px rgba(90,175,255,0.44);
+    width: 1.5em;
+    height: 1.5em;
+    -webkit-box-shadow: 0 0 8px rgba(255, 255, 255, 0.33);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.33);
   }
 
   .ha-slider-val {
-    font-size: 0.865em;
-    color: #78b4f0;
     text-align: right;
   }
 
@@ -118,45 +76,47 @@
 </style>
 {{end}}
 {{define "_adjustable-chevron"}}
-<div class="ha-adjustable flex flex-col flex-grow">
-  <button class="ha-adjustable-chevron transition-fast">
-    <i class="ha-adjustable-chevron-icon">&#9660;</i>
+<div class="ha-adjustable-chevron-wrapper flex flex-col flex-grow">
+  <button class="ha-adjustable-chevron transition-fast flex-grow font-xl">
+    <div class="ha-adjustable-chevron-icon interactive">{{icon "chevron-down"}}</div>
   </button>
-
-  <div class="ha-adjustable-overlay">
-    <div class="ha-adjustable-overlay-title">{{.Label}}</div>
-
-    {{$domain := domain .EntityID}}
-
-    {{if eq $domain "light"}}
-    <div class="ha-slider-row flex align-center dim">
-      <span class="ha-slider-label">Dim</span>
-      <input class="ha-slider-input thumb" type="range" min="0" max="255" value="255">
-      <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">100%</span>
-    </div>
-    <div class="ha-slider-row flex align-center cct hidden">
-      <span class="ha-slider-label">Temp</span>
-      <input class="ha-slider-input thumb" type="range" min="2700" max="6500" value="4000">
-      <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">4000K</span>
-    </div>
-    {{end}}
-
-    {{if eq $domain "fan"}}
-    <div class="ha-slider-row flex align-center speed">
-      <span class="ha-slider-label">Speed</span>
-      <input class="ha-slider-input flex-grow thumb" type="range" min="0" max="100" value="0" >
-      <span class="ha-slider-val flex-shrink-0" width="0">100%</span>
-      <span class="ha-slider-val flex-shrink-0" style="visibility: hidden;">100%</span>
-    </div>
-    {{end}}
-  </div>
 </div>
+{{end}}
+
+{{define "_adjustable-overlay"}}
+<div class="ha-adjustable-overlay card tooltip on-surface">
+  <div class="ha-adjustable-overlay-title font-lg">{{.Label}}</div>
+
+  {{$domain := domain .EntityID}}
+
+  {{if eq $domain "light"}}
+  <div class="ha-slider-row flex align-center dim">
+    <span class="ha-slider-label">Dim</span>
+    <input class="ha-slider-input thumb interactive-thumb" type="range" min="0" max="255" value="255">
+    <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">100%</span>
+  </div>
+  <div class="ha-slider-row flex align-center cct hidden">
+    <span class="ha-slider-label">Temp</span>
+    <input class="ha-slider-input thumb" type="range" min="2700" max="6500" value="4000">
+    <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">4000K</span>
+  </div>
+  {{end}}
+
+  {{if eq $domain "fan"}}
+  <div class="ha-slider-row flex align-center speed">
+    <span class="ha-slider-label">Speed</span>
+    <input class="ha-slider-input flex-grow thumb" type="range" min="0" max="100" value="0" >
+    <span class="ha-slider-val flex-shrink-0" width="0">100%</span>
+    <span class="ha-slider-val flex-shrink-0" style="visibility: hidden;">100%</span>
+  </div>
+  {{end}}
+</div>
+
 <script>
 component(function(wrapper) {
   var entityId = '{{.EntityID}}';
   var domain = '{{domain .EntityID}}';
-  var chevron  = wrapper.querySelector('.ha-adjustable-chevron');
-  {{/* console.log("wrapper: ", wrapper, "chevron: ", chevron) */}}
+  var chevron  = wrapper.previousElementSibling.querySelector('.ha-adjustable-chevron');
 
   {{if eq $domain "light"}}
   var dimRow   = wrapper.querySelector('.ha-slider-row.dim');
@@ -238,6 +198,7 @@ component(function(wrapper) {
   chevron.addEventListener('click', function(e) {
     e.stopPropagation();
     wrapper.classList.toggle('expanded');
+    chevron.classList.toggle('expanded');
   });
 
   document.addEventListener('click', function(e) {
@@ -311,7 +272,8 @@ component(function(wrapper) {
     {{template "_adjustable-chevron-style"}}
   {{end}}
   {{template "_toggle-open" .}}
-  {{template "_adjustable-chevron" .}}
-  </div>
   {{template "_toggle-script" .}}
+  {{template "_adjustable-chevron"}}
+  </div>
+  {{template "_adjustable-overlay" .}}
 {{end}}

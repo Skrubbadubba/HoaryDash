@@ -8,16 +8,12 @@
   }
     
   .ha-button-icon {
-    font-size: 1.6em;
     line-height: 1;
-    margin-right: 0.25em;
+    margin-right: -0.2em !important;
   }
 
   .ha-button-label {
-    font-size: 1em;
-    text-transform: uppercase;
     letter-spacing: 0.08em;
-    white-space: nowrap;
   }
 
   .ha-button.pressed {
@@ -29,9 +25,9 @@
 {{define "_button"}}
 <div class="ha-button entity card padding transition-fast border flex flex-col">
   <button class="ha-button-body btn" title="{{.Label}}">
-    <div class="ha-button-content flex align-center">
+    <div class="ha-button-content flex align-center gap-inner gap-horizontal">
     {{if .Icon}}
-      <span class="ha-button-icon interactive-muted">
+      <span class="ha-button-icon font-xl interactive-muted">
         {{if isEmoji .Icon}}
             {{.Icon}}
         {{else}}
@@ -39,7 +35,7 @@
         {{end}}
       </span>
      {{end}}
-      <span class="ha-button-label entity-label on-surface">{{.Label}}</span>
+      <span class="ha-button-label font-md text-ellipsis entity-label on-surface">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>

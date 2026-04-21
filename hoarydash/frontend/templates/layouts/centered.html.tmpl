@@ -23,12 +23,16 @@
                 }
             </style>
         {{end}}
-        <div class="entities-container flex align-stretch justify-center flex-wrap" style="order: {{.Order.Entities}}">
+        <div class="entities-container flex align-stretch justify-center flex-wrap gap-before gap-from-first gap-inner" style="order: {{.Order.Entities}}">
         {{range .Entities.Cards}}
-            <div class="centered-entity-wrapper gap-horizontal gap-inner">{{template "card-multiplex" .}}</div>
+            {{template "card-multiplex" .}}
         {{end}}
         </div>
-
+        <script>
+            component(function(entities) {
+                normalizeHeight(entities)
+            })
+        </script>
     {{else}}
         {{/* Take up space inside flexbox */}}
         <div style="display: hidden;"></div>
@@ -86,9 +90,9 @@
                     }
                 </style>
             {{end}}
-            <div class="widgets-container flex flex-col">
+            <div class="widgets-container flex flex-col gap-vertical gap-inner">
             {{range .Widgets.Cards}}
-                <div class="centered-widget-wrapper gap-vertical gap-inner">
+                <div class="centered-widget-wrapper">
                     {{template "card-multiplex" .}}
                 </div>
             {{end}}

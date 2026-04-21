@@ -59,6 +59,7 @@
         justify-content: center;
         font: inherit;
         font-size: 1em;
+        text-transform: unset;
     }
 
     .btn:active {
@@ -79,6 +80,26 @@
     input[type=range].thumb::-webkit-slider-thumb { {{template "_slider-thumb"}} } 
     input[type=range].thumb::-moz-range-thumb { {{template "_slider-thumb"}} }
 
+    .card {
+        height: 100%;
+        width: 100%;
+        {{template "_flex"}}
+        {{template "_flex-col"}}
+        {{template "_flex-grow"}}
+    }
+
+    .card-wrapper {
+        position: relative;
+        padding: 0 !important;
+    }
+
+    .card-inner {
+        background: none !important;
+        height: max-content !important;
+        font-size: unset !important;
+        {{template "_flex-grow"}}
+    }
+
     .tooltip {
         display: none;
         position: absolute;
@@ -92,11 +113,12 @@
         z-index: 200;
         -webkit-box-shadow: 0 12px 32px rgba(0,0,0,0.55);
         box-shadow: 0 12px 32px rgba(0,0,0,0.55);
-        width: fit-content;
+        width: fit-content !important;
+        height: fit-content !important;
         font-size: 1.3em;
      }
 
-    .expanded .tooltip {
+    .expanded .tooltip, .tooltip.expanded {
          display: block;
     }
 

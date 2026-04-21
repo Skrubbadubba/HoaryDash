@@ -55,13 +55,11 @@
     }
 
     .todo-list {
-        padding: 0.4em 0.5em;
-        font-size: 1.1em;
         overflow-y: scroll;
     }
 
     .todo-add {
-        font-size: 0.9em;
+        min-height: max-content;
     }
 
     .todo-input {
@@ -70,13 +68,6 @@
         font-size: 1em;
         background: transparent;
         border: none;
-    }
-
-    .todo-add-btn {
-        font-size: 1em;
-        cursor: pointer;
-        background: transparent;
-        color: inherit;
     }
 
     .todo-add-btn:active {
@@ -97,6 +88,7 @@
     }
 
     .todo-checkmark {
+        margin: 0 !important;
         width: 1.2em;
         height: 1.2em;
 
@@ -141,18 +133,20 @@
 </style>
 {{end}}
 <div class="todo-container widget card border card-wrapper">
-    <div class="todo-header widget card card-inner flex flex-row align-center justify-between">
-        <div class="todo-info gap-horizontal gap-outer">
-            <span class="todo-icon"></span>
-            <span class="todo-name on-surface">Todos</span>
-            <span class="on-surface-subtle"> - </span>
-            <span class="todo-statistic on-surface-muted">0/0</span>
+    <div class="todo-header widget card card-inner flex flex-row align-center justify-between gap-horizontal gap-outer">
+        <div class="todo-info gap-horizontal gap-inner flex flex-row align-center">
+            {{if .Icon}}
+            <span class="todo-icon">{{.Icon}}</span>
+            {{end}}
+            <span class="todo-name on-surface font-xl">Todos</span>
+            <span class="on-surface-subtle font-md"> - </span>
+            <span class="todo-statistic on-surface-muted font-lg">0/0</span>
         </div>
-        <div class="todo-controls on-surface gap-horizontal gap-outer flex">
-            <button class="todo-btn flex align-center btn complete positive-bg gap-inner gap-horizontal">
+        <div class="todo-controls on-surface gap-inner gap-horizontal gap-inner flex">
+            <button class="todo-btn flex align-center btn complete positive-bg">
                 <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
-            <button class="todo-btn flex align-center btn delete negative-bg gap-inner gap-horizontal">
+            <button class="todo-btn flex align-center btn delete negative-bg">
                 <span style="margin-top: 0.3em">{{icon "delete"}}</span><span class="divider"></span><span>Done</span>
             </button>
         </div>
@@ -160,7 +154,7 @@
     {{if enabledByDefault .InternalBorders}}
         <div class="divider-horizontal divider-thin border-bg"></div>
     {{end}}
-    <div class="todo-list widget card card-inner">
+    <div class="todo-list widget card card-inner gap-outer gap-vertical">
         <div class="todo-add flex surface-subtle border border-thick on-surface padding inner">
             <input 
                 type="text" 
@@ -171,12 +165,12 @@
                 ＋
             </button>
         </div>
-        <ol class="todos flex flex-col align-start justify-center">
-            <li class="todo template gap-outer gap-vertical">
-                <label class="todo-label flex">
+        <ol class="todos flex flex-col align-start justify-center gap-outer gap-vertical">
+            <li class="todo template">
+                <label class="todo-label flex gap-horizontal gap-inner">
                     <input type="checkbox" class="todo-checkbox">
-                    <span class="todo-checkmark gap-horizontal gap-inner"></span>
-                    <span class="todo-text on-surface gap-horizontal gap-inner">dummy</span>
+                    <span class="todo-checkmark"></span>
+                    <span class="todo-text on-surface">dummy</span>
                 </label>
             </li>
         </ol>

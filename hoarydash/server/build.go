@@ -2,15 +2,12 @@ package main
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"os"
 	"reflect"
 	"strings"
-
-	"dario.cat/mergo"
 )
 
 //go:embed mdi.json
@@ -22,15 +19,6 @@ type TemplateData struct {
 	Dashboard
 	Config
 	Name string
-}
-
-func jsonStr(j interface{}) string { // For debugging
-	var out []byte
-	out, err := json.Marshal(j)
-	if err != nil {
-		return ""
-	}
-	return string(out)
 }
 
 func domain(entityID string) string {
@@ -72,13 +60,6 @@ func makeDomainTranslations(lang string) func(domain string) (map[string]string,
 		return domainTranslations(domain, lang)
 	}
 }
-
-func mergeOverride[T any, U any](base T, override U) T {
-	mergo.Merge(&base, override, mergo.WithOverride)
-	return base
-}
-
-func nilfunc() any { return nil }
 
 var uid = 0
 
@@ -277,8 +258,9 @@ func BuildDash() {
 		allNamed[k] = v
 	}
 
-	if err := defaultTheme.Finalize(); err != nil {
-		log.Printf("Error finalizing default theme: %v", err)
+	defaultTheme, err := getDefaultTheme()
+	if err != nil {
+		log.Printf("Could not get default theme: %v", err)
 	}
 
 	var tmpl *template.Template
@@ -309,16 +291,22 @@ func BuildDash() {
 	// is copied after it has been executed
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
+		if isDev {
+			log.Printf("=== Preprocessing dashboard '%s' ===\n", name)
+		}
 		resolvedTheme, err := buildTheme(allNamed, dash.ThemeRef)
 		if err != nil {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
 			return
 		}
-		dereffedTheme := Theme{}
+		dashTheme := Theme{}
 		if resolvedTheme != nil {
-			dereffedTheme = *resolvedTheme
+			dashTheme = *resolvedTheme
 		}
-		dash.Theme = mergeTheme(defaultTheme, dereffedTheme)
+		// log.Printf("resolved dash theme is currently: \n%s", jsonStr(dashTheme))
+		dashTheme.inheritTheme(defaultTheme)
+		// log.Printf("dashTheme inherited the default theme, is now: \n%s", jsonStr(dashTheme))
+		dash.Theme = dashTheme
 
 		for i, screen := range dash.Screens {
 			resolvedTheme, err := buildTheme(allNamed, screen.ThemeRef)
@@ -330,8 +318,12 @@ func BuildDash() {
 			usedScreenTheme := resolvedTheme
 			if usedScreenTheme == nil {
 				usedScreenTheme = &dash.Theme
+			} else {
+				// Need to inherit vars so we can use variables of parent theme in yaml css fields
+				usedScreenTheme.inheritVars(dash.Theme)
 			}
-			if err := walkAndResolveCSS(&dash.Screens[i], usedScreenTheme); err != nil {
+
+			if err := walkAndResolveCSS(&dash.Screens[i], usedScreenTheme.Vars); err != nil {
 				log.Printf("Error resolving css fields at screen[%d] (%s): %v", i, screen.Name, err)
 			}
 		}
@@ -365,6 +357,10 @@ func BuildDash() {
 		built[name] = builtDash{
 			tmpl: dashTmpl.Funcs(funcMap),
 			data: TemplateData{dash, cfg.Config, name},
+		}
+
+		if isDev {
+			log.Print("=== Finished preprocessing ===\n")
 		}
 	}
 

@@ -20,40 +20,43 @@
 
     .template {
         display: none !important;
+        margin: 0 !important;
     }
 
-    .card {
-        height: 100%;
-        width: 100%;
-        {{template "_flex"}}
-        {{template "_flex-col"}}
-        {{template "_flex-grow"}}
-    }
-
-    .card-wrapper {
-        padding: 0 !important;
-    }
-
-    .card-inner {
-        background: none !important;
-        height: max-content !important;
-        font-size: unset !important;
-        {{template "_flex-grow"}}
-    }
-
-    .gap-vertical {
+    .gap-vertical > * {
         margin-left: 0 !important;
         margin-right: 0 !important;
         margin-bottom: 0 !important;
     }
 
-    .gap-horizontal {
+    .gap-horizontal > *     {
         margin-top: 0 !important;
         margin-bottom: 0 !important;
         margin-right: 0 !important;
     }
+
+    .gap-vertical.gap-from-first > * {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    .gap-horizontal.gap-from-first > * {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    {{/* .gap-from-first > *:last-child {
+        margin: 0 !important;
+    } */}}
     
-    .gap-wrap {
+    .gap-after > * {
+        margin-top: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    .gap-before > * {
         margin-top: 0 !important;
         margin-left: 0 !important;
     }

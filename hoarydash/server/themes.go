@@ -21,19 +21,19 @@ import (
 type Theme struct {
 	IsLight           bool
 	Base              *string
-	Vars              map[string]template.CSS
+	Vars              ThemeVars
 	Background        *BackgroundLayer `yaml:"background"`
 	BackgroundOverlay *BackgroundLayer `yaml:"background_overlay"`
-	Colors
-	Derived derivedColors `yaml:"-"`
+	Colors            Colors
+	Derived           derivedColors `yaml:"-"`
 
-	Shapes
-	Typography
+	Shapes     Shapes
+	Typography Typography
 
 	Custom template.CSS
 
-	// Font size
-	FontSize float64 `yaml:"font_size"`
+	// Size multiplier
+	Size float64
 
 	// Structural styles
 	Cards        *CardStyle
@@ -47,12 +47,22 @@ type Theme struct {
 	Tooltips     *CardStyle
 }
 
+type ThemeVars map[string]template.CSS
+
 type Typography struct {
 	FontFamily    template.CSS `yaml:"font_family"`
 	FontWeight    template.CSS `yaml:"font_weight"`
 	FontStyle     template.CSS `yaml:"font_style"`
 	TextTransform template.CSS `yaml:"text_transform"`
 	LetterSpacing template.CSS `yaml:"letter_spacing"`
+	FontXXS       template.CSS `yaml:"font_xxs"`
+	FontXS        template.CSS `yaml:"font_xs"`
+	FontSM        template.CSS `yaml:"font_sm"`
+	FontMD        template.CSS `yaml:"font_md"`
+	FontLG        template.CSS `yaml:"font_lg"`
+	FontXL        template.CSS `yaml:"font_xl"`
+	FontXXL       template.CSS `yaml:"font_xxl"`
+	FontHero      template.CSS `yaml:"font_hero"`
 }
 type BackgroundLayer struct {
 	Color     template.CSS `yaml:"color"`
@@ -127,7 +137,7 @@ type CardStyle struct {
 	Background   template.CSS
 	Padding      template.CSS `yaml:"padding"`
 	BorderColor  template.CSS `yaml:"border_color"`
-	FontSize     float64      `yaml:"font_size"`
+	Size         float64      `yaml:"size"`
 	Custom       template.CSS
 }
 
@@ -135,71 +145,86 @@ func newPtr[T any](val T) *T {
 	return &val
 }
 
-var defaultTheme = Theme{
-	IsLight: false,
-	Background: newPtr(BackgroundLayer{
-		Color: "#0f0f0f",
-	}),
-	Colors: Colors{
-		Surface:          "rgba(18,18,18,0.75)",
-		SurfaceOpaque:    "#1a1a1a",
-		SurfaceProminent: "rgba(57, 57, 57, 0.85)",
-		SurfaceSubtle:    "rgba(255,255,255,0.07)",
-		SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
-		Border:           "rgba(130, 185, 255, 0.15)",
-		Highlight:        "rgba(255, 255, 255, 0.12)",
-		OnSurface:        "#ffffff",
-		OnSurfaceMuted:   "#dbdbdb",
-		OnSurfaceSubtle:  "#989898",
-		OnBackground:     "#ffffff",
-		Accent:           "hsl(210, 90%, 65%)",
-		Interactive:      "hsl(210, 90%, 65%)",
-		StateOn:          "hsl(134, 60%, 45%)",
-		StateOff:         "rgba(200,220,240,0.38)",
-		StateDisabled:    "rgba(220, 240, 250, 0.25)",
-		Positive:         "hsl(140, 60%, 55%)",
-		Negative:         "hsl(0, 70%, 55%)",
-	},
-	FontSize: 1.0,
-	Shapes: Shapes{
-		GapInner:           "0.6em",
-		GapOuter:           "1em",
-		PaddingInner:       "0.4em",
-		Borders:            newPtr(true),
-		TightBorderRadius:  "0.2em",
-		WideBorderRadius:   "2em",
-		MediumBorderRadius: "0.75em",
-		BorderThick:        "2px",
-	},
-	Entities: newPtr(CardStyle{
-		Padding: "0.4em 0.75em",
-	}),
-	Cards: newPtr(CardStyle{
-		Padding: "0.75em",
-	}),
-	Modals: newPtr(CardStyle{
-		BorderColor: "rgba(130,185,255,0.15)",
-	}),
-	Badges: newPtr(CardStyle{
-		BorderColor: "rgba(255,255,255,0.15)",
-		Padding:     "0.35em 0.60em",
-	}),
-	BadgeButtons: newPtr(CardStyle{
-		BorderColor: "rgba(255,255,255,0.15)",
-		Padding:     "0.4em 0.7em",
-	}),
-	Buttons: newPtr(CardStyle{
-		Padding: "1em",
-		Borders: newPtr(false),
-	}),
-	Tooltips: newPtr(CardStyle{
-		Padding: "1em",
-	}),
+func getDefaultTheme() (Theme, error) {
+	defaultTheme := Theme{
+		IsLight: false,
+		Background: newPtr(BackgroundLayer{
+			Color: "#0f0f0f",
+		}),
+		Colors: Colors{
+			Surface:          "rgba(18,18,18,0.75)",
+			SurfaceOpaque:    "#1a1a1a",
+			SurfaceProminent: "rgba(57, 57, 57, 0.85)",
+			SurfaceSubtle:    "rgba(255,255,255,0.07)",
+			SurfaceAlt:       "rgba(66, 61, 42, 0.85)",
+			Border:           "rgba(130, 185, 255, 0.15)",
+			Highlight:        "rgba(255, 255, 255, 0.12)",
+			OnSurface:        "#ffffff",
+			OnSurfaceMuted:   "#dbdbdb",
+			OnSurfaceSubtle:  "#989898",
+			OnBackground:     "#ffffff",
+			Accent:           "hsl(210, 90%, 65%)",
+			Interactive:      "hsl(210, 90%, 65%)",
+			StateOn:          "hsl(134, 60%, 45%)",
+			StateOff:         "rgba(200,220,240,0.38)",
+			StateDisabled:    "rgba(220, 240, 250, 0.25)",
+			Positive:         "hsl(140, 60%, 55%)",
+			Negative:         "hsl(0, 70%, 55%)",
+		},
+		Shapes: Shapes{
+			GapInner:           "0.6em",
+			GapOuter:           "1em",
+			PaddingInner:       "0.4em",
+			Borders:            newPtr(true),
+			TightBorderRadius:  "0.2em",
+			WideBorderRadius:   "2em",
+			MediumBorderRadius: "0.75em",
+			BorderThick:        "2px",
+		},
+		Typography: Typography{
+			FontXXS:  "0.55em",
+			FontXS:   "0.65em",
+			FontSM:   "0.7em",
+			FontMD:   "1em",
+			FontLG:   "1.2em",
+			FontXL:   "1.7em",
+			FontXXL:  "2.2em",
+			FontHero: "6em",
+		},
+		Entities: newPtr(CardStyle{
+			Padding: "0.4em 0.75em",
+		}),
+		Cards: newPtr(CardStyle{
+			Padding: "0.75em",
+		}),
+		Modals: newPtr(CardStyle{
+			BorderColor: "rgba(130,185,255,0.15)",
+		}),
+		Badges: newPtr(CardStyle{
+			BorderColor: "rgba(255,255,255,0.15)",
+			Padding:     "0.35em 0.60em",
+		}),
+		BadgeButtons: newPtr(CardStyle{
+			BorderColor: "rgba(255,255,255,0.15)",
+			Padding:     "0.4em 0.7em",
+		}),
+		Buttons: newPtr(CardStyle{
+			Padding: "1em",
+			Borders: newPtr(false),
+		}),
+		Tooltips: newPtr(CardStyle{
+			Padding: "1em",
+		}),
+	}
+	if err := defaultTheme.Finalize(); err != nil {
+		return Theme{}, fmt.Errorf("Error finalizing default theme: %v", err)
+	}
+	return defaultTheme, nil
 }
 
 type ThemesMap map[string]Theme
 
-type CSSResolver func(varName string, alpha *float64) (string, error)
+type CSSResolver func(varName string, multiplier *float64) (string, error)
 
 func toRGBAString(c csscolorparser.Color) string {
 	r := int(math.Round(c.R * 255))
@@ -304,14 +329,6 @@ func computeNumericCSS(str template.CSS, calculation func(float64) float64) (tem
 	return template.CSS(fmt.Sprintf("%g%s", thinValue, unit)), nil
 }
 
-func clonePtr[T any](ptr *T) *T {
-	if ptr == nil {
-		return nil
-	}
-	b := *ptr
-	return &b
-}
-
 func (t *Theme) Clone() Theme {
 	clone := *t
 
@@ -335,19 +352,17 @@ func (t *Theme) Clone() Theme {
 	return clone
 }
 
-func mergeTheme(base, override Theme) Theme {
-	if override.Cards != nil {
-		base.Entities = nil
-		base.Sensors = nil
-		base.Widgets = nil
-	}
-	return mergeOverride(base, override)
-}
-
 func buildTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	theme, err := lookupThemeRef(named, ref)
-	if err != nil || theme == nil {
-		return theme, err
+	if err != nil {
+		return nil, err
+	}
+	if theme == nil {
+		return nil, nil
+	}
+
+	if defaultTheme, err := getDefaultTheme(); err != nil {
+		theme.inheritVars(defaultTheme)
 	}
 
 	built, err := buildThemeRec(named, *theme, map[string]bool{})
@@ -377,7 +392,7 @@ func buildThemeRec(named ThemesMap, theme Theme, seen map[string]bool) (Theme, e
 			return Theme{}, fmt.Errorf("error calculating base theme '%s': %w", name, err)
 		}
 
-		theme = inheritTheme(baseTheme, theme)
+		theme.inheritTheme(baseTheme)
 	}
 
 	if err := theme.Finalize(); err != nil {
@@ -387,16 +402,30 @@ func buildThemeRec(named ThemesMap, theme Theme, seen map[string]bool) (Theme, e
 	return theme, nil
 }
 
-func inheritTheme(base, child Theme) Theme {
-	result := base.Clone()
+func (t *Theme) inheritVars(base Theme) {
+	if t.Vars == nil {
+		t.Vars = map[string]template.CSS{}
+	}
 
-	if result.Vars == nil {
-		result.Vars = map[string]template.CSS{}
+	for k, v := range base.Vars {
+		if _, exists := t.Vars[k]; !exists {
+			t.Vars[k] = v
+		}
 	}
-	for k, v := range child.Vars {
-		result.Vars[k] = v
+}
+
+func (t *Theme) inheritTheme(base Theme) {
+	t.inheritVars(base)
+
+	mergeBase := base.Clone()
+
+	if t.Cards != nil {
+		mergeBase.Entities = nil
+		mergeBase.Sensors = nil
+		mergeBase.Widgets = nil
 	}
-	return mergeTheme(result, child)
+
+	*t = mergeOverride(mergeBase, *t)
 }
 
 func lookupThemeName(named ThemesMap, name string) (Theme, error) {
@@ -439,31 +468,31 @@ func resolveThis(input template.CSS, this string) template.CSS {
 	}
 }
 
-func createVarSolver(vars map[string]template.CSS) CSSResolver {
-	return func(varName string, alpha *float64) (string, error) {
+func createVarResolver(vars ThemeVars) CSSResolver {
+	return func(varName string, multiplier *float64) (string, error) {
 		if varName == "this" {
 			return "", nil
 		}
 
-		rawColor, ok := vars[varName]
+		rawValue, ok := vars[varName]
 		if !ok {
 			return "", fmt.Errorf("variable %q not found", varName)
 		}
 
-		if alpha == nil {
-			return string(rawColor), nil
+		if multiplier == nil {
+			return string(rawValue), nil
 		}
 
-		c, err := csscolorparser.Parse(string(rawColor))
+		c, err := csscolorparser.Parse(string(rawValue))
 		if err != nil {
-			return "", fmt.Errorf("could not parse color %s: %v", rawColor, err)
+			return fmt.Sprintf("calc(%s * %.4g)", rawValue, *multiplier), nil
 		}
-		c.A = *alpha
+		c.A = *multiplier
 		return toRGBAString(c), nil
 	}
 }
 
-func resolveCSS(input template.CSS, replacer CSSResolver) (template.CSS, error) {
+func resolveCSS(input template.CSS, resolver CSSResolver) (template.CSS, error) {
 	val := string(input)
 	if !strings.Contains(val, "$") {
 		return input, nil
@@ -480,17 +509,17 @@ func resolveCSS(input template.CSS, replacer CSSResolver) (template.CSS, error) 
 
 		parts := re.FindStringSubmatch(match)
 		varName := parts[1]
-		var alpha *float64 = nil
+		var multiplier *float64 = nil
 		if parts[2] != "" {
-			alphaConcrete, err := strconv.ParseFloat(parts[2], 64)
+			multiplierConcrete, err := strconv.ParseFloat(parts[2], 64)
 			if err != nil {
-				firstErr = fmt.Errorf("invalid alpha for %s: %v", varName, err)
+				firstErr = fmt.Errorf("invalid multiplier for %s: %v", varName, err)
 				return match
 			}
-			alpha = &alphaConcrete
+			multiplier = &multiplierConcrete
 		}
 
-		resolved, err := replacer(varName, alpha)
+		resolved, err := resolver(varName, multiplier)
 
 		if err != nil {
 			firstErr = err
@@ -537,8 +566,8 @@ func walkCSS(target any, cb WalkerCallback) error {
 	return w.err
 }
 
-func walkAndResolveCSS(target any, t *Theme) error {
-	resolver := createVarSolver(t.Vars)
+func walkAndResolveCSS(target any, vars ThemeVars) error {
+	resolver := createVarResolver(vars)
 	return walkCSS(target, func(f reflect.StructField, v *reflect.Value) error {
 		if !v.CanSet() {
 			return nil
@@ -554,7 +583,7 @@ func walkAndResolveCSS(target any, t *Theme) error {
 
 func (t *Theme) seedSemanticVars() {
 	if t.Vars == nil {
-		t.Vars = map[string]template.CSS{}
+		t.Vars = ThemeVars{}
 	}
 	for _, strct := range []any{t.Colors, t.Shapes, t.Typography} {
 		walkCSS(strct, func(f reflect.StructField, v *reflect.Value) error {
@@ -578,7 +607,7 @@ func (t *Theme) Finalize() error {
 	}
 	t.seedSemanticVars()
 
-	if err := walkAndResolveCSS(t, t); err != nil {
+	if err := walkAndResolveCSS(t, t.Vars); err != nil {
 		return err
 	}
 	return t.ComputeDerivatives()

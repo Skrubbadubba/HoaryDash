@@ -1,15 +1,15 @@
 {{define "navbar"}}
 <nav class="navbar surface-alt">
     {{range $i, $screen := .}}
-    <div class="navbar-item{{if eq $i 0}} highlight active{{end}} padding inner" onclick="window.navigateTo({{$i}})">
-        <div class="navbar-icon accent">
+    <div class="navbar-item{{if eq $i 0}} highlight active{{end}} padding inner " onclick="window.navigateTo({{$i}})">
+        <div class="navbar-icon accent font-lg">
             {{if $screen.Icon}}
                 {{icon $screen.Icon}}
             {{else}}
                 {{icon "circle-medium"}}
             {{end}}
         </div>
-        <div class="navbar-label on-surface">{{$screen.Name}}</div>
+        <div class="navbar-label on-surface font-sm">{{$screen.Name}}</div>
     </div>
     {{end}}
 </nav>

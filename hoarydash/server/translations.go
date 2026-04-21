@@ -81,7 +81,7 @@ func translate(key string, lang string) (string, error) {
 	keyParts := strings.Split(key, ":")
 
 	if !(len(keyParts) == 2) {
-		return "", fmt.Errorf("could not read key specifier '%s', make sure it is of format domain:key")
+		return "", fmt.Errorf("could not read key specifier '%s', make sure it is of format domain:key", key)
 	}
 	dKey := keyParts[0]
 	tKey := keyParts[1]

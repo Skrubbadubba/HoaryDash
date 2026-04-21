@@ -12,12 +12,11 @@
 
     .media-info {
         min-width: 0;
-        font-size: 1.3em;
     }
 
     .media-cover {
-        width: 2.8em;
-        height: 2.8em;
+        width: 3em;
+        height: 3em;
         -webkit-flex-shrink: 0;
         flex-shrink: 0;
         background: rgba(255, 255, 255, 0.08);
@@ -32,30 +31,23 @@
         display: block;
     }
 
-    .media-cover-placeholder {
-        font-size: 1.4em;
-    }
-
     .media-song-info {
         min-width: 0;
     }
 
     .media-song {
-        font-size: 0.7em;
         font-weight: 600;
         color: #e0f0ff;
         display: block;
     }
 
     .media-artist {
-        font-size: 0.6em;
         color: #8899aa;
         display: block;
         margin-top: 0.15em;
     }
 
     .media-album {
-        font-size: 0.55em;
         color: #8899aa;
         display: block;
         margin-top: 0.1em;
@@ -63,7 +55,6 @@
     }
 
     .media-idle {
-        font-size: 0.65em;
         color: #8899aa;
         font-style: italic;
     }
@@ -73,7 +64,6 @@
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1.2em;
         line-height: 1;
         line-height: 1;
         opacity: 0.85;
@@ -85,7 +75,6 @@
     }
 
     .media-ctrl-btn.play {
-        font-size: 1.7em;
         opacity: 1;
     }
 
@@ -93,7 +82,6 @@
     .media-vol-icon {
         padding: 0 0.3em;
         height: 1em;
-        font-size: 1.2em;
     }
 
     .media-vol-slider {
@@ -111,7 +99,6 @@
     .media-browser-button {
         background: none;
         border: none;
-        font-size: 1.2em;   
     }
 </style>
 {{end}}
@@ -120,7 +107,7 @@
     <div class="media-top-row padding widget card card-inner flex flex-row align-start">
         <div class="media-info flex flex-row align-center flex-grow">
             <div class="media-cover border-tight">
-                <div class="media-cover-placeholder accent flex size-full justify-center align-center">{{icon "music"}}</div>
+                <div class="media-cover-placeholder accent flex size-full justify-center align-center font-lg">{{icon "music"}}</div>
             </div>
             <div class="media-song-info flex flex-col align-start justify-center text-ellipsis">
                 <span class="media-idle on-surface-subtle">Idle</span>
@@ -133,21 +120,21 @@
         {{end}}
     </div>
     {{if enabledByDefault .InternalBorders}}
-        <div class="divider-horizontal divider-thin border-bg"></div>
+        <div class="divider-horizontal divider-thin border-bg flex-shrink-0"></div>
     {{end}}
-    <div class="media-bottom-row widget card card-inner flex flex-row align-center justify-between">
+    <div class="media-bottom-row widget card card-inner gap-horizontal gap-outer flex flex-row align-center justify-between">
         {{if enabledByDefault .ShowVolume }}
-        <div class="media-vol-controls gap-horizontal gap-outer flex flex-row align-center">
-            <span class="media-vol-icon accent-muted">{{icon "volume-high"}}</span>
+        <div class="media-vol-controls flex flex-row align-center">
+            <span class="media-vol-icon accent-muted font-lg">{{icon "volume-high"}}</span>
             <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
-        <div class="media-play-controls gap-horizontal gap-outer flex flex-row align-center flex-shrink-0">
-            <button class="media-ctrl-btn gap-inner gap-horizontal shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
-            <button class="media-ctrl-btn gap-inner gap-horizontal back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
-            <button class="media-ctrl-btn gap-inner gap-horizontal play on-surface" title="Play-Pause">{{icon "play"}}</button>
-            <button class="media-ctrl-btn gap-inner gap-horizontal forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
-            <button class="media-ctrl-btn gap-inner gap-horizontal repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
+        <div class="media-play-controls font-lg gap-inner gap-horizontal flex flex-row align-center flex-shrink-0">
+            <button class="media-ctrl-btn btn shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
+            <button class="media-ctrl-btn btn back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
+            <button class="media-ctrl-btn btn font-xl play on-surface" title="Play-Pause">{{icon "play"}}</button>
+            <button class="media-ctrl-btn btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
+            <button class="media-ctrl-btn btn repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
         </div>
 
     </div>
@@ -218,7 +205,7 @@ component(function(wrapper) {
     function renderIdle() {
         elSongInfo.innerHTML = '';
         var idle = document.createElement('span');
-        idle.className = 'media-idle on-surface-subtle';
+        idle.className = 'media-idle on-surface-subtle font-lg';
         idle.textContent = 'Idle';
         elSongInfo.appendChild(idle);
         elIdle = idle;
@@ -257,7 +244,7 @@ component(function(wrapper) {
         var elSong = elSongInfo.querySelector('.media-song');
         if (!elSong) {
             elSong = document.createElement('span');
-            elSong.className = 'media-song on-surface text-ellipsis';
+            elSong.className = 'media-song on-surface text-ellipsis font-xl';
             elSongInfo.appendChild(elSong);
         }
         elSong.textContent = song || '—';
@@ -266,7 +253,7 @@ component(function(wrapper) {
         if (artist) {
             if (!elArtist) {
                 elArtist = document.createElement('span');
-                elArtist.className = 'media-artist on-surface-muted text-ellipsis';
+                elArtist.className = 'media-artist on-surface-muted text-ellipsis font-sm';
                 elSongInfo.appendChild(elArtist);
             }
             elArtist.textContent = artist;
@@ -280,7 +267,7 @@ component(function(wrapper) {
         if (album) {
             if (!elAlbum) {
                 elAlbum = document.createElement('span');
-                elAlbum.className = 'media-album on-surface-subtle text-ellipsis';
+                elAlbum.className = 'media-album on-surface-subtle text-ellipsis font-xs';
                 elSongInfo.appendChild(elAlbum);
             }
             elAlbum.textContent = album;

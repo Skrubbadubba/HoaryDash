@@ -12,14 +12,6 @@ import (
 	"github.com/radovskyb/watcher"
 )
 
-func check(e error, message string, v ...any) {
-	if e != nil {
-		log.Print(e)
-		return
-	}
-	log.Printf(message, v...)
-}
-
 var isDev bool
 
 var configPath string

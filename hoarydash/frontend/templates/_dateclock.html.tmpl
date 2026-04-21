@@ -5,7 +5,6 @@
         z-index: 20;
         pointer-events: none;
         text-align: center;
-        font-size: 6em;
     }
     .clock {
         font-weight: 600;
@@ -49,7 +48,7 @@
     {{end}}
 </style>
 {{end}}
-<div class="dateclock-container on-bg size-full" id="{{$id}}">
+<div class="dateclock-container on-bg size-full font-hero" id="{{$id}}">
     {{if enabledByDefault .ShowTime}}<div class="clock"></div>{{end}}
     {{if enabledByDefault .ShowDate}}<div class="date"></div>{{end}}
 </div>

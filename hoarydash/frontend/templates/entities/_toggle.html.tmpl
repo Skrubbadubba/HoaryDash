@@ -3,18 +3,16 @@
   .ha-toggle {
     min-width: 80px;
     cursor: pointer;
-    overflow: visible;
+    overflow: clip;
   }
 
   .ha-toggle-body {
-    height: fit-content;
-    flex-direction: row;
+    min-height: fit-content;
   }
 
   .ha-toggle-icon {
-    font-size: 1.6em;
+    margin-right: -0.2em !important;
     line-height: 1;
-    margin-right: 4px;
   }
 
   .ha-toggle.off .ha-toggle-icon {
@@ -22,10 +20,7 @@
   }
 
   .ha-toggle-label {
-    font-size: 1em;
-    text-transform: uppercase;
     letter-spacing: 0.08em;
-    white-space: nowrap;
     color: rgba(255,255,255,0.6)
   }
 
@@ -36,8 +31,6 @@
     border: 1px solid;
     position: relative;
     pointer-events: none;
-    margin-left: 0.5em;
-    margin-right: 0.1em;
   }
   
   .ha-toggle-pill::after {
@@ -57,28 +50,32 @@
 {{end}}
 {{define "_toggle-open"}}
 <div class="ha-toggle card entity border off card-wrapper flex flex-col">
-  <button class="ha-toggle-body card entity transition-fast btn card-inner" title="{{.Label}}">
-    <div class="ha-toggle-left flex flex-row align-center">
-      {{if .Icon}}
-      <span class="ha-toggle-icon interactive">
-        {{if isEmoji .Icon}}
-            {{.Icon}}
-        {{else}}
-            {{icon .Icon}}
+  <button class="ha-toggle-btn card entity transition-fast btn card-inner flex flex-row align-start" title="{{.Label}}">
+    <div class="ha-toggle-body flex flex-row align-center gap-inner gap-horizontal">
+      {{if or .Icon .Label}}
+      <div class="ha-toggle-left flex flex-row align-center gap-inner gap-horizontal">
+        {{if .Icon}}
+        <span class="ha-toggle-icon interactive font-xl">
+          {{if isEmoji .Icon}}
+              {{.Icon}}
+          {{else}}
+              {{icon .Icon}}
+          {{end}}
+        </span>
         {{end}}
-      </span>
+        <span class="ha-toggle-label text-ellipsis entity-label on-surface">{{.Label}}</span>
+      </div>
       {{end}}
-      <span class="ha-toggle-label entity-label on-surface">{{.Label}}</span>
+      <div class="ha-toggle-pill flex-shrink-0 state-bg state-border"></div>
     </div>
-    <div class="ha-toggle-pill flex-shrink-0 state-bg state-border"></div>
   </button>
 {{end}}
 {{define "_toggle-script"}}
 <script>
-component(function(wrapper) {
+component(function(btn) {
   var entityId = '{{.EntityID}}';
   var domain = entityId.split('.')[0];
-  var btn = wrapper.querySelector('.ha-toggle-body');
+  var wrapper = btn.parentElement;
 
   function setState(state) {
     if (state === 'on') {

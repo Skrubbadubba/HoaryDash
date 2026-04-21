@@ -111,18 +111,8 @@
             }
         }
     </script>
-    <div class="screens">
     <style>
         .screens {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-orient: horizontal;
-            -webkit-box-direction: normal;
-            -webkit-flex-direction: row;
-            flex-direction: row;
-            width: 100%;
-            height: 100%;
             overflow-x: hidden;
             overflow-y: hidden;
             -webkit-overflow-scrolling: touch;
@@ -138,42 +128,35 @@
 
         .screen {
             position: relative;
-            -webkit-flex-shrink: 0;
-            -webkit-box-flex: 0;
-            flex-shrink: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+             overflow: hidden;
             touch-action: pan-y;
             -webkit-transition: -webkit-transform 0.5s ease;
             transition: transform 0.5s ease;
         }
-        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
+
         .layout-container {
-            height: 100%;
-            width: 100%;
             overflow-x: hidden;
+        }
             
-        }
+        {{$showHints := enabledByDefault .Dashboard.ShowHints}}
         .layout-padding {
-            {{if $showHints}}
-            padding: 1em 3.5em;
-            {{else}}
-            padding: 1em;
-            {{end}}
+            padding:{{if $showHints}}1em 3.5em;{{else}}1em;{{end}}
         }
+
         {{if .Dashboard.Navbar.Enabled}}
         {{$position := .Dashboard.Navbar.Position | default "bottom"}}
         {{$navbarStylePad := 0}}
         {{if eq .Dashboard.Navbar.Style "rectangle"}}
             {{$navbarStylePad = 1.5}}
         {{end}}
+
          .navbar-padding {
             {{if eq $position "bottom"}}padding-bottom: {{add 5 $navbarStylePad}}em;{{end}}
             {{if eq $position "top"}}padding-top: {{add 5 $navbarStylePad}}em;{{end}}
             {{if eq $position "left"}}padding-left: {{add 5.5 $navbarStylePad}}em;{{end}}
             {{if eq $position "right"}}padding-right: {{add 5.5 $navbarStylePad}}em;{{end}}
         }
+
         {{end}}
 
         {{if $showHints}}
@@ -182,27 +165,19 @@
             top: 50%;
             -webkit-transform: translateY(-50%);
             transform: translateY(-50%);
-            font-size: 1.5em;
             opacity: 0.2;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-orient: horizontal;
-            -webkit-box-direction: normal;
-            -webkit-flex-direction: row;
-            flex-direction: row;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            align-items: center;
         }
+
         .swipe-hint.left {
             left: 0.1em;
         }
+
         .swipe-hint.right {
             right: 0.11em;
         }
         {{end}}
     </style>
+    <div class="screens flex flex-row size-full">
     
     {{range $i, $screen := .Dashboard.Screens}}
         {{$id := ""}}
@@ -214,10 +189,10 @@
         {{if $screen.Theme}}
             {{template "create-theme" (merge $screen.Theme (dict "Prefix" (concat "#" $id)))}}
         {{end}}
-        <div id="{{$id}}" class="screen">
+        <div id="{{$id}}" class="screen flex-shrink-0 size-full">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
-                <div class="swipe-hint left on-bg">
+                <div class="swipe-hint left on-bg flex flex-row align-center font-lg">
                     {{icon "chevron-left"}}
                     {{if .Icon}}{{icon .Icon}}{{end}}
                 </div>
@@ -225,9 +200,9 @@
             {{end}}
             {{/* <p>{{json .}}</p> */}}
             {{if isFull $screen.Layout}}
-                <div class="layout-container">
+                <div class="layout-container size-full">
             {{else}}
-                <div class="layout-container layout-padding navbar-padding">
+                <div class="layout-container layout-padding navbar-padding size-full">
             {{end}}
             {{if eq $screen.Layout "tiled"}}
                 {{template "tiled-layout" $screen}}
@@ -239,7 +214,7 @@
             </div>
             {{if $showHints}}
             {{with nextScreen $.Dashboard $i}}
-            <div class="swipe-hint right on-bg">
+            <div class="swipe-hint right on-bg flex flex-row align-center font-lg">
                 {{if .Icon}}{{icon .Icon}}{{end}}
                 {{icon "chevron-right"}}
             </div>
@@ -361,12 +336,10 @@
                 transform: translateY(-50%);
             }
             .navbar-container.navbar-horizontal > nav {
-                -webkit-flex-direction: row;
-                flex-direction: row;
+                {{template "_flex-row"}}
             }
-            .navbar-container.navbar-vertical > nav{
-                -webkit-flex-direction: column;
-                flex-direction: column;
+            .navbar-container.navbar-vertical > nav {
+                 {{template "_flex-col"}}
             }
         </style>
         <div class="navbar-container navbar-{{.Dashboard.Navbar.Position | default "bottom"}} navbar-{{$orientation}}">

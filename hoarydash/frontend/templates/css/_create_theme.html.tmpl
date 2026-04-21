@@ -3,16 +3,25 @@
 <style>
 {{/* Base layout */}}
 {{$p}} {
-    {{if .FontSize}}font-size: {{.FontSize}}em;{{end}}
+    {{if .Size}}font-size: {{.Size}}em;{{end}}
+{{with .Typography}}
 
-    {{with .Typography}}
         {{if .FontFamily}}font-family: {{.FontFamily | css}};{{end}}
         {{if .FontWeight}}font-weight: {{.FontWeight | css}};{{end}}
         {{if .FontStyle}}font-style: {{.FontStyle | css}};{{end}}
         {{if .TextTransform}}text-transform: {{.TextTransform | css}};{{end}}
         {{if .LetterSpacing}}letter-spacing: {{.LetterSpacing | css}};{{end}}
-    {{end}}
-}
+    }
+
+    {{if .FontXXS}}  {{$p}} .font-xxs  { font-size:{{.FontXXS}}; }  {{end}}
+    {{if .FontXS}}   {{$p}} .font-xs   { font-size:{{.FontXS}}; }   {{end}}
+    {{if .FontSM}}   {{$p}} .font-sm   { font-size:{{.FontSM}}; }   {{end}}
+    {{if .FontMD}}   {{$p}} .font-md   { font-size:{{.FontMD}}; }   {{end}}
+    {{if .FontLG}}   {{$p}} .font-lg   { font-size:{{.FontLG}}; }   {{end}}
+    {{if .FontXL}}   {{$p}} .font-xl   { font-size:{{.FontXL}}; }   {{end}}
+    {{if .FontXXL}}  {{$p}} .font-xxl  { font-size:{{.FontXXL}}; }  {{end}}
+    {{if .FontHero}} {{$p}} .font-hero { font-size:{{.FontHero}}; } {{end}}
+{{end}}
 
 {{/* Layered background */}}
 {{if or .Background .BackgroundOverlay}}
@@ -63,178 +72,187 @@
 {{end}}
 
 {{/* --- SEMANTIC UTILITY CLASSES --- */}}
+{{with .Colors}}
+    {{if .Surface}}
+    {{$p}} .surface { background-color: {{.Surface | css}}; }
+    {{end}}
 
-{{if .Colors.Surface}}
-{{$p}} .surface { background-color: {{.Colors.Surface | css}}; }
-{{end}}
+    {{if .SurfaceProminent}}
+    {{$p}} .surface-prominent { background-color: {{.SurfaceProminent | css}}; }
+    {{end}}
 
-{{if .Colors.SurfaceProminent}}
-{{$p}} .surface-prominent { background-color: {{.Colors.SurfaceProminent | css}}; }
-{{end}}
+    {{if .SurfaceSubtle}}
+    {{$p}} .surface-subtle { background-color: {{.SurfaceSubtle | css}}; }
+    {{end}}
 
-{{if .Colors.SurfaceSubtle}}
-{{$p}} .surface-subtle { background-color: {{.Colors.SurfaceSubtle | css}}; }
-{{end}}
+    {{if .SurfaceOpaque}}
+    {{$p}} .surface-opaque { background-color: {{.SurfaceOpaque | css}}; }
+    {{end}}
 
-{{if .Colors.SurfaceOpaque}}
-{{$p}} .surface-opaque { background-color: {{.Colors.SurfaceOpaque | css}}; }
-{{end}}
+    {{if .SurfaceAlt}}
+    {{$p}} .surface-alt { background-color: {{.SurfaceAlt | css}}; }
+    {{end}}
 
-{{if .Colors.SurfaceAlt}}
-{{$p}} .surface-alt { background-color: {{.Colors.SurfaceAlt | css}}; }
-{{end}}
+    {{if .Highlight}}
+    {{$p}} .highlight { background-color: {{.Highlight | css}}; }
+    {{end}}
 
-{{if .Colors.Highlight}}
-{{$p}} .highlight { background-color: {{.Colors.Highlight | css}}; }
-{{end}}
+    {{if .Border}}
+        {{$p}} .border { border-color: {{.Border}}; }
+        {{$p}} .border-bg { background-color: {{.Border}}; }
+    {{end}}
 
-{{if .Colors.Border}}
-    {{$p}} .border { border-color: {{.Colors.Border}}; }
-    {{$p}} .border-bg { background-color: {{.Colors.Border}}; }
-{{end}}
+    {{/* Text + Icons */}}
+    {{if .OnSurface}}
+    {{$p}} .on-surface { color: {{.OnSurface | css}}; fill: {{.OnSurface | css}}; }
+    {{end}}
 
-{{/* Text + Icons */}}
-{{if .Colors.OnSurface}}
-{{$p}} .on-surface { color: {{.Colors.OnSurface | css}}; fill: {{.Colors.OnSurface | css}}; }
-{{end}}
+    {{if .OnSurfaceMuted}}
+    {{$p}} .on-surface-muted { color: {{.OnSurfaceMuted | css}}; fill: {{.OnSurfaceMuted | css}}; }
+    {{end}}
 
-{{if .Colors.OnSurfaceMuted}}
-{{$p}} .on-surface-muted { color: {{.Colors.OnSurfaceMuted | css}}; fill: {{.Colors.OnSurfaceMuted | css}}; }
-{{end}}
+    {{if .OnSurfaceSubtle}}
+    {{$p}} .on-surface-subtle { color: {{.OnSurfaceSubtle | css}}; fill: {{.OnSurfaceSubtle | css}}; }
+    {{$p}} input[type=text]::placeholder { {{.OnSurfaceSubtle | css}}; }
+    {{end}}
 
-{{if .Colors.OnSurfaceSubtle}}
-{{$p}} .on-surface-subtle { color: {{.Colors.OnSurfaceSubtle | css}}; fill: {{.Colors.OnSurfaceSubtle | css}}; }
-{{$p}} input[type=text]::placeholder { {{.Colors.OnSurfaceSubtle | css}}; }
-{{end}}
+    {{if .OnBackground}}
+    {{$p}} .on-bg { color: {{.OnBackground | css}}; fill: {{.OnBackground | css}}; }
+    {{end}}
 
-{{if .Colors.OnBackground}}
-{{$p}} .on-bg { color: {{.Colors.OnBackground | css}}; fill: {{.Colors.OnBackground | css}}; }
-{{end}}
+    {{/* Accents */}}
+    {{if .Accent}}
+    {{$p}} .accent { color: {{.Accent | css}}; fill: {{.Accent | css}}; }
+    {{$p}} .accent-bg { background-color: {{.Accent | css}}; }
+    {{end}}
 
-{{/* Accents */}}
-{{if .Colors.Accent}}
-{{$p}} .accent { color: {{.Colors.Accent | css}}; fill: {{.Colors.Accent | css}}; }
-{{$p}} .accent-bg { background-color: {{.Colors.Accent | css}}; }
-{{end}}
+    {{if .AccentMuted}}
+    {{$p}} .accent-muted { color: {{.AccentMuted | css}}; fill: {{.AccentMuted | css}}; }
+    {{$p}} .accent-muted-bg { background-color: {{.AccentMuted | css}}; }
+    {{end}}
 
-{{if .Colors.AccentMuted}}
-{{$p}} .accent-muted { color: {{.Colors.AccentMuted | css}}; fill: {{.Colors.AccentMuted | css}}; }
-{{$p}} .accent-muted-bg { background-color: {{.Colors.AccentMuted | css}}; }
-{{end}}
+    {{/* Interactive */}}
+    {{if .Interactive}}
+    {{$p}} .interactive { color: {{.Interactive | css}}; fill: {{.Interactive | css}}; }
+    {{$p}} .interactive-bg { background-color: {{.Interactive | css}}; }
+    {{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb {
+        background-color: {{.Interactive | css}};
+    }
+    {{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
+        background-color: {{.Interactive | css}};
+    }
+    {{end}}
+    {{if .InteractiveMuted}}
+    {{$p}} .interactive-muted { color: {{.InteractiveMuted | css}}; fill: {{.InteractiveMuted | css}}; }
+    {{$p}} .interactive-muted-bg { background-color: {{.InteractiveMuted | css}}; }
+    {{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb {
+        background-color: {{.InteractiveMuted | css}};
+    }
+    {{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
+        background-color: {{.InteractiveMuted | css}};
+    }
+    {{end}}
+    {{if .InteractiveDisabled}}
+    {{$p}} .interactive-disabled { color: {{.InteractiveDisabled | css}}; fill: {{.InteractiveDisabled | css}}; }
+    {{$p}} .interactive-disabled-bg { background-color: {{.InteractiveDisabled | css}}; }
+    {{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb {
+        opacity: 0;
+    }
+    {{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
+        opacity: 0;
+    }
+    {{end}}
 
-{{/* Interactive */}}
-{{if .Colors.Interactive}}
-{{$p}} .interactive { color: {{.Colors.Interactive | css}}; fill: {{.Colors.Interactive | css}}; }
-{{$p}} .interactive-bg { background-color: {{.Colors.Interactive | css}}; }
-{{$p}} input[type=range].interactive-thumb::-webkit-slider-thumb {
-    background-color: {{.Colors.Interactive | css}};
-}
-{{$p}} input[type=range].interactive-thumb::-moz-range-thumb {
-    background-color: {{.Colors.Interactive | css}};
-}
-{{end}}
-{{if .Colors.InteractiveMuted}}
-{{$p}} .interactive-muted { color: {{.Colors.InteractiveMuted | css}}; fill: {{.Colors.InteractiveMuted | css}}; }
-{{$p}} .interactive-muted-bg { background-color: {{.Colors.InteractiveMuted | css}}; }
-{{$p}} input[type=range].interactive-muted-thumb::-webkit-slider-thumb {
-    background-color: {{.Colors.InteractiveMuted | css}};
-}
-{{$p}} input[type=range].interactive-muted-thumb::-moz-range-thumb {
-    background-color: {{.Colors.InteractiveMuted | css}};
-}
-{{end}}
-{{if .Colors.InteractiveDisabled}}
-{{$p}} .interactive-disabled { color: {{.Colors.InteractiveDisabled | css}}; fill: {{.Colors.InteractiveDisabled | css}}; }
-{{$p}} .interactive-disabled-bg { background-color: {{.Colors.InteractiveDisabled | css}}; }
-{{$p}} input[type=range].interactive-disabled-thumb::-webkit-slider-thumb {
-    opacity: 0;
-}
-{{$p}} input[type=range].interactive-disabled-thumb::-moz-range-thumb {
-    opacity: 0;
-}
-{{end}}
+    {{/* --- STATES & PILL BACKGROUNDS --- */}}
 
-{{/* --- STATES & PILL BACKGROUNDS --- */}}
+    {{/* The ::after is for the slider thumbs */}}
+    {{if .StateOn}}
+    {{$p}} .state.on, {{$p}} .on .state { color: {{.StateOn | css}}; fill: {{.StateOn | css}}; }
+    {{$p}} .state-border.on, {{$p}} .on .state-border { border-color: {{.StateOn | css}}; }
+    {{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after { background-color: {{.StateOn | css}}; }
+    {{end}}
+    {{if .StateOff}}
+    {{$p}} .state.off, {{$p}} .off .state { color: {{.StateOff | css}}; fill: {{.StateOff | css}}; }
+    {{$p}} .state-border.off, {{$p}} .off .state-border { border-color: {{.StateOff | css}}; }
+    {{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after { background-color: {{.StateOff | css}}; }
+    {{end}}
+    {{if .StateDisabled}}
+    {{$p}} .state.disabled, {{$p}} .disabled .state { color: {{.StateDisabled | css}}; fill: {{.StateDisabled | css}}; }
+    {{$p}} .state-border.disabled, {{$p}} .disabled .state-border { border-color: {{.StateDisabled | css}}; }
+    {{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after { background-color: {{.StateDisabled | css}}; }
+    {{end}}
 
-{{/* The ::after is for the slider thumbs */}}
-{{if .Colors.StateOn}}
-{{$p}} .state.on, {{$p}} .on .state { color: {{.Colors.StateOn | css}}; fill: {{.Colors.StateOn | css}}; }
-{{$p}} .state-border.on, {{$p}} .on .state-border { border-color: {{.Colors.StateOn | css}}; }
-{{$p}} .state-bg.on::after, {{$p}} .on .state-bg::after { background-color: {{.Colors.StateOn | css}}; }
-{{end}}
-{{if .Colors.StateOff}}
-{{$p}} .state.off, {{$p}} .off .state { color: {{.Colors.StateOff | css}}; fill: {{.Colors.StateOff | css}}; }
-{{$p}} .state-border.off, {{$p}} .off .state-border { border-color: {{.Colors.StateOff | css}}; }
-{{$p}} .off.state-bg::after, {{$p}} .off .state-bg::after { background-color: {{.Colors.StateOff | css}}; }
-{{end}}
-{{if .Colors.StateDisabled}}
-{{$p}} .state.disabled, {{$p}} .disabled .state { color: {{.Colors.StateDisabled | css}}; fill: {{.Colors.StateDisabled | css}}; }
-{{$p}} .state-border.disabled, {{$p}} .disabled .state-border { border-color: {{.Colors.StateDisabled | css}}; }
-{{$p}} .disabled.state-bg::after, {{$p}} .disabled .state-bg::after { background-color: {{.Colors.StateDisabled | css}}; }
-{{end}}
-
-
-{{/* The ::before is for the track */}}
-{{if .Derived.StateOnMuted}}
-{{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.Derived.StateOnMuted | css}}; {{template "_pseudo"}} }
-{{end}}
-{{if .Derived.StateOffMuted}}
-{{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.Derived.StateOffMuted | css}}; {{template "_pseudo"}} }
-{{end}}
-{{if .Derived.StateDisabledMuted}}
-{{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.Derived.StateDisabledMuted | css}}; {{template "_pseudo"}} }
-{{end}}
+    {{/* Semantic backgrounds also use the derived muted colors */}}
+    {{if .Positive}}
+    {{$p}} .positive { color: {{.Positive | css}}; fill: {{.Positive | css}}; }
+    {{end}}
 
 
-{{/* Semantic backgrounds also use the derived muted colors */}}
-{{if .Colors.Positive}}
-{{$p}} .positive { color: {{.Colors.Positive | css}}; fill: {{.Colors.Positive | css}}; }
-{{end}}
-{{if .Derived.PositiveMuted}}
-{{$p}} .positive-bg { background-color: {{.Derived.PositiveMuted | css}}; }
+    {{if .Negative}}
+    {{$p}} .negative { color: {{.Negative | css}}; fill: {{.Negative | css}}; }
+    {{end}}
+
 {{end}}
 
-{{if .Colors.Negative}}
-{{$p}} .negative { color: {{.Colors.Negative | css}}; fill: {{.Colors.Negative | css}}; }
+
+{{with .Derived}}
+    {{/* The ::before is for the track */}}
+    {{if .StateOnMuted}}
+    {{$p}} .state-bg.on::before, {{$p}} .on .state-bg::before { background-color: {{.StateOnMuted | css}}; {{template "_pseudo"}} }
+    {{end}}
+    {{if .StateOffMuted}}
+    {{$p}} .off.state-bg::before, {{$p}} .off .state-bg::before { background-color: {{.StateOffMuted | css}}; {{template "_pseudo"}} }
+    {{end}}
+    {{if .StateDisabledMuted}}
+    {{$p}} .disabled.state-bg::before, {{$p}} .disabled .state-bg::before { background-color: {{.StateDisabledMuted | css}}; {{template "_pseudo"}} }
+    {{end}}
+    {{if .PositiveMuted}}
+    {{$p}} .positive-bg { background-color: {{.PositiveMuted | css}}; }
+    {{end}}
+    {{if .NegativeMuted}}
+    {{$p}} .negative-bg { background-color: {{.NegativeMuted | css}}; }
+    {{end}}
 {{end}}
-{{if .Derived.NegativeMuted}}
-{{$p}} .negative-bg { background-color: {{.Derived.NegativeMuted | css}}; }
-{{end}}
+
+
+
 
 {{/* Geometry */}}
-{{if .Shapes.PaddingInner}}
-    {{$p}} .padding.inner { padding: {{.Shapes.PaddingInner}}; }
-{{end}}
-{{if .Shapes.GapOuter}}
-    {{$p}} .gap-outer + .gap-outer { margin: {{.Shapes.GapOuter}}; }
-    {{$p}} .gap-outer-first { margin: {{.Shapes.GapOuter}}; }
-{{end}}
-{{if .Shapes.GapInner}}
-    {{$p}} .gap-inner + .gap-inner { margin: {{.Shapes.GapInner}}; }
-    {{$p}} .gap-inner-first { margin: {{.Shapes.GapInner}}; }
-{{end}}
-{{if .Shapes.WideBorderRadius}}
-    {{$p}} .border-wide { border-radius: {{.Shapes.WideBorderRadius}}; }
-{{end}}
-{{if .Shapes.MediumBorderRadius}}
-    {{$p}} .border-medium { border-radius: {{.Shapes.MediumBorderRadius}}; }
-{{end}}
-{{if .Shapes.TightBorderRadius}}
-    {{$p}} .border-tight { border-radius: {{.Shapes.TightBorderRadius}}; }
-{{end}}
-{{if .Shapes.BorderThin}}
-    {{$p}} .border-thin { border-width: {{.Shapes.BorderThin}}; }
-    {{$p}} .divider-thin { height: {{.Shapes.BorderThin}}; width: {{.Shapes.BorderThin}}; }
-{{end}}
-{{if .Shapes.BorderThick}}
-    {{$p}} .border-thick { border-width: {{.Shapes.BorderThick}}; }
-    {{$p}} .divider-thick { height: {{.Shapes.BorderThick}}; width: {{.Shapes.BorderThick}}; }
-{{end}}
+{{with .Shapes}}
+    {{if .PaddingInner}}
+        {{$p}} .padding.inner { padding: {{.PaddingInner}}; }
+    {{end}}
+    {{if .GapOuter}}
+        {{$p}} .gap-outer > * + *,
+        {{$p}} .gap-outer.gap-from-first > * { margin: {{.GapOuter}}; }
+    {{end}}
+    {{if .GapInner}}
+        {{$p}} .gap-inner > * + *,
+        {{$p}} .gap-inner.gap-from-first > * { margin: {{.GapInner}}; }
+    {{end}}
+    {{if .WideBorderRadius}}
+        {{$p}} .border-wide { border-radius: {{.WideBorderRadius}}; }
+    {{end}}
+    {{if .MediumBorderRadius}}
+        {{$p}} .border-medium { border-radius: {{.MediumBorderRadius}}; }
+    {{end}}
+    {{if .TightBorderRadius}}
+        {{$p}} .border-tight { border-radius: {{.TightBorderRadius}}; }
+    {{end}}
+    {{if .BorderThin}}
+        {{$p}} .border-thin { border-width: {{.BorderThin}}; }
+        {{$p}} .divider-thin { height: {{.BorderThin}}; width: {{.BorderThin}}; }
+    {{end}}
+    {{if .BorderThick}}
+        {{$p}} .border-thick { border-width: {{.BorderThick}}; }
+        {{$p}} .divider-thick { height: {{.BorderThick}}; width: {{.BorderThick}}; }
+    {{end}}
 
-{{if .Shapes.Borders}}
-{{$p}} .border {
-    border-style: {{if .Shapes.Borders | bool}}solid{{else}}none{{end}};
-}
+    {{if .Borders}}
+    {{$p}} .border {
+        border-style: {{if .Borders | bool}}solid{{else}}none{{end}};
+    }
+    {{end}}
 {{end}}
 
 {{/* --- CARD-LIKE DEFAULT ASSIGNMENTS --- */}}
@@ -279,7 +297,7 @@
 
 {{if or .Colors.Surface .Shapes.MediumBorderRadius .Shapes.BorderThick}}
 {{$p}} .tooltip {
-    {{if .Colors.Surface}}background-color: {{.Colors.Surface | css}};{{end}}
+    {{if .Colors.SurfaceOpaque}}background-color: {{.Colors.SurfaceOpaque | css}};{{end}}
     {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
     {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
 }
