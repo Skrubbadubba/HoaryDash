@@ -145,14 +145,14 @@
 
         {{if .Dashboard.Navbar.Enabled}}
         {{$position := .Dashboard.Navbar.Position | default "bottom"}}
-        {{$navbarStylePad := 0}}
+        {{$navbarStylePad := 0.0}}
         {{if eq .Dashboard.Navbar.Style "rectangle"}}
             {{$navbarStylePad = 1.5}}
         {{end}}
 
          .navbar-padding {
-            {{if eq $position "bottom"}}padding-bottom: {{add 5 $navbarStylePad}}em;{{end}}
-            {{if eq $position "top"}}padding-top: {{add 5 $navbarStylePad}}em;{{end}}
+            {{if eq $position "bottom"}}padding-bottom: {{add 5.0 $navbarStylePad}}em;{{end}}
+            {{if eq $position "top"}}padding-top: {{add 5.0 $navbarStylePad}}em;{{end}}
             {{if eq $position "left"}}padding-left: {{add 5.5 $navbarStylePad}}em;{{end}}
             {{if eq $position "right"}}padding-right: {{add 5.5 $navbarStylePad}}em;{{end}}
         }
