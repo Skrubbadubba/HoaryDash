@@ -267,10 +267,10 @@
 }
 {{end}}
 
-{{if or .Colors.SurfaceOpaque .Shapes.WideBorderRadius .Shapes.BorderThick}}
+{{if or .Colors.SurfaceOpaque .Shapes.MediumBorderRadius .Shapes.BorderThick}}
 {{$p}} .modal {
     {{if .Colors.SurfaceOpaque}}background-color: {{.Colors.SurfaceOpaque | css}};{{end}}
-    {{if .Shapes.WideBorderRadius}}border-radius: {{.Shapes.WideBorderRadius | css}};{{end}}
+    {{if .Shapes.MediumBorderRadius}}border-radius: {{.Shapes.MediumBorderRadius | css}};{{end}}
     {{if .Shapes.BorderThick}}border-width: {{.Shapes.BorderThick | css}};{{end}}
 }
 {{end}}

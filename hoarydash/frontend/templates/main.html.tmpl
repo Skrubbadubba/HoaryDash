@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Name}}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    {{/* <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"> */}}
     <script>
         (function(){
         var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
@@ -192,7 +192,7 @@
         <div id="{{$id}}" class="screen flex-shrink-0 size-full">
             {{if $showHints}}
             {{with prevScreen $.Dashboard $i}}
-                <div class="swipe-hint left on-bg flex flex-row align-center font-lg">
+                <div class="swipe-hint left on-bg flex-line font-lg">
                     {{icon "chevron-left"}}
                     {{if .Icon}}{{icon .Icon}}{{end}}
                 </div>
@@ -214,7 +214,7 @@
             </div>
             {{if $showHints}}
             {{with nextScreen $.Dashboard $i}}
-            <div class="swipe-hint right on-bg flex flex-row align-center font-lg">
+            <div class="swipe-hint right on-bg flex-line font-lg">
                 {{if .Icon}}{{icon .Icon}}{{end}}
                 {{icon "chevron-right"}}
             </div>

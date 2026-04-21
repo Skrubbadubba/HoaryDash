@@ -361,13 +361,25 @@ func buildTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 		return nil, nil
 	}
 
-	if defaultTheme, err := getDefaultTheme(); err != nil {
+	if isDev {
+		name := "[inline]"
+		if ref.Name != "" {
+			name = ref.Name
+		}
+		log.Printf("--- constructing theme '%s', current state: ---\n%s", name, jsonStr(theme))
+	}
+
+	if defaultTheme, err := getDefaultTheme(); err == nil {
 		theme.inheritVars(defaultTheme)
 	}
 
 	built, err := buildThemeRec(named, *theme, map[string]bool{})
 	if err != nil {
 		return nil, err
+	}
+
+	if isDev {
+		log.Printf("final state:\n%s\n--- theme construction finished ---", jsonStr(built))
 	}
 
 	return &built, nil

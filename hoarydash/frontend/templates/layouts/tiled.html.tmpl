@@ -42,7 +42,7 @@
 {{end}}
 
 {{$screen := .}}
-<div class="tiled-container flex flex-col align-center size-full scroll-y gap-outer gap-vertical">
+<div class="tiled-container flex flex-col align-center size-full scroll-y gap-outer gap-y">
     {{if enabledByDefault .Dateclock.Enabled}}
         <div class="tiled-clock">
             {{template "dateclock" .Dateclock}}
@@ -50,9 +50,9 @@
     {{end}}
 
     {{range $gi, $group := .Groups}}
-        <div class="tiled-group gap-inner gap-vertical" id="group-{{$group.Name}}">
+        <div class="tiled-group gap-inner gap-y" id="group-{{$group.Name}}">
             {{if or $group.Name $group.Icon}}
-            <div class="tiled-group-header on-bg flex flex-row align-center">
+            <div class="tiled-group-header on-bg flex-line">
                 {{if $group.Icon}}
                     <span class="tiled-group-header-icon">{{icon $group.Icon}}</span>
                 {{end}}
@@ -78,7 +78,7 @@
         </div>
 
         {{if $group.Style}}
-        <style class="gap-outer gap-vertical">
+        <style class="gap-outer gap-y">
             #screen-{{$screen.Name}} #group-{{$group.Name}} .card {
                 {{template "create-card-theme" $group.Style}}
             }

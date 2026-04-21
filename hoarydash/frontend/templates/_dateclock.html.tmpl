@@ -50,7 +50,7 @@
 {{end}}
 <div class="dateclock-container on-bg size-full font-hero" id="{{$id}}">
     {{if enabledByDefault .ShowTime}}<div class="clock"></div>{{end}}
-    {{if enabledByDefault .ShowDate}}<div class="date"></div>{{end}}
+    {{if enabledByDefault .ShowDate}}<div class="date no-wrap"></div>{{end}}
 </div>
 {{end}}
 {{define "dateclock-controller"}}

@@ -77,8 +77,15 @@
         height: 2.33em;
     }
 
-    input[type=range].thumb::-webkit-slider-thumb { {{template "_slider-thumb"}} } 
-    input[type=range].thumb::-moz-range-thumb { {{template "_slider-thumb"}} }
+    input[type=range].thumb { {{template "_slider-thumb"}} }
+    input[type=range].thumb::-webkit-slider-thumb { 
+        {{template "_slider-thumb"}}
+        border-radius: 50%; 
+    } 
+    input[type=range].thumb::-moz-range-thumb { 
+        {{template "_slider-thumb"}}
+        border-radius: 50%;
+    }
 
     .card {
         height: 100%;
@@ -115,7 +122,6 @@
         box-shadow: 0 12px 32px rgba(0,0,0,0.55);
         width: fit-content !important;
         height: fit-content !important;
-        font-size: 1.3em;
      }
 
     .expanded .tooltip, .tooltip.expanded {
@@ -139,9 +145,7 @@
     .badge, .badge-btn {
         {{template "_flex"}}
         {{template "_flex-row"}}
-        -webkit-box-align: center;
-        -webkit-align-items: center;
-        align-items: center;
+        {{template "_align-center"}}
     }
 
     .badge-btn {

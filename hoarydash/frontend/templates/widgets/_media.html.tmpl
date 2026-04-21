@@ -105,7 +105,7 @@
 {{template "media-controller"}}
 <div class="media-container widget card border card-wrapper">
     <div class="media-top-row padding widget card card-inner flex flex-row align-start">
-        <div class="media-info flex flex-row align-center flex-grow">
+        <div class="media-info flex-line flex-grow">
             <div class="media-cover border-tight">
                 <div class="media-cover-placeholder accent flex size-full justify-center align-center font-lg">{{icon "music"}}</div>
             </div>
@@ -122,14 +122,14 @@
     {{if enabledByDefault .InternalBorders}}
         <div class="divider-horizontal divider-thin border-bg flex-shrink-0"></div>
     {{end}}
-    <div class="media-bottom-row widget card card-inner gap-horizontal gap-outer flex flex-row align-center justify-between">
+    <div class="media-bottom-row widget card card-inner gap-x gap-outer flex-line justify-between">
         {{if enabledByDefault .ShowVolume }}
-        <div class="media-vol-controls flex flex-row align-center">
+        <div class="media-vol-controls flex-line">
             <span class="media-vol-icon accent-muted font-lg">{{icon "volume-high"}}</span>
             <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
-        <div class="media-play-controls font-lg gap-inner gap-horizontal flex flex-row align-center flex-shrink-0">
+        <div class="media-play-controls font-lg gap-inner gap-x flex-line flex-shrink-0">
             <button class="media-ctrl-btn btn shuffle on-surface-subtle hide" title="shuffle">{{icon "shuffle"}}</button>
             <button class="media-ctrl-btn btn back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
             <button class="media-ctrl-btn btn font-xl play on-surface" title="Play-Pause">{{icon "play"}}</button>

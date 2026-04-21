@@ -38,11 +38,6 @@
   .ha-adjustable-overlay-title {
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 0.625em;
-  }
-
-  .ha-slider-row {
-    margin-bottom: 0.6em;
   }
 
   .ha-slider-label {
@@ -57,13 +52,9 @@
     background: rgba(100,160,255,0.2);
     margin: 0 0.75em;
   }
-  .ha-slider-row input[type=range]::-webkit-slider-thumb,
-  .ha-slider-row input[type=range]::-moz-range-thumb {
-    width: 1.5em;
-    height: 1.5em;
-    -webkit-box-shadow: 0 0 8px rgba(255, 255, 255, 0.33);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.33);
-  }
+  {{$thumbStyle := "width: 1.5em; height: 1.5em; -webkit-box-shadow: 0 0 8px rgba(255, 255, 255, 0.33); box-shadow: 0 0 8px rgba(255, 255, 255, 0.33);" | css}}
+  .ha-slider-row input[type=range]::-webkit-slider-thumb { {{$thumbStyle}} }
+  .ha-slider-row input[type=range]::-moz-range-thumb { {{$thumbStyle}} }
 
   .ha-slider-val {
     text-align: right;
@@ -84,8 +75,8 @@
 {{end}}
 
 {{define "_adjustable-overlay"}}
-<div class="ha-adjustable-overlay card tooltip on-surface">
-  <div class="ha-adjustable-overlay-title font-lg">{{.Label}}</div>
+<div class="ha-adjustable-overlay card tooltip on-surface gap-y gap-outer">
+  {{/* <div class="ha-adjustable-overlay-title font-lg">{{.Label}}</div> */}}
 
   {{$domain := domain .EntityID}}
 
@@ -97,7 +88,7 @@
   </div>
   <div class="ha-slider-row flex align-center cct hidden">
     <span class="ha-slider-label">Temp</span>
-    <input class="ha-slider-input thumb" type="range" min="2700" max="6500" value="4000">
+    <input class="ha-slider-input thumb interactive-thumb" type="range" min="2700" max="6500" value="4000">
     <span class="ha-slider-val flex-shrink-0" style="width: 3.375em;">4000K</span>
   </div>
   {{end}}
@@ -105,7 +96,7 @@
   {{if eq $domain "fan"}}
   <div class="ha-slider-row flex align-center speed">
     <span class="ha-slider-label">Speed</span>
-    <input class="ha-slider-input flex-grow thumb" type="range" min="0" max="100" value="0" >
+    <input class="ha-slider-input flex-grow thumb interactive-thumb" type="range" min="0" max="100" value="0" >
     <span class="ha-slider-val flex-shrink-0" width="0">100%</span>
     <span class="ha-slider-val flex-shrink-0" style="visibility: hidden;">100%</span>
   </div>

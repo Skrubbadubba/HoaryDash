@@ -195,16 +195,16 @@
             <div></div>
             {{end}}
 
-            <div class="fml-top-right flex flex-col align-end justify-end gap-outer gap-vertical">
+            <div class="fml-top-right flex flex-col align-end justify-end gap-outer gap-y">
                 {{if .Badges}}
-                <div class="fml-badges gap-outer gap-horizontal flex flex-row align-center justify-end">
-                    <div class="fml-badge surface-subtle on-surface-muted badge border gap-outer gap-horizontal">
+                <div class="fml-badges gap-outer gap-x flex-line justify-end">
+                    <div class="fml-badge surface-subtle on-surface-muted badge border gap-outer gap-x">
                         <div class="fml-badge-icon icon">{{icon .Badges.Badge.Icon}}</div>
                         <span class="fml-badge-name">{{.Badges.Badge.Label}}</span>
                     </div>
                     {{if .Badges.Sensors}}
                     {{range .Badges.Sensors}}
-                        <div class="fml-sensor surface-subtle on-surface-muted badge border gap-outer gap-horizontal">
+                        <div class="fml-sensor surface-subtle on-surface-muted badge border gap-outer gap-x">
                             {{if .Icon}}
                             <div class="fml-sensor-icon icon">{{icon .Icon}}</div>
                             {{end}}
@@ -238,9 +238,9 @@
         </div>
 
         
-        <div class="fml-bottom gap-outer gap-vertical">
-            <div class="fml-media gap-outer gap-vertial flex flex-row align-end gap-inner gap-horizontal">
-                <div class="fml-cover border-tight border-thin border gap-outer gap-horizontal flex flex-shrink-0 align-center justify-center">
+        <div class="fml-bottom gap-outer gap-y">
+            <div class="fml-media gap-outer gap-vertial flex flex-row align-end gap-inner gap-x">
+                <div class="fml-cover border-tight border-thin border gap-outer gap-x flex flex-shrink-0 align-center justify-center">
                     <div class="fml-cover-placeholder accent font-xxl">{{icon "music"}}</div>
                 </div>
                 <div class="fml-song-block flex-grow">
@@ -248,17 +248,17 @@
                 </div>
             </div>
 
-            <div class="fml-controls-row font-xl flex flex-row align-center justify-start gap-outer gap-horizontal">
-                <div class="fml-transport gap-horizontal gap-inner flex flex-row align-center">
-                    <button class="fml-ctrl-btn btn icon gap-horizontal gap-inner fml-aux shuffle on-surface-subtle" title="Shuffle">{{icon "shuffle"}}</button>
-                    <button class="fml-ctrl-btn btn icon gap-horizontal gap-inner back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
-                    <button class="gap-horizontal gap-inner btn" title="Play / Pause">
+            <div class="fml-controls-row font-xl flex-line justify-start gap-outer gap-x">
+                <div class="fml-transport gap-x gap-inner flex-line">
+                    <button class="fml-ctrl-btn btn icon gap-x gap-inner fml-aux shuffle on-surface-subtle" title="Shuffle">{{icon "shuffle"}}</button>
+                    <button class="fml-ctrl-btn btn icon gap-x gap-inner back on-surface-muted" title="Previous">{{icon "skip-backward"}}</button>
+                    <button class="gap-x gap-inner btn" title="Play / Pause">
                         <div class="fml-ctrl-btn icon fml-play play on-surface icon">{{icon "play-circle"}}</div>
                     </button>
-                    <button class="fml-ctrl-btn btn icon gap-horizontal gap-inner forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
-                    <button class="fml-ctrl-btn btn icon gap-horizontal gap-inner fml-aux repeat on-surface-subtle" title="Repeat">{{icon "repeat"}}</button>
+                    <button class="fml-ctrl-btn btn icon gap-x gap-inner forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
+                    <button class="fml-ctrl-btn btn icon gap-x gap-inner fml-aux repeat on-surface-subtle" title="Repeat">{{icon "repeat"}}</button>
                 </div>
-                <div class="fml-vol gap-horizontal gap-inner flex flex-row align-center">
+                <div class="fml-vol gap-x gap-inner flex-line">
                     <span class="accent-muted icon">{{icon "volume-low"}}</span>
                     <input class="fml-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
                     <span class="accent-muted icon">{{icon "volume-high"}}</span>
@@ -400,7 +400,7 @@ component(function(wrapper) {
 
     function formatMin(seconds) {
         var minutes = 0;
-        while (seconds > 60) {
+        while (seconds >= 60) {
             ++minutes;
             seconds -= 60;
         }

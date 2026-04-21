@@ -133,8 +133,8 @@
 </style>
 {{end}}
 <div class="todo-container widget card border card-wrapper">
-    <div class="todo-header widget card card-inner flex flex-row align-center justify-between gap-horizontal gap-outer">
-        <div class="todo-info gap-horizontal gap-inner flex flex-row align-center">
+    <div class="todo-header widget card card-inner flex-line justify-between gap-x gap-outer">
+        <div class="todo-info gap-x gap-inner flex-line">
             {{if .Icon}}
             <span class="todo-icon">{{.Icon}}</span>
             {{end}}
@@ -142,7 +142,7 @@
             <span class="on-surface-subtle font-md"> - </span>
             <span class="todo-statistic on-surface-muted font-lg">0/0</span>
         </div>
-        <div class="todo-controls on-surface gap-inner gap-horizontal gap-inner flex">
+        <div class="todo-controls on-surface gap-inner gap-x gap-inner flex">
             <button class="todo-btn flex align-center btn complete positive-bg">
                 <span style="margin-top: 0.2em">{{icon "check-all"}}</span><span class="divider"></span><span>All</span>
             </button>
@@ -154,7 +154,7 @@
     {{if enabledByDefault .InternalBorders}}
         <div class="divider-horizontal divider-thin border-bg"></div>
     {{end}}
-    <div class="todo-list widget card card-inner gap-outer gap-vertical">
+    <div class="todo-list widget card card-inner gap-outer gap-y">
         <div class="todo-add flex surface-subtle border border-thick on-surface padding inner">
             <input 
                 type="text" 
@@ -165,9 +165,9 @@
                 ＋
             </button>
         </div>
-        <ol class="todos flex flex-col align-start justify-center gap-outer gap-vertical">
+        <ol class="todos flex flex-col align-start justify-center gap-outer gap-y">
             <li class="todo template">
-                <label class="todo-label flex gap-horizontal gap-inner">
+                <label class="todo-label flex gap-x gap-inner">
                     <input type="checkbox" class="todo-checkbox">
                     <span class="todo-checkmark"></span>
                     <span class="todo-text on-surface">dummy</span>

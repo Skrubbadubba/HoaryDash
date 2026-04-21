@@ -20,13 +20,13 @@
     color: #a08060;
   }
 
-  .weather-details > div {
-    margin: 0 0.1em 0 0.1em;
-  }
-
   .weather-condition {
     color: #d0c8b8;
     text-transform: capitalize;
+  }
+
+  .weather-meta {
+    min-height: 0;
   }
 
   .weather-meta span {
@@ -44,6 +44,7 @@
   .forecast-day {
     min-width: 21% /* Add one percentage to accomodate the width of the border */
   }
+
   .forecast-day-content {
     padding-right: 0em !important;
     padding-left: 0em !important;
@@ -81,7 +82,7 @@
 </style>
 {{end}}
 <div class="weather-container widget card border card-wrapper">
-  <div class="weather-main widget card card-inner flex flex-row align-center justify-center gap-outer gap-horizontal">
+  <div class="weather-main widget card card-inner flex-line justify-center gap-outer gap-x">
     <div class="weather-current flex align-center flex-auto">
       <div class="weather-icon font-xl">🌡️</div>
       <div class="weather-temp-wrapper">
@@ -89,21 +90,21 @@
       </div>
     </div>
     <div class="weather-divider divider-thin accent-bg"></div>
-    <div class="weather-details flex flex-col align-center">
+    <div class="weather-details flex flex-col align-center justify-center">
       <div class="weather-condition accent-muted font-sm">Loading...</div>
-      <div class="weather-meta on-surface-muted font-xs">
-        <span class="weather-wind"></span>
-        <span class="weather-humidity"></span>
-        <span class="weather-feels"></span>
+      <div class="weather-meta on-surface-muted font-xs flex-line justify-center gap-inner gap-x">
+        <div class="weather-wind"></div>
+        <div class="weather-humidity"></div>
+        <div class="weather-feels"></div>
       </div>
     </div>
   </div>
   {{if .ShowForecast}}
     {{if .InternalBorders}}
-      <div class="gap-horizontal divider-thin divider-horizontal border-bg"></div>
+      <div class="gap-x divider-thin divider-horizontal border-bg"></div>
     {{end}}
     <div class="weather-forecast flex">
-      <div class="forecast-day template flex flex-row align-center">
+      <div class="forecast-day template flex-line">
         <div class="forecast-day-content widget card card-inner flex flex-grow flex-col align-center">
           <div class="forecast-day-name on-surface font-sm">  timeLabel </div>
           <div class="forecast-day-icon font-lg">  icon    </div>
