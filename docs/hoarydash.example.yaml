@@ -1,38 +1,42 @@
 themes:
-  tight-borders:
+  compact:
     shapes:
-      medium_border_radius: 10px
+      medium_border_radius: 0.4em
+      wide_border_radius: 0.4em
+      border_thick: 1px
 
 dashboards:
-  dash:
+  main:
     swipe: true
     show_hints: true
     animations: true
-    theme: forest
-    navbar:
-      enabled: true
-      position: bottom
-      style: default
+    theme: aurora
 
     nightlight:
       enabled: true
       override_colors: true
       color: "hsl(22, 100%, 55%)"
 
+    navbar:
+      enabled: true
+      position: bottom
+      style: default
+
     screens:
-      - name: Main
+      - name: Home
         icon: home
-        theme: tight-borders
         layout: centered
-        # Default order
+
         order:
           entities: 1
           widgets: 2
           sensors: 3
+
         dateclock:
           enabled: true
           show_seconds: true
           capitalise_day: true
+
         entities:
           cards:
             - entity_id: light.ceiling
@@ -40,15 +44,17 @@ dashboards:
               icon: lightbulb
             - entity_id: switch.fan
               label: Fan
+
         widgets:
           style:
-              borders: false
-              background: transparent
+            borders: false
+            background: transparent
           cards:
             - entity_id: weather.home
               forecast_interval: twice_daily
               forecast_times: 5
               internal_borders: false
+
         sensors:
           style:
             borders: false
@@ -56,57 +62,97 @@ dashboards:
           cards:
             - entity_id: sensor.living_room_temperature
               label: Temperature
-              unit: °C
+              unit: "°C"
+            - entity_id: sensor.living_room_humidity
+              label: Humidity
+              unit: "%"
 
-      - name: media
+      - name: Media
         icon: radio
         layout: media-full
-        badges:
-          sensors:
-            - entity_id: sensor.living_room_temperature
-              label: Temperature
-              unit: °C
-              icon: thermometer
-          badge:
-            label: Spotify
-            icon: spotify
-        entity_id: media_player.spotifyplus_skrubba
+
+        entity_id: media_player.your_media_player
         show_album: true
         show_browser: true
         spotifyplus: true
         queue: true
         rotate: true
 
-      - name: Tiles
+        badges:
+          sensors:
+            - entity_id: sensor.living_room_temperature
+              label: Temperature
+              unit: "°C"
+              icon: thermometer
+          badge:
+            label: Spotify
+            icon: spotify
+
+        dateclock:
+          capitalise_day: true
+
+      - name: Controls
         icon: view-grid
-        theme: tight-borders
         layout: tiled
+        theme: compact
+
         dateclock:
           enabled: true
+
         groups:
-          - name: Climate
-            icon: thermometer
-            cards:
-              - entity_id: sensor.living_room_temperature
-                label: Temperature
-                unit: °C
-              - entity_id: sensor.living_room_humidity
-                label: Humidity
-                unit: "%"
-            style:
-              border_color: '#eb5c14'
           - name: Lights
+            icon: lightbulb
+            normalize_height: true
             cards:
               - entity_id: light.ceiling
                 label: Ceiling
+              - entity_id: light.floor_lamp
+                label: Floor lamp
+              - entity_id: switch.desk_lamp
+                label: Desk lamp
+
+          - name: Climate
+            icon: thermometer
+            style:
+              border_color: "#5b9bd5"
+            cards:
+              - entity_id: sensor.living_room_temperature
+                label: Temperature
+                unit: "°C"
+              - entity_id: sensor.living_room_humidity
+                label: Humidity
+                unit: "%"
+
+          - name: Scenes
+            icon: palette
+            cards:
+              - entity_id: scene.evening
+                label: Evening
+              - entity_id: scene.bright
+                label: Bright
+
+  screensaver:
+    swipe: false
+    show_hints: false
+    screenonlock: false
+    nightlight:
+      enabled: false
+    screens:
+      - dateclock:
+          capitalise_day: true
+        sensors:
+          cards:
+            - entity_id: sensor.living_room_temperature
+              label: Temperature
+              unit: "°C"
 
 localization:
-  locale: "sv-SE"
-  timezone: "Europe/Stockholm"
-  hour12: false
+  locale: "en-US"
+  timezone: "Europe/London"
 
 fully_kiosk:
   screensaver_timeout: 60
 
 home_assistant:
+  url: "http://homeassistant.local:8123"
   token: "your_long_lived_token_here"

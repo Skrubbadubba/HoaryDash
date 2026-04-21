@@ -157,17 +157,33 @@ screens:
 ```yaml
 dateclock:
   enabled: true
+  show_time: true
+  show_date: true
   show_seconds: true
   capitalise_day: true
   hour12: false
+  align: center
+  font_size: 1.2
+  time_size: 1.0
+  time_weight: 600
+  date_size: 0.5
+  date_weight: 600
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `enabled` | bool | `true` | Show the clock and date |
+| `enabled` | bool | `true` | Show the dateclock |
+| `show_time` | bool | `true` | Show the time |
+| `show_date` | bool | `true` | Show the date and day name |
 | `show_seconds` | bool | `false` | Show seconds in the time display |
 | `capitalise_day` | bool | `false` | Capitalise the first letter of the day name |
-| `hour12` | bool | inherits from `localization` | Override the global hour12 setting for this clock |
+| `hour12` | bool | `false` | Use 12-hour time format |
+| `align` | string | `center` | Text alignment — `left`, `center`, or `right` |
+| `font_size` | number | — | Base font size for the entire dateclock, in `em` |
+| `time_size` | number | — | Font size of the time, in `em`, relative to `font_size` |
+| `time_weight` | number | `600` | Font weight of the time |
+| `date_size` | number | `0.5` | Font size of the date, in `em`, relative to `font_size` |
+| `date_weight` | number | `600` | Font weight of the date |
 
 ---
 
@@ -485,8 +501,10 @@ Named themes can come from two sources:
 ```yaml
 themes:
   my-theme:
-    background: "#1a1a2e"
-    accent: "#ff6b6b"
+    background:
+      color: "#1a1a2e"
+    colors:
+      accent: "#ff6b6b"
 
 dashboards:
   main:
@@ -504,19 +522,39 @@ Instead of a name, you can define the theme directly under the `theme:` key:
 dashboards:
   main:
     theme:
-      background: "#0f0f0f"
-      accent: "hsl(210, 90%, 65%)"
+      background:
+        color: "#0f0f0f"
+      colors:
+        accent: "hsl(210, 90%, 65%)"
     screens:
       - name: Home
         theme:
-          accent: "#ff7043"   # only overrides accent; everything else cascades from dashboard
+          colors:
+            accent: "#ff7043"   # only overrides accent; everything else cascades from dashboard
+```
+
+### Theme inheritance
+
+Named themes can extend other named themes via a `base` field. The base is fully resolved first, then your overrides are merged on top. Inheritance is recursive and cycles are not allowed.
+
+```yaml
+themes:
+  my-theme:
+    base: aurora
+    colors:
+      accent: "#ff6b6b"
 ```
 
 ### Variable references
 
-Themes support `$variable` references within their own definition, which are resolved before the theme is applied. Variables are defined under `vars:` and can be used anywhere a CSS value appears — including inside gradients and raw `custom` CSS.
+Themes support `$variable` references within their own definition, resolved before the theme is applied. Variables can be used anywhere a CSS value appears — including inside gradients and raw `custom` CSS.
 
-An optional `:alpha` suffix applies opacity to the resolved color:
+Two sources of variables are available:
+
+- **Semantic vars** — every field in `colors`, `shapes`, and `typography` is automatically available by its YAML key name: `$accent`, `$medium_border_radius`, `$font_family`, `$font_xl`, etc.
+- **Explicit vars** — defined under `vars:` in the theme. These take precedence over semantic vars on collision.
+
+An optional `:mutlipier` suffix applies opacity to the resolved color, and scales units:
 
 ```yaml
 themes:
@@ -524,11 +562,17 @@ themes:
     vars:
       brand: "#d79921"
       dark: "#1a1a2e"
-    accent: "$brand"
-    interactive: "$brand"
-    surface: "$brand:0.1"
-    background: "linear-gradient(180deg, $dark:0.8, #0f0f0f)"
+    colors:
+      accent: "$brand"
+      interactive: "$brand"
+      surface: "$brand:0.1"
+    background:
+      color: "linear-gradient(180deg, $dark:0.8, #0f0f0f)"
 ```
+
+Variable references also work in card-type override fields (including `custom`) anywhere in the structural config, resolved against the effective theme for that screen.
+
+All themes, including partially defined ones, always inherit the variables from the above layered theme (screen -> dashboard -> default). That is to say, vars such as `$text_xl` will always be resolved.
 
 ### Dashboard vs. screen themes
 
@@ -537,7 +581,7 @@ themes:
 | Dashboard | Yes — all fields guaranteed populated | Sets the full visual baseline for the page |
 | Screen | No — partial, only set fields emitted | Overrides specific values; CSS cascade fills the rest from dashboard |
 
-This means a screen theme only needs to contain what it actually changes. Setting just `accent` on a screen is valid and safe.
+This means a screen theme only needs to contain what it actually changes. Setting just `colors.accent` on a screen is valid and safe.
 
 ### Theme fields
 
@@ -545,20 +589,40 @@ This means a screen theme only needs to contain what it actually changes. Settin
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `background` | CSS value | Page background. Any valid CSS `background`, including gradients |
-| `font_size` | number | Base font size in px. All sizing scales from this |
-| `is_light` | bool | Hints that this is a light theme |
+| `background` | background layer | Page background layer — see below |
+| `background_overlay` | background layer | Optional overlay layer composited on top of `background` |
+| `is_light` | bool | Hints that this is a light theme; adjusts some derived values |
+| `size` | number | Global size multiplier applied to the entire dashboard |
+| `base` | string | Name of a theme to inherit from |
 | `vars` | map | Named variables for use with `$name` references |
+| `custom` | CSS | Raw CSS injected into the dashboard or screen scope |
+
+#### Background layers
+
+Both `background` and `background_overlay` accept the same fields:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `color` | CSS value | Background color or gradient |
+| `image` | CSS value | Background image, e.g. `url(...)` |
+| `size` | CSS value | `background-size` |
+| `position` | CSS value | `background-position` |
+| `repeat` | CSS value | `background-repeat` |
+| `blend_mode` | CSS value | `background-blend-mode` |
+| `filter` | CSS value | CSS filter applied to the layer |
+| `opacity` | number | Layer opacity (0–1) |
 
 #### Colors
+
+All color fields live under the `colors:` key.
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `surface` | CSS color | Default card/panel background (semi-transparent) |
 | `surface_opaque` | CSS color | Opaque surface, used for modals and overlays |
 | `surface_prominent` | CSS color | Elevated surface, used for buttons |
-| `surface_subtle` | CSS color | Faint surface, used for badges |
-| `surface_alt` | CSS color | Alternative surface color for differentiated regions |
+| `surface_subtle` | CSS color | Faint surface, used for badges, should be semi-transparent |
+| `surface_alt` | CSS color | Alternative surface color I couldn't find a name for. Used as the navbar background currently. |
 | `highlight` | CSS color | Hover/focus highlight layer |
 | `border` | CSS color | Theme-wide border color |
 | `on_surface` | CSS color | Primary text and icon color |
@@ -580,6 +644,8 @@ Several colors are derived automatically when omitted: `accent_muted`, `interact
 
 #### Shapes
 
+All shape fields live under the `shapes:` key.
+
 | Key | Type | Description |
 |-----|------|-------------|
 | `borders` | bool | Show borders on all card-like elements |
@@ -587,8 +653,30 @@ Several colors are derived automatically when omitted: `accent_muted`, `interact
 | `medium_border_radius` | CSS value | Corner radius for cards and buttons |
 | `wide_border_radius` | CSS value | Corner radius for modals and badges |
 | `border_thick` | CSS value | Border width for cards, modals, tooltips |
-| `border_thin` | CSS value | Border width for badges and badge buttons |
-| `padding` | CSS value | Base padding |
+| `border_thin` | CSS value | Border width for badges and badge buttons (derived as half of `border_thick` if omitted) |
+| `gap_inner` | CSS value | Inner gap between elements (derived as half of `gap_outer` if omitted) |
+| `gap_outer` | CSS value | Outer gap between elements |
+| `padding_inner` | CSS value | Padding for certain elements |
+
+#### Typography
+
+All typography fields live under the `typography:` key.
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `font_family` | CSS value | Font family stack |
+| `font_weight` | CSS value | Default font weight |
+| `font_style` | CSS value | Default font style |
+| `text_transform` | CSS value | Default text transform |
+| `letter_spacing` | CSS value | Default letter spacing |
+| `font_xxs` | CSS value | Extra-extra-small font size |
+| `font_xs` | CSS value | Extra-small font size |
+| `font_sm` | CSS value | Small font size |
+| `font_md` | CSS value | Base/medium font size |
+| `font_lg` | CSS value | Large font size |
+| `font_xl` | CSS value | Extra-large font size |
+| `font_xxl` | CSS value | Extra-extra-large font size |
+| `font_hero` | CSS value | Hero/display font size |
 
 #### Card-type overrides
 
@@ -613,11 +701,19 @@ Each of these keys accepts a **card style** object and overrides the defaults fo
 | `borders` | bool | Show or hide borders for this card type |
 | `border_radius` | CSS value | Corner rounding |
 | `border_width` | CSS value | Border thickness |
-| `border_color` | CSS color | Border color (overrides the theme-wide `.border` color) |
+| `border_color` | CSS color | Border color (overrides the theme-wide border color) |
 | `background` | CSS color | Background color |
 | `padding` | CSS value | Inner padding |
-| `font_size` | number | Font size in px for this card type |
-| `custom` | CSS | Raw CSS injected into this card type's rule block |
+| `size` | number | Size multiplier for this card type |
+| `custom` | CSS | Raw CSS injected into this card type's rule block; `$variable` references are resolved |
+
+### Custom CSS
+
+As evident from the fields, there is the option to inject CSS. The `custom` field under **card style** and under the theme itself behaves differently. On **card style** objects, the CSS is inlined into a selector for those cards, be that a type of card, group of entities, or a specific entity.
+
+Directly under theme however, the CSS is injected raw into the stylesheet. This means selectors need to be written. However this CSS has access to a special variable `$this`, which will resolve to the selector that the theme applies to. For dashboard level themes, that would be `body`.
+
+These fields are ofcourse for the utmost power-user. It is expected the user inspects the DOM themselves to understand how to style. 
 
 ### Example
 
@@ -625,21 +721,40 @@ Each of these keys accepts a **card style** object and overrides the defaults fo
 dashboards:
   main:
     theme:
-      background: "linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)"
-      font_size: 18
-      accent: "hsl(200, 80%, 60%)"
-      surface: "rgba(255,255,255,0.07)"
-      borders: true
-      medium_border_radius: "0.75em"
+      background:
+        color: "linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)"
+      colors:
+        accent: "hsl(200, 80%, 60%)"
+        surface: "rgba(255,255,255,0.07)"
+      shapes:
+        borders: true
+        medium_border_radius: "0.75em"
+      typography:
+        font_family: "'Inter', sans-serif"
       sensors:
-        borders: false
-        font_size: 20
+        borders: true
+      custom: |
+        $this .center-container .centered-dateclock-wrapper {
+          width: 50% !important;
+        }
+        $this .center-container .weather-main .weather-temp {
+            font-size: $font_xxl !important;
+        }
     screens:
       - name: Home
+        sensors:
+          style:
+            background: $accent
+            borders: false
+            custom: |
+              color: $interactive:0.5 !important;
+          cards:
+            # ...
         theme:
-          accent: "#ff7043"   # warm accent on this screen only
+          colors:
+            accent: "#ff7043"   # warm accent on this screen only
       - name: Media
-        theme: synthwave       # use a named preset for this screen
+        theme: synthwave        # use a named preset for this screen
 ```
 
 ---
