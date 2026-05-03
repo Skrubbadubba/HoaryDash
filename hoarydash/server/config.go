@@ -5,8 +5,10 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 
+	"github.com/mitchellh/reflectwalk"
 	"go.yaml.in/yaml/v4"
 )
 
@@ -217,6 +219,34 @@ type Yaml struct {
 	Config     `yaml:",inline"`
 	Themes     ThemesMap
 	IsDev      bool
+}
+
+type EntityWalkerCallback func(f reflect.StructField, v *reflect.Value) error
+
+type entityWalker struct {
+	cb  EntityWalkerCallback
+	err error
+}
+
+func (w *entityWalker) Struct(reflect.Value) error { return nil }
+
+func (w *entityWalker) StructField(f reflect.StructField, v reflect.Value) error {
+	if w.err != nil {
+		return nil
+	}
+	if v.Type() != reflect.TypeOf(Entity{}) {
+		return nil
+	}
+	w.err = w.cb(f, &v)
+	return nil
+}
+
+func walkEntities(target any, cb EntityWalkerCallback) error {
+	w := &entityWalker{cb: cb}
+	if err := reflectwalk.Walk(target, w); err != nil {
+		return err
+	}
+	return w.err
 }
 
 func loadConfig() (Yaml, error) {

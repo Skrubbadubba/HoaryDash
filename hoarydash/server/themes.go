@@ -366,7 +366,7 @@ func buildTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 		if ref.Name != "" {
 			name = ref.Name
 		}
-		log.Printf("--- constructing theme '%s', current state: ---\n%s", name, jsonStr(theme))
+		log.Printf("--- constructing theme '%s', current state: ---\n%s", name)
 	}
 
 	if defaultTheme, err := getDefaultTheme(); err == nil {
@@ -379,7 +379,7 @@ func buildTheme(named ThemesMap, ref ThemeRef) (*Theme, error) {
 	}
 
 	if isDev {
-		log.Printf("final state:\n%s\n--- theme construction finished ---", jsonStr(built))
+		// log.Printf("final state:\n%s\n--- theme construction finished ---", jsonStr(built))
 	}
 
 	return &built, nil

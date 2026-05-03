@@ -136,10 +136,10 @@
     <div class="todo-header widget card card-inner flex-line justify-between gap-x gap-outer">
         <div class="todo-info gap-x gap-inner flex-line">
             {{if .Icon}}
-            <span class="todo-icon">{{.Icon}}</span>
+            <span class="todo-icon accent-muted icon">{{icon .Icon}}</span>
             {{end}}
             <span class="todo-name on-surface font-xl">Todos</span>
-            <span class="on-surface-subtle font-md"> - </span>
+            <span class="on-surface-subtle font-lg"> - </span>
             <span class="todo-statistic on-surface-muted font-lg">0/0</span>
         </div>
         <div class="todo-controls on-surface gap-inner gap-x gap-inner flex">
