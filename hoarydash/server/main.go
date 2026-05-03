@@ -98,7 +98,7 @@ func main() {
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
 	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HA.WSURL, cfg.HA.Token, rebuildChan))
-	http.HandleFunc("/api/proxy/", haProxyHandler(cfg.HA.HTTPURL))
+	http.HandleFunc("/api/proxy/", haProxyHandler(cfg.HA.HTTPURL, cfg.HA.Token))
 	http.Handle("/", fs)
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))

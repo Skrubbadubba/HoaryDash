@@ -8,10 +8,10 @@ import (
 	"strings"
 )
 
-func haProxyHandler(haUrl string) http.HandlerFunc {
+func haProxyHandler(haURL, token string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/api/proxy")
-		target, err := url.Parse(haUrl + path)
+		target, err := url.Parse(haURL + path)
 		if err != nil {
 			http.Error(w, "bad gateway", http.StatusBadGateway)
 			return
@@ -22,6 +22,10 @@ func haProxyHandler(haUrl string) http.HandlerFunc {
 		if err != nil {
 			http.Error(w, "bad gateway", http.StatusBadGateway)
 			return
+		}
+
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
 		}
 
 		resp, err := http.DefaultClient.Do(req)
