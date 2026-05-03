@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,23 +17,6 @@ var configPath string
 var frontendPath string
 var appPath string
 
-// type AddonOptions struct {
-// 	Port int `json:"port"`
-// }
-
-// func loadAddonOptions() AddonOptions {
-// 	defaults := AddonOptions{Port: 4567}
-// 	data, err := os.ReadFile("/data/options.json")
-// 	if err != nil {
-// 		return defaults // not running as addon, use defaults
-// 	}
-// 	var opts AddonOptions
-// 	if err := json.Unmarshal(data, &opts); err != nil {
-// 		return defaults
-// 	}
-// 	return opts
-// }
-
 func init() {
 	godotenv.Load()
 
@@ -49,8 +31,6 @@ func init() {
 		frontendPath = "/app/frontend"
 		appPath = "/app"
 	}
-
-	json.Unmarshal(mdiData, &mdiIcons)
 
 	log.Printf("isDev=%v configPath=%s frontendPath=%s appPath=%s", isDev, configPath, frontendPath, appPath)
 }

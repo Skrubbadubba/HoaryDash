@@ -102,6 +102,7 @@ type Entity struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
 	Icon     string
+	Class    string `yaml:"-"`
 }
 
 type Sensor struct {
@@ -190,7 +191,7 @@ func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
 	}
 	*n = Navigation(s)
 	if !n.Valid() {
-		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'")
+		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'", s)
 	}
 	return nil
 }

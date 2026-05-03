@@ -12,6 +12,7 @@
         (function(){
         var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
         var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        window.ICON_MAP = {{.DomainClassStateIconMap}};
         window.CONFIG = {
             {{if .Config.FullyKiosk}}
             fullyKiosk: {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -15,15 +14,11 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed mdi.json
-var mdiData []byte
-
-var mdiIcons map[string]string
-
 type TemplateData struct {
 	Dashboard
 	Config
-	Name string
+	Name                    string
+	DomainClassStateIconMap ComponentIconMapSVG
 }
 
 type HAState struct {
@@ -31,6 +26,7 @@ type HAState struct {
 	Attributes struct {
 		FriendlyName string `json:"friendly_name"`
 		Icon         string `json:"icon"`
+		Class        string `json:"device_class"`
 	} `json:"attributes"`
 }
 
@@ -170,14 +166,27 @@ func friendlyName(raw string, locale string) string {
 	return cases.Title(tag).String(raw)
 }
 
-func applyState(v *reflect.Value, e Entity, state HAState, locale string) {
+func applyState(v *reflect.Value, e Entity, state HAState, locale string, icons ComponentIconMap) {
 	if e.Label == "" && state.Attributes.FriendlyName != "" {
 		v.FieldByName("Label").SetString(friendlyName(state.Attributes.FriendlyName, locale))
 	}
+
+	class := "_"
+	if state.Attributes.Class != "" {
+		class = state.Attributes.Class
+	}
+	v.FieldByName("Class").SetString(class)
+
 	if e.Icon == "" {
 		icon := state.Attributes.Icon
 		if icon == "" {
-			icon = domainDefaultIcons[domain(e.EntityID)]
+			if domainIcons, ok := icons[domain(e.EntityID)]; ok {
+				if classIcons, ok := domainIcons[class]; ok {
+					icon = classIcons.Default
+				} else if fallback, ok := domainIcons["_"]; ok {
+					icon = fallback.Default
+				}
+			}
 		}
 		if icon != "" {
 			icon = strings.TrimPrefix(icon, "mdi:")
@@ -186,26 +195,36 @@ func applyState(v *reflect.Value, e Entity, state HAState, locale string) {
 	}
 }
 
-func enrichEntities(dashboards map[string]Dashboard, cfg Yaml) (map[string]HAState, error) {
+func enrichEntities(dashboard Dashboard, cfg Yaml, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
 	states := map[string]HAState{}
-	err := walkEntities(dashboards, func(f reflect.StructField, v *reflect.Value) error {
+	domainClasses := DomainClassSet{}
+
+	err := walkEntities(dashboard, func(f reflect.StructField, v *reflect.Value) error {
 		e := v.Interface().(Entity)
 		if e.EntityID == "" {
 			return nil
 		}
+
+		var state HAState
 		if cached, already := states[e.EntityID]; already {
-			applyState(v, e, cached, cfg.Localization.Locale)
-			return nil
+			state = cached
+		} else {
+			fetched, err := fetchEntityState(e.EntityID, cfg.HA)
+			if err != nil {
+				return err
+			}
+			states[e.EntityID] = fetched
+			state = fetched
 		}
-		state, err := fetchEntityState(e.EntityID, cfg.HA)
-		if err != nil {
-			return err
-		}
-		states[e.EntityID] = state
-		applyState(v, e, state, cfg.Localization.Locale)
+
+		applyState(v, e, state, cfg.Localization.Locale, icons)
+
+		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
+
 		return nil
 	})
-	return states, err
+
+	return states, domainClasses, err
 }
 
 func fetchEntityState(id string, ha HAConfig) (HAState, error) {
@@ -309,13 +328,6 @@ var funcMap = template.FuncMap{
 		}
 		return out
 	},
-	"icon": func(name string) template.HTML {
-		path := mdiIcons[name]
-		return template.HTML(fmt.Sprintf(
-			`<svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="%s"/></svg>`,
-			path,
-		))
-	},
 	"isEmoji": func(s string) bool {
 		for _, r := range s {
 			return r > 127
@@ -372,6 +384,7 @@ var funcMap = template.FuncMap{
 	"once":    nilfunc,
 	"globals": nilfunc,
 	"uid":     nilfunc,
+	"icon":    nilfunc,
 	"replace": func(old string, new string, s string) string {
 		return strings.ReplaceAll(s, old, new)
 	},
@@ -440,13 +453,28 @@ func BuildDashFromConfig(cfg Yaml) {
 	// First pass, to enrich template data and create function enclosures for each dashboard.
 	// Function enclosures break if template (along with its funcmap)
 	// is copied after it has been executed
-	enrichEntities(cfg.Dashboards, cfg)
+	mdiIcons := loadMdiIcons()
+	funcMap["icon"] = func(name string) template.HTML {
+		return iconToSVG(name, &mdiIcons)
+	}
+
+	componentIconMap, err := fetchComponentIcons(cfg.HA)
+	if err != nil {
+		log.Printf("Could not get map of icons from HA: %v", err)
+		return
+	}
 
 	built := make(map[string]builtDash)
 	for name, dash := range cfg.Dashboards {
 		if isDev {
 			log.Printf("=== Preprocessing dashboard '%s' ===\n", name)
 		}
+
+		_, domainClassesMap, err := enrichEntities(dash, cfg, componentIconMap)
+		check(err, "Could not walk across entities")
+		filteredIconMap := filterIconMap(componentIconMap, domainClassesMap)
+		iconSvgMap := resolveIconMapSVG(filteredIconMap, mdiIcons)
+
 		resolvedTheme, err := buildTheme(themes, dash.ThemeRef)
 		if err != nil {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
@@ -510,7 +538,7 @@ func BuildDashFromConfig(cfg Yaml) {
 
 		built[name] = builtDash{
 			tmpl: dashTmpl.Funcs(funcMap),
-			data: TemplateData{dash, cfg.Config, name},
+			data: TemplateData{dash, cfg.Config, name, iconSvgMap},
 		}
 
 		if isDev {

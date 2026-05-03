@@ -37,3 +37,21 @@ func check(e error, message string, v ...any) {
 		return
 	}
 }
+
+type DomainClassSet map[string]map[string]struct{}
+
+func (d DomainClassSet) add(domain, deviceClass string) {
+	if d[domain] == nil {
+		d[domain] = map[string]struct{}{}
+	}
+	d[domain][deviceClass] = struct{}{}
+}
+
+func (d DomainClassSet) has(domain, deviceClass string) bool {
+	classes, ok := d[domain]
+	if !ok {
+		return false
+	}
+	_, ok = classes[deviceClass]
+	return ok
+}
