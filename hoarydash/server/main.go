@@ -86,44 +86,20 @@ func main() {
 		}
 	}()
 
-	BuildDash()
-
-	cfg, err := parseConfig()
-	check(err, "Config loaded successfully")
+	cfg, err := loadConfig()
+	check(err, "Could not load config")
 	if isDev {
 		// log.Printf("Config is: %s", jsonStr(cfg))
 	}
+
+	BuildDashFromConfig(cfg)
+
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
+	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HA.WSURL, cfg.HA.Token, rebuildChan))
+	http.HandleFunc("/api/proxy/", haProxyHandler(cfg.HA.HTTPURL))
 	http.Handle("/", fs)
-	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN, rebuildChan))
-	http.HandleFunc("/api/translations", translationsHandler())
-	http.HandleFunc("/api/media_cover", mediaCoverHandler(cfg.HomeAssistant.URL, cfg.HomeAssistant.TOKEN))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
-}
-
-func defaultHaUrl(baseUrl string) string {
-	if baseUrl == "" {
-		log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
-		return "http://homeassistant.local:8123"
-	}
-	return baseUrl
-}
-
-func defaultHaToken(token string) string {
-	if token == "" {
-		log.Print("Getting HA token fron environment")
-		envToken := os.Getenv("HA_TOKEN")
-		if envToken == "" {
-			log.Printf("No HA token could be read")
-			return ""
-		}
-		return envToken
-	}
-	return token
-}
-func getHaDefaults(baseUrl string, token string) (string, string) {
-	return defaultHaUrl(baseUrl), defaultHaToken(token)
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"os"
+	"strings"
 
 	"go.yaml.in/yaml/v4"
 )
@@ -199,11 +201,15 @@ type Config struct {
 	FullyKiosk *struct {
 		ScreensaverTimeout int `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
-	WallPanel     *bool
-	HomeAssistant struct {
-		URL   string
-		TOKEN string
-	} `yaml:"home_assistant"`
+	WallPanel *bool
+	HA        HAConfig `yaml:"home_assistant"`
+}
+
+type HAConfig struct {
+	HTTPURL string `yaml:"-"`
+	WSURL   string `yaml:"-"`
+	Token   string `yaml:"token"`
+	baseURL string `yaml:"url"`
 }
 
 type Yaml struct {
@@ -213,7 +219,7 @@ type Yaml struct {
 	IsDev      bool
 }
 
-func parseConfig() (*Yaml, error) {
+func loadConfig() (Yaml, error) {
 	var yaml_file []byte
 	var err error
 	if isDev {
@@ -223,8 +229,39 @@ func parseConfig() (*Yaml, error) {
 	}
 	parsed := Yaml{}
 	if err != nil {
-		return &parsed, err
+		return parsed, err
 	}
 	err = yaml.Unmarshal(yaml_file, &parsed)
-	return &parsed, err
+
+	parsed.HA = resolveHA(parsed.HA)
+
+	return parsed, err
+}
+
+func resolveHA(ha HAConfig) HAConfig {
+	resolved := ha
+	if supervisorToken := os.Getenv("SUPERVISOR_TOKEN"); supervisorToken != "" {
+		log.Printf("Supervisor token detected, using supervisor API")
+		resolved.Token = supervisorToken
+		resolved.HTTPURL = "http://supervisor/core"
+		resolved.WSURL = "ws://supervisor/core/websocket"
+		return resolved
+	}
+	if resolved.baseURL == "" {
+		log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
+		resolved.baseURL = "http://homeassistant.local:8123"
+	}
+	if resolved.Token == "" {
+		log.Print("Getting HA token from environment")
+		resolved.Token = os.Getenv("HA_TOKEN")
+		if resolved.Token == "" {
+			log.Print("No HA token could be read")
+		}
+	}
+	resolved.HTTPURL = resolved.baseURL
+	resolved.WSURL = strings.NewReplacer(
+		"http://", "ws://",
+		"https://", "wss://",
+	).Replace(resolved.baseURL) + "/api/websocket"
+	return resolved
 }

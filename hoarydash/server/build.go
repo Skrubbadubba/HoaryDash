@@ -235,32 +235,20 @@ var funcMap = template.FuncMap{
 }
 
 func BuildDash() {
-	cfg, err := parseConfig()
+	cfg, err := loadConfig()
 	if err != nil {
 		log.Printf("Could not load config when building dashboard: %v", err)
 		return
 	}
 
-	parsedThemes, err := parseThemes()
+	BuildDashFromConfig(cfg)
+}
+
+func BuildDashFromConfig(cfg Yaml) {
+	themes, err := loadThemes(&cfg)
 	if err != nil {
 		log.Printf("Could not load themes when building dashboard: %v", err)
 		return
-	}
-	allNamed := ThemesMap{}
-	for k, v := range *parsedThemes {
-		allNamed[k] = v
-	}
-	for k, v := range cfg.Themes {
-		if err := v.Finalize(); err != nil {
-			log.Printf("Error finalizing config theme '%s': %v", k, err)
-			continue
-		}
-		allNamed[k] = v
-	}
-
-	defaultTheme, err := getDefaultTheme()
-	if err != nil {
-		log.Printf("Could not get default theme: %v", err)
 	}
 
 	var tmpl *template.Template
@@ -279,7 +267,10 @@ func BuildDash() {
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
 	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/common/*.html.tmpl")
-	check(err, "Created template object")
+	check(err, "Could not create template object")
+
+	defaultTheme, err := getDefaultTheme()
+	check(err, "Could not get default theme")
 
 	type builtDash struct {
 		tmpl *template.Template
@@ -294,7 +285,7 @@ func BuildDash() {
 		if isDev {
 			log.Printf("=== Preprocessing dashboard '%s' ===\n", name)
 		}
-		resolvedTheme, err := buildTheme(allNamed, dash.ThemeRef)
+		resolvedTheme, err := buildTheme(themes, dash.ThemeRef)
 		if err != nil {
 			log.Printf("Error reading theme for dashboard %s: %v", name, err)
 			return
@@ -309,7 +300,7 @@ func BuildDash() {
 		dash.Theme = dashTheme
 
 		for i, screen := range dash.Screens {
-			resolvedTheme, err := buildTheme(allNamed, screen.ThemeRef)
+			resolvedTheme, err := buildTheme(themes, screen.ThemeRef)
 			if err != nil {
 				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
 				return

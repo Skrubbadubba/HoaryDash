@@ -16,3 +16,4 @@ map:
   - addon_config:rw
 url: "https://github.com/Skrubbadubba/HoaryDash"
 stage: experimental
+homeassistant_api: true

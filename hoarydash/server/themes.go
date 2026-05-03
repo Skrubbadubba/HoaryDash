@@ -625,14 +625,14 @@ func (t *Theme) Finalize() error {
 	return t.ComputeDerivatives()
 }
 
-func parseThemes() (*ThemesMap, error) {
-	merged := ThemesMap{}
+func loadThemes(cfg *Yaml) (ThemesMap, error) {
+	themes := ThemesMap{}
 
 	bundled, err := os.ReadFile(appPath + "/themes.bundled.yaml")
 	if err != nil {
 		return nil, fmt.Errorf("bundled themes missing: %w", err)
 	}
-	if err := yaml.Unmarshal(bundled, &merged); err != nil {
+	if err := yaml.Unmarshal(bundled, &themes); err != nil {
 		return nil, err
 	}
 
@@ -648,10 +648,20 @@ func parseThemes() (*ThemesMap, error) {
 			return nil, err
 		}
 		for name, theme := range user {
-			merged[name] = theme
+			themes[name] = theme
 		}
 		log.Printf("parsed user themes: %+v", slices.Collect(maps.Keys(user)))
 	}
 
-	return &merged, nil
+	if cfg != nil {
+		for k, v := range cfg.Themes {
+			if err := v.Finalize(); err != nil {
+				log.Printf("Error finalizing config theme '%s': %v", k, err)
+				continue
+			}
+			themes[k] = v
+		}
+	}
+
+	return themes, nil
 }

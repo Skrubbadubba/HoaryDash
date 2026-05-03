@@ -282,7 +282,7 @@ component(function(wrapper) {
         var picPath = attrs.entity_picture;
         var existingImg = elCover.querySelector('img');
         if (picPath) {
-            var imgSrc = window.CONFIG.haUrl + picPath;
+            var imgSrc = "/api/proxy" + picPath;
             if (existingImg) {
                 if (existingImg.getAttribute('src') !== imgSrc) {
                     existingImg.setAttribute('src', imgSrc);

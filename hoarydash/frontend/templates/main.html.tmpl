@@ -30,7 +30,7 @@
                 ],
             locale: locale,
             timezone: timezone,
-            haUrl: {{if .Config.HomeAssistant.URL}}"{{.Config.HomeAssistant.URL}}"{{else}}location.origin.replace(/:\d+$/, ':8123'){{end}},
+            {{/* haUrl: {{if .Config.HA.URL}}"{{.Config.HA.URL}}"{{else}}location.origin.replace(/:\d+$/, ':8123'){{end}}, */}}
             widgetPollInterval: 10 * 60 * 1000,
             };
         window.goFetch = function(path, callback) {

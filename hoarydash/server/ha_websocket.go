@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/gorilla/websocket"
 )
@@ -20,7 +19,7 @@ type wsMsg struct {
 	data []byte
 }
 
-func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http.HandlerFunc {
+func wsProxyHandler(haWsURL, haToken string, rebuildChan <-chan struct{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientConn, err := clientUpgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -30,22 +29,13 @@ func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http
 		log.Printf("Client connected from %s", clientConn.RemoteAddr())
 		defer clientConn.Close()
 
-		haBaseURL, haToken = getHaDefaults(haBaseURL, haToken)
-		if haBaseURL == "" || haToken == "" {
-			return
-		}
-
-		haURL, _ := url.Parse(haBaseURL)
-		haURL.Scheme = "ws"
-		haURL.Path = "/api/websocket"
-
-		haConn, _, err := websocket.DefaultDialer.Dial(haURL.String(), nil)
+		haConn, _, err := websocket.DefaultDialer.Dial(haWsURL, nil)
 		if err != nil {
 			log.Println("ws dial HA error:", err)
-			log.Printf("Tried dialing %v", haURL)
+			log.Printf("Tried dialing %v", haWsURL)
 			return
 		}
-		log.Printf("Connected to ha ws at %s", haURL.String())
+		log.Printf("Connected to ha ws at %s", haWsURL)
 		defer haConn.Close()
 
 		if err := haAuth(haConn, haToken); err != nil {

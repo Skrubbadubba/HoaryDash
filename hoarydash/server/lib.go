@@ -33,10 +33,7 @@ func jsonStr(j interface{}) string { // For debugging
 
 func check(e error, message string, v ...any) {
 	if e != nil {
-		log.Print(e)
+		log.Printf(message+": %v", e)
 		return
-	}
-	if isDev {
-		log.Printf(message, v...)
 	}
 }

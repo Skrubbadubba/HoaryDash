@@ -485,7 +485,7 @@ component(function(wrapper) {
                 if (cfgUrl) { return cfgUrl; }
                 return window.location.origin.replace(/:\d+$/, ':8123');
             })();
-            var src = haBase + attrs.entity_picture;
+            var src = "/api/proxy" + attrs.entity_picture;
 
             // backdrop blur art
             elBackdropArt.src = src;
