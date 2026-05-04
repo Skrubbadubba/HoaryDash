@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"strings"
 
 	"github.com/gorilla/websocket"
@@ -59,8 +58,6 @@ func fetchComponentIcons(ha HAConfig) (ComponentIconMap, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fetchComponentIcons: read response: %w", err)
 	}
-
-	log.Printf("Got response of icons: %s", msg)
 
 	var resp getIconsResponse
 	if err := json.Unmarshal(msg, &resp); err != nil {
@@ -127,8 +124,10 @@ func iconToSVG(name string, icons *map[string]string) template.HTML {
 	))
 }
 
-func loadMdiIcons() map[string]string {
+func loadMdiIcons() (map[string]string, error) {
 	var mdiIcons map[string]string
-	json.Unmarshal(mdiData, &mdiIcons)
-	return mdiIcons
+	if err := json.Unmarshal(mdiData, &mdiIcons); err != nil {
+		return nil, fmt.Errorf("error unmarshaling embedded mdi icons into json: %w", err)
+	}
+	return mdiIcons, nil
 }

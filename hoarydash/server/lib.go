@@ -55,3 +55,10 @@ func (d DomainClassSet) has(domain, deviceClass string) bool {
 	_, ok = classes[deviceClass]
 	return ok
 }
+
+func enabledByDefault(v *bool) bool {
+	if v == nil {
+		return true
+	}
+	return *v
+}
