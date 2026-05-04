@@ -77,9 +77,14 @@ func main() {
 	go yamlWatcher.Start(1 * time.Second)
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
-	http.HandleFunc("/api/ws", wsProxyHandler(cfg.HA.WSURL, cfg.HA.Token, rebuildChan))
-	http.HandleFunc("/api/proxy/", haProxyHandler(cfg.HA.HTTPURL, cfg.HA.Token))
+	for name, dash := range cfg.Dashboards {
+		fileMiddleware, wsHandler := handlers(dash.Entities(), cfg.HA.WSURL, cfg.HA.Token, rebuildChan)
+		http.Handle("/"+name+"/", fileMiddleware(fs))
+		http.HandleFunc("/api/ws/"+name, wsHandler)
+	}
 	http.Handle("/", fs)
+	// http.HandleFunc("/api/ws", wsProxyHandler(cfg.HA, nil, rebuildChan))
+	http.HandleFunc("/api/proxy/", haProxyHandler(cfg.HA.HTTPURL, cfg.HA.Token))
 	log.Print("Starting server on http://localhost:" + port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }

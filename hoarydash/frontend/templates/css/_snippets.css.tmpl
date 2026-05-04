@@ -1,5 +1,5 @@
 {{define "_transition"}}
-    {{if globals "Animations" | enabledByDefault}}
+    {{if globals "Animations"}}
     -webkit-transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, -webkit-transform 0.3s ease, fill 0.4s ease;
     transition: color 0.5s ease, background-color 0.5s ease, background 0.5s ease, opacity 0.4s ease, transform 0.3s ease, fill 0.4s ease;
     {{else}}
@@ -9,7 +9,7 @@
 {{end}}
 
 {{define "_transition-fast"}}
-    {{if globals "Animations" | enabledByDefault}}
+    {{if globals "Animations"}}
     -webkit-transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, -webkit-transform 0.18s ease, fill 0.2s ease;
     transition: color 0.3s ease, background-color 0.2s ease, background 0.2s ease, opacity 0.2s ease, transform 0.18s ease, fill 0.2s ease;
     {{else}}

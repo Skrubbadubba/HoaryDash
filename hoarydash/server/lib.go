@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"reflect"
 
 	"dario.cat/mergo"
@@ -96,4 +97,12 @@ func makeNodeWalker[T any]() func(target any, cb NodeWalkerCallback[T]) error {
 		}
 		return w.err
 	}
+}
+
+func ipOnly(remoteAddr string) string {
+	host, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		return remoteAddr
+	}
+	return host
 }
