@@ -53,9 +53,7 @@
 <div class="ha-toggle card entity border off card-wrapper flex flex-col">
   <button class="ha-toggle-btn card entity transition-fast btn card-inner flex flex-col align-start justify-start size-full" title="{{.Label}}">
     <div class="ha-toggle-body flex-line gap-inner gap-x">
-      {{if or .Icon .Label}}
       <div class="ha-toggle-left flex-line gap-inner gap-x">
-        {{if .Icon}}
         <div class="ha-toggle-icon interactive font-xl icon">
           {{if isEmoji .Icon}}
               {{.Icon}}
@@ -63,10 +61,8 @@
               {{icon .Icon}}
           {{end}}
         </div>
-        {{end}}
         <div class="ha-toggle-label text-ellipsis entity-label on-surface">{{.Label}}</div>
       </div>
-      {{end}}
       <div class="ha-toggle-pill flex-shrink-0 state-bg state-border"></div>
     </div>
     <div class="flex-grow"></div>
