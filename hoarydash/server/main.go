@@ -78,7 +78,7 @@ func main() {
 
 	fs := http.FileServer(http.Dir(frontendPath + "/static"))
 	for name, dash := range cfg.Dashboards {
-		fileMiddleware, wsHandler := handlers(dash.Entities(), cfg.HA.WSURL, cfg.HA.Token, rebuildChan)
+		fileMiddleware, wsHandler := handlers(dash.EntityIDs(), cfg.HA.WSURL, cfg.HA.Token, rebuildChan)
 		http.Handle("/"+name+"/", fileMiddleware(fs))
 		http.HandleFunc("/api/ws/"+name, wsHandler)
 	}

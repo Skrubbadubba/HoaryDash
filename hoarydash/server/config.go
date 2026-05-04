@@ -29,24 +29,45 @@ type Dashboard struct {
 		Style    string
 	}
 	Screens     []Screen
-	entityIndex map[string]*Entity `yaml:"-"`
+	entityIndex map[string][]*Entity `yaml:"-"`
 }
 
 var walkEntities = makeNodeWalker[Entity]()
 
-func (d *Dashboard) Entities() map[string]*Entity {
+func (d *Dashboard) buildEntityIndex() {
 	if d.entityIndex != nil {
-		return d.entityIndex
+		return
 	}
-	index := map[string]*Entity{}
+	index := map[string][]*Entity{}
 	walkEntities(d, func(f reflect.StructField, e *Entity) error {
 		if e.EntityID != "" {
-			index[e.EntityID] = e
+			index[e.EntityID] = append(index[e.EntityID], e)
 		}
 		return nil
 	})
 	d.entityIndex = index
-	return index
+}
+
+// EntityIDs returns a deduplicated list of entity IDs, for use in
+// subscription messages and other read-only contexts.
+func (d *Dashboard) EntityIDs() []string {
+	d.buildEntityIndex()
+	ids := make([]string, 0, len(d.entityIndex))
+	for id := range d.entityIndex {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+func (d *Dashboard) Entities() []*Entity {
+	d.buildEntityIndex()
+	var entities []*Entity
+	for _, ptrs := range d.entityIndex {
+		for _, e := range ptrs {
+			entities = append(entities, e)
+		}
+	}
+	return entities
 }
 
 type Screen struct {
@@ -233,7 +254,7 @@ type HAConfig struct {
 }
 
 type UserConfig struct {
-	Dashboards map[string]Dashboard
+	Dashboards map[string]*Dashboard
 	Settings   `yaml:",inline"`
 	Themes     ThemesMap
 	IsDev      bool
@@ -247,15 +268,25 @@ func loadConfig() (UserConfig, error) {
 	} else {
 		yaml_file, err = os.ReadFile(configPath + "/hoarydash.yaml")
 	}
-	parsed := UserConfig{}
-	if err != nil {
-		return parsed, err
+	parsed := struct {
+		Dashboards map[string]Dashboard
+		Settings   `yaml:",inline"`
+		Themes     ThemesMap
+	}{}
+	if err = yaml.Unmarshal(yaml_file, &parsed); err != nil {
+		return UserConfig{}, err
 	}
-	err = yaml.Unmarshal(yaml_file, &parsed)
-
-	parsed.HA = resolveHA(parsed.HA)
-
-	return parsed, err
+	cfg := UserConfig{
+		Settings:   parsed.Settings,
+		Themes:     parsed.Themes,
+		Dashboards: make(map[string]*Dashboard, len(parsed.Dashboards)),
+	}
+	for name, dash := range parsed.Dashboards {
+		d := dash
+		cfg.Dashboards[name] = &d
+	}
+	cfg.Settings.HA = resolveHA(cfg.Settings.HA)
+	return cfg, nil
 }
 
 func resolveHA(ha HAConfig) HAConfig {

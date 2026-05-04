@@ -258,9 +258,9 @@ func haAuth(conn *websocket.Conn, token string) error {
 	return nil
 }
 
-func buildSubscribeMsg(entities map[string]*Entity) []byte {
+func buildSubscribeMsg(entities []string) []byte {
 	ids := make([]string, 0, len(entities))
-	for id := range entities {
+	for _, id := range entities {
 		ids = append(ids, id)
 	}
 	msg, _ := json.Marshal(map[string]any{
@@ -271,7 +271,7 @@ func buildSubscribeMsg(entities map[string]*Entity) []byte {
 	return msg
 }
 
-func handlers(entities map[string]*Entity, haWsURL, haToken string, rebuildChan <-chan struct{}) (fileMiddleware func(http.Handler) http.HandlerFunc, wsHandler http.HandlerFunc) {
+func handlers(entities []string, haWsURL, haToken string, rebuildChan <-chan struct{}) (fileMiddleware func(http.Handler) http.HandlerFunc, wsHandler http.HandlerFunc) {
 	subscribeMsg := buildSubscribeMsg(entities)
 	return func(inner http.Handler) http.HandlerFunc {
 			return dashFileHandler(inner, haWsURL, haToken, subscribeMsg)

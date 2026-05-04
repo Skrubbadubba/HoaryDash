@@ -144,6 +144,7 @@ func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap)
 			e.Icon = icon
 		}
 	}
+	log.Printf("applyState: result label=%s icon=%s class=%s", e.Label, e.Icon, e.Class)
 }
 
 func enrichEntities(dashboard Dashboard, cfg UserConfig, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
@@ -151,7 +152,8 @@ func enrichEntities(dashboard Dashboard, cfg UserConfig, icons ComponentIconMap)
 	domainClasses := DomainClassSet{}
 	var err error
 
-	for id, e := range dashboard.Entities() {
+	for _, e := range dashboard.Entities() {
+		id := e.EntityID
 		if id == "" {
 			err = fmt.Errorf("entity has no id")
 		}
@@ -169,7 +171,6 @@ func enrichEntities(dashboard Dashboard, cfg UserConfig, icons ComponentIconMap)
 		}
 
 		applyState(e, state, cfg.Localization.Locale, icons)
-
 		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
 	}
 
@@ -518,7 +519,7 @@ func BuildDashFromConfig(cfg UserConfig) {
 			log.Printf("=== Preprocessing dashboard '%s' ===", name)
 		}
 
-		data, err := builder.prepareData(name, dash)
+		data, err := builder.prepareData(name, *dash)
 		if err != nil {
 			log.Printf("Could not prepare data for %s: %v", name, err)
 			continue
