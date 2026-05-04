@@ -117,16 +117,16 @@ func friendlyName(raw string, locale string) string {
 	return cases.Title(tag).String(raw)
 }
 
-func applyState(v *reflect.Value, e Entity, state HAState, locale string, icons ComponentIconMap) {
+func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap) {
 	if e.Label == "" && state.Attributes.FriendlyName != "" {
-		v.FieldByName("Label").SetString(friendlyName(state.Attributes.FriendlyName, locale))
+		e.Label = (friendlyName(state.Attributes.FriendlyName, locale))
 	}
 
 	class := "_"
 	if state.Attributes.Class != "" {
 		class = state.Attributes.Class
 	}
-	v.FieldByName("Class").SetString(class)
+	e.Class = class
 
 	if e.Icon == "" {
 		icon := state.Attributes.Icon
@@ -141,7 +141,7 @@ func applyState(v *reflect.Value, e Entity, state HAState, locale string, icons 
 		}
 		if icon != "" {
 			icon = strings.TrimPrefix(icon, "mdi:")
-			v.FieldByName("Icon").SetString(icon)
+			e.Icon = icon
 		}
 	}
 }
@@ -150,8 +150,7 @@ func enrichEntities(dashboard Dashboard, cfg Yaml, icons ComponentIconMap) (map[
 	states := map[string]HAState{}
 	domainClasses := DomainClassSet{}
 
-	err := walkEntities(dashboard, func(f reflect.StructField, v *reflect.Value) error {
-		e := v.Interface().(Entity)
+	err := walkEntities(dashboard, func(f reflect.StructField, e *Entity) error {
 		if e.EntityID == "" {
 			return nil
 		}
@@ -168,7 +167,7 @@ func enrichEntities(dashboard Dashboard, cfg Yaml, icons ComponentIconMap) (map[
 			state = fetched
 		}
 
-		applyState(v, e, state, cfg.Localization.Locale, icons)
+		applyState(e, state, cfg.Localization.Locale, icons)
 
 		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
 

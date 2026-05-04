@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/mazznoer/csscolorparser"
-	"github.com/mitchellh/reflectwalk"
 	"go.yaml.in/yaml/v4"
 )
 
@@ -548,47 +547,16 @@ func resolveCSS(input template.CSS, resolver CSSResolver) (template.CSS, error) 
 	return template.CSS(result), firstErr
 }
 
-type WalkerCallback func(f reflect.StructField, v *reflect.Value) error
-
-type cssWalker struct {
-	cb  WalkerCallback
-	err error
-}
-
-func (w *cssWalker) Struct(reflect.Value) error { return nil }
-func (w *cssWalker) StructField(f reflect.StructField, v reflect.Value) error {
-	if w.err != nil {
-		return nil
-	}
-	if v.Type() == reflect.TypeOf((*Theme)(nil)) || v.Type() == reflect.TypeOf(Theme{}) {
-		return reflectwalk.SkipEntry
-	}
-	if v.Type() != reflect.TypeOf(template.CSS("")) || v.String() == "" {
-		return nil
-	}
-	w.err = w.cb(f, &v)
-	return nil
-}
-
-func walkCSS(target any, cb WalkerCallback) error {
-	w := &cssWalker{cb: cb}
-	if err := reflectwalk.Walk(target, w); err != nil {
-		return err
-	}
-	return w.err
-}
+var walkCSS = makeNodeWalker[template.CSS]()
 
 func walkAndResolveCSS(target any, vars ThemeVars) error {
 	resolver := createVarResolver(vars)
-	return walkCSS(target, func(f reflect.StructField, v *reflect.Value) error {
-		if !v.CanSet() {
-			return nil
-		}
-		resolved, err := resolveCSS(template.CSS(v.String()), resolver)
+	return walkCSS(target, func(f reflect.StructField, v *template.CSS) error {
+		resolved, err := resolveCSS(*v, resolver)
 		if err != nil {
 			return fmt.Errorf("field %s: %w", f.Name, err)
 		}
-		v.Set(reflect.ValueOf(resolved))
+		*v = resolved
 		return nil
 	})
 }
@@ -597,8 +565,8 @@ func (t *Theme) seedSemanticVars() {
 	if t.Vars == nil {
 		t.Vars = ThemeVars{}
 	}
-	for _, strct := range []any{t.Colors, t.Shapes, t.Typography} {
-		walkCSS(strct, func(f reflect.StructField, v *reflect.Value) error {
+	for _, strct := range []any{&t.Colors, &t.Shapes, &t.Typography} {
+		walkCSS(strct, func(f reflect.StructField, v *template.CSS) error {
 			var tag string
 			yamlTag := f.Tag.Get("yaml")
 			if yamlTag == "" || yamlTag == "-" {
@@ -606,7 +574,7 @@ func (t *Theme) seedSemanticVars() {
 			}
 			tag = strings.SplitN(yamlTag, ",", 2)[0]
 			if _, exists := t.Vars[tag]; !exists {
-				t.Vars[tag] = template.CSS(v.String())
+				t.Vars[tag] = *v
 			}
 			return nil
 		})
