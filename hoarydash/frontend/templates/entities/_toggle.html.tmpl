@@ -74,6 +74,14 @@ component(function(btn) {
   var entityId = '{{.EntityID}}';
   var domain = entityId.split('.')[0];
   var wrapper = btn.parentElement;
+  var iconEl = wrapper.querySelector('.ha-toggle-icon');
+  var iconMap = window.getIconMap(domain, '{{.Class}}');
+
+  function resolveIcon(state) {
+    if (!iconMap) return null;
+    if (iconMap.State && iconMap.State[state]) return iconMap.State[state];
+    return iconMap.Default || null;
+  }
 
   function setState(state) {
     if (state === 'on') {
@@ -83,6 +91,8 @@ component(function(btn) {
       wrapper.classList.remove('on');
       wrapper.classList.add('off');
     }
+    var svg = window.resolveIcon(iconMap, state);
+    if (svg) iconEl.innerHTML = svg;
   }
 
   window.entityListeners[entityId].push(function(state, attributes) {

@@ -111,6 +111,18 @@
                 divs[i].style.width = widest + 'px';
             }
         }
+        
+        function getIconMap(domain, cls) {
+        return window.ICON_MAP && 
+                window.ICON_MAP[domain] && 
+                window.ICON_MAP[domain][cls] || null;
+        };
+
+        function resolveIcon(iconMap, state) {
+            if (!iconMap) return null;
+            if (iconMap.State && iconMap.State[state]) return iconMap.State[state];
+            return iconMap.Default || null;
+        };
     </script>
     <style>
         .screens {
