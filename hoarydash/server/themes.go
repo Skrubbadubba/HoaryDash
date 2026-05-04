@@ -593,7 +593,7 @@ func (t *Theme) Finalize() error {
 	return t.ComputeDerivatives()
 }
 
-func loadThemes(cfg *Yaml) (ThemesMap, error) {
+func loadThemes(cfg *UserConfig) (ThemesMap, error) {
 	themes := ThemesMap{}
 
 	bundled, err := os.ReadFile(appPath + "/themes.bundled.yaml")

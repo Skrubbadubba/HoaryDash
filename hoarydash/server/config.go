@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 
 	"go.yaml.in/yaml/v4"
@@ -19,7 +20,7 @@ type Dashboard struct {
 		OverrideColors bool `yaml:"override_colors"`
 	}
 	ThemeRef  ThemeRef `yaml:"theme"`
-	Theme     Theme    `yaml:"_"`
+	Theme     Theme    `yaml:"-"`
 	ShowHints *bool    `yaml:"show_hints"`
 	Swipe     *bool
 	Navbar    struct {
@@ -27,7 +28,25 @@ type Dashboard struct {
 		Position string
 		Style    string
 	}
-	Screens []Screen
+	Screens     []Screen
+	entityIndex map[string]*Entity `yaml:"-"`
+}
+
+var walkEntities = makeNodeWalker[Entity]()
+
+func (d *Dashboard) Entities() map[string]*Entity {
+	if d.entityIndex != nil {
+		return d.entityIndex
+	}
+	index := map[string]*Entity{}
+	walkEntities(d, func(f reflect.StructField, e *Entity) error {
+		if e.EntityID != "" {
+			index[e.EntityID] = e
+		}
+		return nil
+	})
+	d.entityIndex = index
+	return index
 }
 
 type Screen struct {
@@ -194,7 +213,7 @@ func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-type Config struct {
+type Settings struct {
 	Localization struct {
 		Locale   string
 		Timezone string
@@ -213,16 +232,14 @@ type HAConfig struct {
 	baseURL string `yaml:"url"`
 }
 
-type Yaml struct {
+type UserConfig struct {
 	Dashboards map[string]Dashboard
-	Config     `yaml:",inline"`
+	Settings   `yaml:",inline"`
 	Themes     ThemesMap
 	IsDev      bool
 }
 
-var walkEntities = makeNodeWalker[Entity]()
-
-func loadConfig() (Yaml, error) {
+func loadConfig() (UserConfig, error) {
 	var yaml_file []byte
 	var err error
 	if isDev {
@@ -230,7 +247,7 @@ func loadConfig() (Yaml, error) {
 	} else {
 		yaml_file, err = os.ReadFile(configPath + "/hoarydash.yaml")
 	}
-	parsed := Yaml{}
+	parsed := UserConfig{}
 	if err != nil {
 		return parsed, err
 	}

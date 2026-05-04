@@ -15,7 +15,7 @@ import (
 )
 
 type dashBuilder struct {
-	cfg          Yaml
+	cfg          UserConfig
 	themes       ThemesMap
 	defaultTheme Theme
 	mdiIcons     map[string]string
@@ -23,7 +23,7 @@ type dashBuilder struct {
 }
 type TemplateData struct {
 	Dashboard
-	Config
+	Settings
 	Name                    string
 	DomainClassStateIconMap ComponentIconMapSVG
 }
@@ -85,7 +85,7 @@ func makeUid() func() int {
 	}
 }
 
-func newDashBuilder(cfg Yaml) (*dashBuilder, error) {
+func newDashBuilder(cfg UserConfig) (*dashBuilder, error) {
 	themes, err := loadThemes(&cfg)
 	if err != nil {
 		return nil, fmt.Errorf("load themes: %w", err)
@@ -146,33 +146,32 @@ func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap)
 	}
 }
 
-func enrichEntities(dashboard Dashboard, cfg Yaml, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
+func enrichEntities(dashboard Dashboard, cfg UserConfig, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
 	states := map[string]HAState{}
 	domainClasses := DomainClassSet{}
+	var err error
 
-	err := walkEntities(dashboard, func(f reflect.StructField, e *Entity) error {
-		if e.EntityID == "" {
-			return nil
+	for id, e := range dashboard.Entities() {
+		if id == "" {
+			err = fmt.Errorf("entity has no id")
 		}
 
 		var state HAState
-		if cached, already := states[e.EntityID]; already {
+		if cached, already := states[id]; already {
 			state = cached
 		} else {
-			fetched, err := fetchEntityState(e.EntityID, cfg.HA)
+			fetched, err := fetchEntityState(id, cfg.HA)
 			if err != nil {
-				return err
+				continue
 			}
-			states[e.EntityID] = fetched
+			states[id] = fetched
 			state = fetched
 		}
 
 		applyState(e, state, cfg.Localization.Locale, icons)
 
 		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
-
-		return nil
-	})
+	}
 
 	return states, domainClasses, err
 }
@@ -245,7 +244,7 @@ func (b *dashBuilder) prepareData(name string, dash Dashboard) (TemplateData, er
 	}
 	return TemplateData{
 		Dashboard:               enrichedDash,
-		Config:                  b.cfg.Config,
+		Settings:                b.cfg.Settings,
 		Name:                    name,
 		DomainClassStateIconMap: b.stateIconMap(enrichedDash),
 	}, nil
@@ -411,7 +410,7 @@ var funcMap = template.FuncMap{
 // makeFuncMap returns a fresh FuncMap with all per-dashboard closures bound.
 // Called once per dashboard, after data is prepared, so closures capture
 // the correct per-dashboard state.
-func (b *dashBuilder) makeFuncMap(cfg Yaml, name string) template.FuncMap {
+func (b *dashBuilder) makeFuncMap(cfg UserConfig, name string) template.FuncMap {
 	lang := "en"
 	if cfg.Localization.Locale != "" {
 		lang = strings.Split(cfg.Localization.Locale, "-")[0]
@@ -494,7 +493,7 @@ func BuildDash() {
 	BuildDashFromConfig(cfg)
 }
 
-func BuildDashFromConfig(cfg Yaml) {
+func BuildDashFromConfig(cfg UserConfig) {
 	builder, err := newDashBuilder(cfg)
 	if err != nil {
 		log.Printf("Build setup failed: %v", err)
