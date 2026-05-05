@@ -28,46 +28,71 @@ type Dashboard struct {
 		Position string
 		Style    string
 	}
+	TileOptions `yaml:"tile_options,omitempty"`
 	Screens     []Screen
-	entityIndex map[string][]*Entity `yaml:"-"`
+
+	// internals
+	cardIndex   map[string][]*Card   `yaml:"-"`
+	sensorIndex map[string][]*Sensor `yaml:"-"`
 }
 
-var walkEntities = makeNodeWalker[Entity]()
+var walkCards = makeNodeWalker[Card]()
+var walkSensors = makeNodeWalker[Sensor]()
 
-func (d *Dashboard) buildEntityIndex() {
-	if d.entityIndex != nil {
+func (d *Dashboard) buildIndex() {
+	if d.cardIndex != nil || d.sensorIndex != nil {
 		return
 	}
-	index := map[string][]*Entity{}
-	walkEntities(d, func(f reflect.StructField, e *Entity) error {
-		if e.EntityID != "" {
-			index[e.EntityID] = append(index[e.EntityID], e)
+	cardIndex := map[string][]*Card{}
+	sensorIndex := map[string][]*Sensor{}
+	walkCards(d, func(f reflect.StructField, c *Card) error {
+		if c.EntityID != "" {
+			cardIndex[c.EntityID] = append(cardIndex[c.EntityID], c)
 		}
 		return nil
 	})
-	d.entityIndex = index
+	walkSensors(d, func(f reflect.StructField, s *Sensor) error {
+		if s.EntityID != "" {
+			sensorIndex[s.EntityID] = append(sensorIndex[s.EntityID], s)
+		}
+		return nil
+	})
+	d.cardIndex = cardIndex
+	d.sensorIndex = sensorIndex
 }
 
-// EntityIDs returns a deduplicated list of entity IDs, for use in
-// subscription messages and other read-only contexts.
 func (d *Dashboard) EntityIDs() []string {
-	d.buildEntityIndex()
-	ids := make([]string, 0, len(d.entityIndex))
-	for id := range d.entityIndex {
+	d.buildIndex()
+	seen := make(map[string]struct{}, len(d.cardIndex)+len(d.sensorIndex))
+	for id := range d.cardIndex {
+		seen[id] = struct{}{}
+	}
+	for id := range d.sensorIndex {
+		seen[id] = struct{}{}
+	}
+	ids := make([]string, 0, len(seen))
+	for id := range seen {
 		ids = append(ids, id)
 	}
 	return ids
 }
 
-func (d *Dashboard) Entities() []*Entity {
-	d.buildEntityIndex()
-	var entities []*Entity
-	for _, ptrs := range d.entityIndex {
-		for _, e := range ptrs {
-			entities = append(entities, e)
-		}
+func (d *Dashboard) Cards() []*Card {
+	d.buildIndex()
+	var cards []*Card
+	for _, ptrs := range d.cardIndex {
+		cards = append(cards, ptrs...)
 	}
-	return entities
+	return cards
+}
+
+func (d *Dashboard) Sensors() []*Sensor {
+	d.buildIndex()
+	var sensors []*Sensor
+	for _, ptrs := range d.sensorIndex {
+		sensors = append(sensors, ptrs...)
+	}
+	return sensors
 }
 
 type Screen struct {
@@ -76,26 +101,29 @@ type Screen struct {
 	Icon   *string
 	Dateclock
 	// Centered-layout specific
-	Widgets  *CardGroup
-	Sensors  *CardGroup
-	Entities *CardGroup
-	Order    struct {
+	Widgets     *CardGroup
+	Sensors     *CardGroup
+	Entities    *CardGroup
+	TileOptions `yaml:"tile_options,omitempty"`
+	Order       struct {
 		Entities int
 		Widgets  int
 		Sensors  int
 	}
 
 	// Tiled-layout specific
-	Groups []struct {
+	Stretch bool
+	Groups  []struct {
 		Name            string
 		Icon            string
 		NormalizeHeight bool `yaml:"normalize_height"`
+		Stretch         bool
 		CardGroup       `yaml:",inline"`
 	}
 
 	// Fullscreen-layout specific
 	EntityID     string `yaml:"entity_id"`
-	MediaOptions `yaml:",inline"`
+	MediaOptions `yaml:"media_options"`
 	Badges       struct {
 		Sensors []Sensor
 		Badge   struct {
@@ -143,21 +171,28 @@ type Entity struct {
 	Class    string `yaml:"-"`
 }
 
+type TileOptions struct {
+	ShowIcon *bool `yaml:"show_icon"`
+	ShowPill *bool `yaml:"show_pill"`
+}
+
+type SensorOptions struct {
+	Unit string
+}
 type Sensor struct {
-	Entity `yaml:",inline"`
-	Unit   string
+	Entity        `yaml:",inline"`
+	SensorOptions `yaml:",inline"`
 }
 
 type Card struct {
-	Entity `yaml:",inline"`
-	Unit   string
-	Style  CardStyle
-	// Widget specific
-	InternalBorders *bool `yaml:"internal_borders"`
-	// Weather-specific
-	WeatherOptions `yaml:",inline"`
-	// Media-specific
-	MediaOptions `yaml:",inline"`
+	Entity  `yaml:",inline"`
+	Unit    string
+	Style   CardStyle
+	Options struct {
+		TileOptions   `yaml:",inline"`
+		SensorOptions `yaml:",inline"`
+		WidgetOptions `yaml:",inline"`
+	} `yaml:"options"`
 }
 
 type WeatherOptions struct {
@@ -174,9 +209,16 @@ type MediaOptions struct {
 	Queue       *bool
 }
 
+type WidgetOptions struct {
+	InternalBorders *bool `yaml:"internal_borders"`
+	WeatherOptions  `yaml:",inline"`
+	MediaOptions    `yaml:",inline"`
+}
+
 type CardGroup struct {
-	Style CardStyle
-	Cards []Card
+	Style       CardStyle
+	TileOptions `yaml:"tile_options,omitempty"`
+	Cards       []Card
 }
 
 type ForecastInterval string

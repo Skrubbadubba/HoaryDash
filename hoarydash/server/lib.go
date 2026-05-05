@@ -88,6 +88,20 @@ func (w *nodeWalker[T]) StructField(f reflect.StructField, v reflect.Value) erro
 	return nil
 }
 
+func (w *nodeWalker[T]) Slice(v reflect.Value) error { return nil }
+
+func (w *nodeWalker[T]) SliceElem(i int, v reflect.Value) error {
+	if w.err != nil {
+		return nil
+	}
+	if v.Type() != w.target {
+		return nil
+	}
+	ptr := v.Addr().Interface().(*T)
+	w.err = w.cb(reflect.StructField{}, ptr)
+	return nil
+}
+
 func makeNodeWalker[T any]() func(target any, cb NodeWalkerCallback[T]) error {
 	t := reflect.TypeOf((*T)(nil)).Elem()
 	return func(target any, cb NodeWalkerCallback[T]) error {

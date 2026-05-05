@@ -226,7 +226,7 @@
                     <span class="fml-source-name">-</span>
                 </button>
                 
-                {{if .ShowBrowser}}
+                {{if .MediaOptions.ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
@@ -280,7 +280,7 @@ component(function(wrapper) {
     var entityId = '{{.EntityID}}';
     if (!entityId) { return; }
 
-    var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
+    
     var progressInterval;
     var currentDuration;
 
@@ -302,94 +302,6 @@ component(function(wrapper) {
     var elProgressInput = wrapper.querySelector('.fml-progress-bar > input');
     var elSourceBtn     = wrapper.querySelector('.fml-source-btn'); 
 
-    // transport buttons
-    wrapper.querySelector('.fml-ctrl-btn.back').onclick = ctrl.prev;
-    wrapper.querySelector('.fml-ctrl-btn.forward').onclick = ctrl.next;
-    elPlay.onclick = ctrl.playPause;
-    elShuffle.onclick = ctrl.toggleShuffle;
-    elRepeat.onclick = ctrl.cycleRepeat;
-
-    var volDragging = false;
-    if (elVolSlider) {
-        elVolSlider.ontouchstart = function() { volDragging = true; };
-        elVolSlider.onmousedown  = function() { volDragging = true; };
-        elVolSlider.ontouchend   = function() { volDragging = false; };
-        elVolSlider.onmouseup    = function() { volDragging = false; };
-
-        var volDebounce;
-
-        elVolSlider.oninput = function() {
-            console.log("dragging vol slider!")
-            volDragging = true;
-            clearTimeout(volDebounce);
-            var v = parseFloat(elVolSlider.value);
-            volDebounce = setTimeout(function() {
-                ctrl.setVolume(v);
-                volDragging = false;
-            }, 150);
-        };
-    }
-
-    var progressDragging = false;
-
-    function progressDrag () {
-        if (progressInterval) {
-            clearInterval(progressInterval);
-        }
-        elProgressInput.style.opacity = 1;
-        elProgressInput.classList.add("interactive-muted-thumb");
-        elElapsedBar.classList.remove("surface-prominent");
-        elElapsedBar.classList.add("accent-bg");
-        progressDragging = true;
-    }
-
-    function progressRelease () {
-        elProgressInput.style.opacity = 0;
-        elProgressInput.classList.remove("interactive-muted-thumb");
-        elElapsedBar.classList.add("surface-prominent");
-        elElapsedBar.classList.remove("accent-bg");
-        progressDragging = false;
-    }
-
-    elProgressInput.ontouchstart = progressDrag;
-    elProgressInput.onmousedown  = progressDrag;
-    elProgressInput.ontouchend   = progressRelease;
-    elProgressInput.onmouseup    = progressRelease;
-
-    elProgressInput.oninput = function() {
-        if (progressInterval) {
-            clearInterval(progressInterval);
-            if (!currentDuration) return;
-        }
-
-        var val = parseFloat(elProgressInput.value) || 0;
-        var pct = (val / currentDuration) * 100;
-
-        elElapsedBar.style.width = pct + '%';
-    }
-
-    elProgressInput.onchange = function() { 
-        progressDragging = false;
-        ctrl.seek(parseFloat(elProgressInput.value)); 
-    };
-
-    var elSourceBrowserHeader = document.createElement('div')
-    elSourceBrowserHeader.textContent = "{{translate "media:sources"}}"; 
-    elSourceBrowserHeader.classList.add('accent');
-    elSourceBrowserHeader.style.fontSize = '1.8em';
-    elSourceBrowser.querySelector('.modal-header').appendChild(elSourceBrowserHeader);
-    elSourceBtn.onclick = elSourceBrowser.open;
-    
-
-    {{if .ShowBrowser}}
-    var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
-    if (elBrowseBtn) {
-        elBrowseBtn.onclick = function() {
-            if (elMediaBrowser) { console.log("tried running open on: ", elMediaBrowser); elMediaBrowser.mediaBrowserOpen();  }
-        };
-    }
-    {{end}}
-
     {{if disabledByDefault .Rotate}}
     var backdropRotationDeg = 0;
     setInterval(function() {
@@ -398,157 +310,251 @@ component(function(wrapper) {
     }, 100);
     {{end}}
 
-    function formatMin(seconds) {
-        var minutes = 0;
-        while (seconds >= 60) {
-            ++minutes;
-            seconds -= 60;
+    {{with .MediaOptions}}
+
+        var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
+
+        // transport buttons
+        wrapper.querySelector('.fml-ctrl-btn.back').onclick = ctrl.prev;
+        wrapper.querySelector('.fml-ctrl-btn.forward').onclick = ctrl.next;
+        elPlay.onclick = ctrl.playPause;
+        elShuffle.onclick = ctrl.toggleShuffle;
+        elRepeat.onclick = ctrl.cycleRepeat;
+
+        var volDragging = false;
+        if (elVolSlider) {
+            elVolSlider.ontouchstart = function() { volDragging = true; };
+            elVolSlider.onmousedown  = function() { volDragging = true; };
+            elVolSlider.ontouchend   = function() { volDragging = false; };
+            elVolSlider.onmouseup    = function() { volDragging = false; };
+
+            var volDebounce;
+
+            elVolSlider.oninput = function() {
+                console.log("dragging vol slider!")
+                volDragging = true;
+                clearTimeout(volDebounce);
+                var v = parseFloat(elVolSlider.value);
+                volDebounce = setTimeout(function() {
+                    ctrl.setVolume(v);
+                    volDragging = false;
+                }, 150);
+            };
         }
-        var secondsString = seconds < 10 ? "0" + seconds.toString() : seconds.toString();
-        return minutes.toString() + ":" + secondsString;
-    }
 
-    function renderProgress(elapsed, duration) {
-        var left = duration - elapsed;
-        var pct = (elapsed / duration) * 100;
+        var progressDragging = false;
 
-        elTimeElapsed.textContent = formatMin(elapsed);
-        elTimeLeft.textContent = '-' + formatMin(left);
-        elElapsedBar.style.width = pct + '%';
-    }
-
-    function progressUpdater(position, duration) {
-        if (progressInterval) {
-            clearInterval(progressInterval);
-        }
-        renderProgress(position, duration)
-        progressInterval = setInterval(function(){
-            ++position;
-            renderProgress(position, duration);
-        }, 1000)
-    }
-
-    // play/pause state
-    ctrl.onUpdate(null, function(state, _) {
-        if (state == 'playing') {
-            elPlay.innerHTML = '{{icon "pause-circle"}}'
-        } else {
-            elPlay.innerHTML = '{{icon "play-circle"}}'
+        function progressDrag () {
             if (progressInterval) {
                 clearInterval(progressInterval);
             }
+            elProgressInput.style.opacity = 1;
+            elProgressInput.classList.add("interactive-muted-thumb");
+            elElapsedBar.classList.remove("surface-prominent");
+            elElapsedBar.classList.add("accent-bg");
+            progressDragging = true;
         }
-    });
 
-    // song info
-    ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
-        var title  = attrs.media_title   || '';
-        var artist = attrs.media_artist  || '';
-        var album  = attrs.media_album_name || '';
-
-        if (!title && !artist) {
-            elSongBlock.innerHTML = '<span class="fml-idle on-surface-subtle">Idle</span>';
-            return;
+        function progressRelease () {
+            elProgressInput.style.opacity = 0;
+            elProgressInput.classList.remove("interactive-muted-thumb");
+            elElapsedBar.classList.add("surface-prominent");
+            elElapsedBar.classList.remove("accent-bg");
+            progressDragging = false;
         }
-        var html = '';
-        if (title)  { html += '<span class="fml-song-title on-surface font-xxl">'  + title  + '</span>'; }
-        if (artist) { html += '<span class="fml-song-artist on-surface-muted font-xl">' + artist + '</span>'; }
-        {{if enabledByDefault .ShowAlbum}}
-        if (album)  { html += '<span class="fml-song-album on-surface-subtle font-lg">' + album  + '</span>'; }
-        {{end}}
-        elSongBlock.innerHTML = html;
-    });
 
-    // track progress
-    ctrl.onUpdate(['media_duration', 'media_position'], function(state, attrs) {
-        if (state !== "playing") return;
-        if (progressInterval) {
-            clearInterval(progressInterval);
-        }
-        
-        var duration = attrs.media_duration;
-        var position = attrs.media_position;
+        elProgressInput.ontouchstart = progressDrag;
+        elProgressInput.onmousedown  = progressDrag;
+        elProgressInput.ontouchend   = progressRelease;
+        elProgressInput.onmouseup    = progressRelease;
 
-        progressUpdater(position, duration)
-        
-        currentDuration = duration;
-        if (progressDragging) return;
-        elProgressInput.value = position;
-        elProgressInput.max = duration;
-    })
-
-    // cover art + backdrop blur
-    ctrl.onUpdate(['entity_picture'], function(state, attrs) {
-        if (attrs.entity_picture) {
-            var haBase = (function() {
-                var cfgUrl = window.CONFIG && window.CONFIG.haUrl;
-                if (cfgUrl) { return cfgUrl; }
-                return window.location.origin.replace(/:\d+$/, ':8123');
-            })();
-            var src = "/api/proxy" + attrs.entity_picture;
-
-            // backdrop blur art
-            elBackdropArt.src = src;
-            elBackdropArt.className = 'fml-backdrop-art';
-            elBackdropArt.onload = function() {
-                elBackdropArt.className = 'fml-backdrop-art loaded';
-            };
-
-            // cover art in the card
-            var img = elCoverWrap.querySelector('img');
-            if (!img) {
-                img = document.createElement('img');
-                img.alt = '';
-                img.classList = 'size-full'
-                elCoverWrap.insertBefore(img, elCoverWrap.firstChild);
+        elProgressInput.oninput = function() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                if (!currentDuration) return;
             }
-            img.src = src;
-            elCoverPH.style.display = 'none';
-        } else {
-            elBackdropArt.src = '';
-            elBackdropArt.className = 'fml-backdrop-art';
-            var img = elCoverWrap.querySelector('img');
-            if (img) { elCoverWrap.removeChild(img); }
-            elCoverPH.style.display = '';
+
+            var val = parseFloat(elProgressInput.value) || 0;
+            var pct = (val / currentDuration) * 100;
+
+            elElapsedBar.style.width = pct + '%';
         }
-    });
 
-    // source / app name
-    ctrl.onUpdate(['source'], function(state, attrs) {
-        elSourceName.textContent = attrs.source || '–';
-    });
+        elProgressInput.onchange = function() { 
+            progressDragging = false;
+            ctrl.seek(parseFloat(elProgressInput.value)); 
+        };
 
-    ctrl.onUpdate(['source_list'], function(state, attrs) {
-        var sourcesNodes = []
-        for (source of attrs.source_list) {
-            (function(source) {
-                var node = document.createElement('div');
-                var contentSpan = document.createElement('div');
+        var elSourceBrowserHeader = document.createElement('div')
+        elSourceBrowserHeader.textContent = "{{translate "media:sources"}}"; 
+        elSourceBrowserHeader.classList.add('accent');
+        elSourceBrowserHeader.style.fontSize = '1.8em';
+        elSourceBrowser.querySelector('.modal-header').appendChild(elSourceBrowserHeader);
+        elSourceBtn.onclick = elSourceBrowser.open;
+        
 
-                contentSpan.textContent = source;
-                contentSpan.classList = "interactive";
-                node.appendChild(contentSpan);
+        {{if .ShowBrowser}}
+        var elBrowseBtn = wrapper.querySelector('.fml-browse-btn');
+        if (elBrowseBtn) {
+            elBrowseBtn.onclick = function() {
+                if (elMediaBrowser) { console.log("tried running open on: ", elMediaBrowser); elMediaBrowser.mediaBrowserOpen();  }
+            };
+        }
+        {{end}}
 
-                node.onclick = function() {
-                    console.log("sending set source with source: ", source)
-                    ctrl.setSource(source);
-                    elSourceBrowser.close();
+        function formatMin(seconds) {
+            var minutes = 0;
+            while (seconds >= 60) {
+                ++minutes;
+                seconds -= 60;
+            }
+            var secondsString = seconds < 10 ? "0" + seconds.toString() : seconds.toString();
+            return minutes.toString() + ":" + secondsString;
+        }
+
+        function renderProgress(elapsed, duration) {
+            var left = duration - elapsed;
+            var pct = (elapsed / duration) * 100;
+
+            elTimeElapsed.textContent = formatMin(elapsed);
+            elTimeLeft.textContent = '-' + formatMin(left);
+            elElapsedBar.style.width = pct + '%';
+        }
+
+        function progressUpdater(position, duration) {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            renderProgress(position, duration)
+            progressInterval = setInterval(function(){
+                ++position;
+                renderProgress(position, duration);
+            }, 1000)
+        }
+
+        // play/pause state
+        ctrl.onUpdate(null, function(state, _) {
+            if (state == 'playing') {
+                elPlay.innerHTML = '{{icon "pause-circle"}}'
+            } else {
+                elPlay.innerHTML = '{{icon "play-circle"}}'
+                if (progressInterval) {
+                    clearInterval(progressInterval);
                 }
-                sourcesNodes.push(node);
-            }(source))
-        }
-        elSourceBrowser.renderList(sourcesNodes);
-    })
+            }
+        });
 
-    // volume
-    ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
-        if (!elVolSlider || volDragging) { return; }
-        if (attrs.is_volume_muted) {
-            elVolSlider.value = 0;
-        } else if (typeof attrs.volume_level !== 'undefined') {
-            elVolSlider.value = attrs.volume_level;
-        }
-    });
+        // song info
+        ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
+            var title  = attrs.media_title   || '';
+            var artist = attrs.media_artist  || '';
+            var album  = attrs.media_album_name || '';
+
+            if (!title && !artist) {
+                elSongBlock.innerHTML = '<span class="fml-idle on-surface-subtle">Idle</span>';
+                return;
+            }
+            var html = '';
+            if (title)  { html += '<span class="fml-song-title on-surface font-xxl">'  + title  + '</span>'; }
+            if (artist) { html += '<span class="fml-song-artist on-surface-muted font-xl">' + artist + '</span>'; }
+            {{if enabledByDefault .ShowAlbum}}
+            if (album)  { html += '<span class="fml-song-album on-surface-subtle font-lg">' + album  + '</span>'; }
+            {{end}}
+            elSongBlock.innerHTML = html;
+        });
+
+        // track progress
+        ctrl.onUpdate(['media_duration', 'media_position'], function(state, attrs) {
+            if (state !== "playing") return;
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            
+            var duration = attrs.media_duration;
+            var position = attrs.media_position;
+
+            progressUpdater(position, duration)
+            
+            currentDuration = duration;
+            if (progressDragging) return;
+            elProgressInput.value = position;
+            elProgressInput.max = duration;
+        })
+
+        // cover art + backdrop blur
+        ctrl.onUpdate(['entity_picture'], function(state, attrs) {
+            if (attrs.entity_picture) {
+                var haBase = (function() {
+                    var cfgUrl = window.CONFIG && window.CONFIG.haUrl;
+                    if (cfgUrl) { return cfgUrl; }
+                    return window.location.origin.replace(/:\d+$/, ':8123');
+                })();
+                var src = "/api/proxy" + attrs.entity_picture;
+
+                // backdrop blur art
+                elBackdropArt.src = src;
+                elBackdropArt.className = 'fml-backdrop-art';
+                elBackdropArt.onload = function() {
+                    elBackdropArt.className = 'fml-backdrop-art loaded';
+                };
+
+                // cover art in the card
+                var img = elCoverWrap.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    img.alt = '';
+                    img.classList = 'size-full'
+                    elCoverWrap.insertBefore(img, elCoverWrap.firstChild);
+                }
+                img.src = src;
+                elCoverPH.style.display = 'none';
+            } else {
+                elBackdropArt.src = '';
+                elBackdropArt.className = 'fml-backdrop-art';
+                var img = elCoverWrap.querySelector('img');
+                if (img) { elCoverWrap.removeChild(img); }
+                elCoverPH.style.display = '';
+            }
+        });
+
+        // source / app name
+        ctrl.onUpdate(['source'], function(state, attrs) {
+            elSourceName.textContent = attrs.source || '–';
+        });
+
+        ctrl.onUpdate(['source_list'], function(state, attrs) {
+            var sourcesNodes = []
+            for (source of attrs.source_list) {
+                (function(source) {
+                    var node = document.createElement('div');
+                    var contentSpan = document.createElement('div');
+
+                    contentSpan.textContent = source;
+                    contentSpan.classList = "interactive";
+                    node.appendChild(contentSpan);
+
+                    node.onclick = function() {
+                        console.log("sending set source with source: ", source)
+                        ctrl.setSource(source);
+                        elSourceBrowser.close();
+                    }
+                    sourcesNodes.push(node);
+                }(source))
+            }
+            elSourceBrowser.renderList(sourcesNodes);
+        })
+
+        // volume
+        ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+            if (!elVolSlider || volDragging) { return; }
+            if (attrs.is_volume_muted) {
+                elVolSlider.value = 0;
+            } else if (typeof attrs.volume_level !== 'undefined') {
+                elVolSlider.value = attrs.volume_level;
+            }
+        });
+
+    {{end}}
 
     // shuffle / repeat active state
     ctrl.onUpdate(['shuffle', 'repeat'], function(state, attrs) {

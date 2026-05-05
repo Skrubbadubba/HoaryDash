@@ -31,9 +31,10 @@ type TemplateData struct {
 type HAState struct {
 	EntityID   string `json:"entity_id"`
 	Attributes struct {
-		FriendlyName string `json:"friendly_name"`
-		Icon         string `json:"icon"`
-		Class        string `json:"device_class"`
+		FriendlyName      string `json:"friendly_name"`
+		Icon              string `json:"icon"`
+		Class             string `json:"device_class"`
+		UnitOfMeasurement string `json:"unit_of_measurement"`
 	} `json:"attributes"`
 }
 
@@ -117,17 +118,17 @@ func friendlyName(raw string, locale string) string {
 	return cases.Title(tag).String(raw)
 }
 
+// applyState enriches the common Entity fields from HA state.
+// Shared by both Card and Sensor enrichment.
 func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap) {
 	if e.Label == "" && state.Attributes.FriendlyName != "" {
-		e.Label = (friendlyName(state.Attributes.FriendlyName, locale))
+		e.Label = friendlyName(state.Attributes.FriendlyName, locale)
 	}
-
 	class := "_"
 	if state.Attributes.Class != "" {
 		class = state.Attributes.Class
 	}
 	e.Class = class
-
 	if e.Icon == "" {
 		icon := state.Attributes.Icon
 		if icon == "" {
@@ -140,37 +141,67 @@ func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap)
 			}
 		}
 		if icon != "" {
-			icon = strings.TrimPrefix(icon, "mdi:")
-			e.Icon = icon
+			e.Icon = strings.TrimPrefix(icon, "mdi:")
 		}
 	}
-	log.Printf("applyState: result label=%s icon=%s class=%s", e.Label, e.Icon, e.Class)
 }
 
-func enrichEntities(dashboard Dashboard, cfg UserConfig, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
+// applyCardState enriches Card-specific fields from HA state.
+func applyCardState(c *Card, state HAState) {
+	if c.Options.SensorOptions.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
+		c.Options.SensorOptions.Unit = state.Attributes.UnitOfMeasurement
+	}
+}
+
+// applySensorState enriches Sensor-specific fields from HA state.
+func applySensorState(s *Sensor, state HAState) {
+	if s.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
+		s.Unit = state.Attributes.UnitOfMeasurement
+	}
+}
+
+func enrichEntities(dashboard *Dashboard, cfg UserConfig, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
 	states := map[string]HAState{}
 	domainClasses := DomainClassSet{}
 	var err error
 
-	for _, e := range dashboard.Entities() {
-		id := e.EntityID
-		if id == "" {
-			err = fmt.Errorf("entity has no id")
+	fetchOrCached := func(id string) (HAState, error) {
+		if cached, ok := states[id]; ok {
+			return cached, nil
 		}
-
-		var state HAState
-		if cached, already := states[id]; already {
-			state = cached
-		} else {
-			fetched, err := fetchEntityState(id, cfg.HA)
-			if err != nil {
-				continue
-			}
-			states[id] = fetched
-			state = fetched
+		fetched, err := fetchEntityState(id, cfg.HA)
+		if err != nil {
+			return HAState{}, err
 		}
+		states[id] = fetched
+		return fetched, nil
+	}
 
-		applyState(e, state, cfg.Localization.Locale, icons)
+	for _, c := range dashboard.Cards() {
+		if c.EntityID == "" {
+			err = fmt.Errorf("card has no entity id")
+			continue
+		}
+		state, fetchErr := fetchOrCached(c.EntityID)
+		if fetchErr != nil {
+			continue
+		}
+		applyState(&c.Entity, state, cfg.Localization.Locale, icons)
+		applyCardState(c, state)
+		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
+	}
+
+	for _, s := range dashboard.Sensors() {
+		if s.EntityID == "" {
+			err = fmt.Errorf("sensor has no entity id")
+			continue
+		}
+		state, fetchErr := fetchOrCached(s.EntityID)
+		if fetchErr != nil {
+			continue
+		}
+		applyState(&s.Entity, state, cfg.Localization.Locale, icons)
+		applySensorState(s, state)
 		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
 	}
 
@@ -197,7 +228,7 @@ func fetchEntityState(id string, ha HAConfig) (HAState, error) {
 
 // stateIconMap runs the full icon pipeline for one dashboard:
 // enrich entities → collect domain/class set → filter full icon map → resolve to SVGs.
-func (b *dashBuilder) stateIconMap(dash Dashboard) ComponentIconMapSVG {
+func (b *dashBuilder) stateIconMap(dash *Dashboard) ComponentIconMapSVG {
 	_, domainClasses, _ := enrichEntities(dash, b.cfg, b.iconMap)
 	return resolveIconMapSVG(filterIconMap(b.iconMap, domainClasses), b.mdiIcons)
 }
@@ -243,11 +274,12 @@ func (b *dashBuilder) prepareData(name string, dash Dashboard) (TemplateData, er
 	if err != nil {
 		return TemplateData{}, err
 	}
+	iconMap := b.stateIconMap(&enrichedDash)
 	return TemplateData{
 		Dashboard:               enrichedDash,
 		Settings:                b.cfg.Settings,
 		Name:                    name,
-		DomainClassStateIconMap: b.stateIconMap(enrichedDash),
+		DomainClassStateIconMap: iconMap,
 	}, nil
 }
 
