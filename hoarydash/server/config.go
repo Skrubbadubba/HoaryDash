@@ -191,7 +191,6 @@ type Sensor struct {
 
 type Card struct {
 	Entity  `yaml:",inline"`
-	Unit    string
 	Style   CardStyle
 	Options struct {
 		TileOptions   `yaml:",inline"`

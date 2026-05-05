@@ -190,8 +190,8 @@ func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap)
 
 // applyCardState enriches Card-specific fields from HA state.
 func applyCardState(c *Card, state HAState) {
-	if c.Options.SensorOptions.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
-		c.Options.SensorOptions.Unit = state.Attributes.UnitOfMeasurement
+	if c.Options.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
+		c.Options.Unit = state.Attributes.UnitOfMeasurement
 	}
 }
 
