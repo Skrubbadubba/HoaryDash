@@ -74,6 +74,11 @@ func (d *Dashboard) EntityIDs() []string {
 	for id := range seen {
 		ids = append(ids, id)
 	}
+	for _, screen := range d.Screens {
+		if screen.EntityID != "" {
+			ids = append(ids, screen.EntityID)
+		}
+	}
 	return ids
 }
 
