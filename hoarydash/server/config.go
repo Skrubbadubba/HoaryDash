@@ -117,7 +117,7 @@ type Screen struct {
 		Name            string
 		Icon            string
 		NormalizeHeight bool `yaml:"normalize_height"`
-		Stretch         bool
+		Stretch         *bool
 		CardGroup       `yaml:",inline"`
 	}
 

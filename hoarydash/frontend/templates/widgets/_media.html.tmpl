@@ -106,7 +106,7 @@
 {{with .Options}}
 <div class="media-container widget card border card-wrapper">
     <div class="media-top-row padding widget card card-inner flex flex-row align-start">
-        <div class="media-info flex-line flex-grow">
+        <div class="media-info flex-line flex-grow-1">
             <div class="media-cover border-tight">
                 <div class="media-cover-placeholder accent flex size-full justify-center align-center font-lg">{{icon "music"}}</div>
             </div>
@@ -127,7 +127,7 @@
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls flex-line">
             <span class="media-vol-icon accent-muted font-lg">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow-1" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls font-lg gap-inner gap-x flex-line flex-shrink-0">

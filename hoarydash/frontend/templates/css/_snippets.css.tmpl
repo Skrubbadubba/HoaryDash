@@ -21,7 +21,7 @@
 {{define "_slider-thumb"}}
     -webkit-appearance: none;
     display: flex;
-    {{template "_flex-grow"}}
+    {{template "_flex-grow-1"}}
     flex-shrink: 0;
     border: none;
     outline: none;
@@ -63,10 +63,16 @@
     align-items: center;
 {{end}}
 
-{{define "_flex-grow"}}
+{{define "_flex-grow-1"}}
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     flex: 1;
+{{end}}
+
+{{define "_flex-grow-0"}}
+    -webkit-box-flex: 0;
+    -webkit-flex: 0;
+    flex: 0;
 {{end}}
 
 {{define "_size-full"}}

@@ -35,6 +35,12 @@
         max-width: 100%;
     }
 
+    {{if .Stretch}}
+    .tiled-card-wrapper {
+        {{template "_flex-grow-1"}}
+    }
+    {{end}}
+
     .tiled-cards .card-wrapper {
         height: 100%;
     }
@@ -66,11 +72,17 @@
             <div class="tiled-cards flex flex-row flex-wrap gap-inner gap-after gap-from-first" id="tiled-group-{{$gi}}">
                 {{pushCtx (ctx $group.TileOptions)}}
                 {{range $group.Cards}}
-                    <div class="tiled-card-wrapper
-                        {{if $screen.Stretch}}
-                        flex-grow
-                        {{end}}
-                        ">{{template "card-multiplex" .}}</div>
+                    <div class="tiled-card-wrapper"
+                        style="
+                        {{if $group.Stretch}}
+                            {{if $group.Stretch | bool}}
+                                {{template "_flex-grow-1"}}
+                                {{else}}
+                                {{template "_flex-grow-0"}}
+                                {{end}}
+                            {{end}}
+                            ">
+                        {{template "card-multiplex" .}}</div>
                 {{end}}
                 {{popCtx}}
             </div>
