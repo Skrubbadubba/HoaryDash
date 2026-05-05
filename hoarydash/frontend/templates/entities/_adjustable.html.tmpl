@@ -200,6 +200,7 @@ component(function(wrapper) {
       el = el.parentNode;
     }
     wrapper.classList.remove('expanded');
+    chevron.classList.remove('expanded');
   });
 
   {{if eq $domain "light"}}
