@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strings"
 
+	"dario.cat/mergo"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -36,6 +37,11 @@ type HAState struct {
 		Class             string `json:"device_class"`
 		UnitOfMeasurement string `json:"unit_of_measurement"`
 	} `json:"attributes"`
+}
+
+type RenderContext struct {
+	TileOptions TileOptions
+	// future fields added here as needed
 }
 
 func domain(entityID string) string {
@@ -84,6 +90,42 @@ func makeUid() func() int {
 		uid++
 		return uid
 	}
+}
+
+func makeCtxFuncs() template.FuncMap {
+	var ctxStack []RenderContext
+	return template.FuncMap{
+		"ctx": newRenderContext,
+		"pushCtx": func(rc RenderContext) string {
+			base := RenderContext{}
+			if len(ctxStack) > 0 {
+				base = ctxStack[len(ctxStack)-1]
+			}
+			ctxStack = append(ctxStack, base.Merge(rc))
+			return ""
+		},
+		"popCtx": func() string {
+			if len(ctxStack) > 0 {
+				ctxStack = ctxStack[:len(ctxStack)-1]
+			}
+			return ""
+		},
+		"getCtx": func() RenderContext {
+			if len(ctxStack) == 0 {
+				return RenderContext{}
+			}
+			return ctxStack[len(ctxStack)-1]
+		},
+	}
+}
+
+func newRenderContext(opts TileOptions) RenderContext {
+	return RenderContext{TileOptions: opts}
+}
+
+func (c RenderContext) Merge(other RenderContext) RenderContext {
+	mergo.Merge(&c, other, mergo.WithOverwriteWithEmptyValue)
+	return c
 }
 
 func newDashBuilder(cfg UserConfig) (*dashBuilder, error) {
@@ -418,6 +460,10 @@ var funcMap = template.FuncMap{
 	"globals": nilfunc,
 	"uid":     nilfunc,
 	"icon":    nilfunc,
+	"ctx":     nilfunc,
+	"pushCtx": nilfunc,
+	"popCtx":  nilfunc,
+	"getCtx":  nilfunc,
 	"replace": func(old string, new string, s string) string {
 		return strings.ReplaceAll(s, old, new)
 	},
@@ -465,6 +511,10 @@ func (b *dashBuilder) makeFuncMap(cfg UserConfig, name string) template.FuncMap 
 	fm["uid"] = makeUid()
 	fm["icon"] = func(name string) template.HTML {
 		return iconToSVG(name, &b.mdiIcons)
+	}
+
+	for k, v := range makeCtxFuncs() {
+		fm[k] = v
 	}
 	return fm
 }

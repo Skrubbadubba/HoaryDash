@@ -7,6 +7,7 @@
             }
         </style>
     {{end}}
+    {{pushCtx (ctx .Options.TileOptions)}}
     <div id="{{$uid}}" class="card-wrapper">
         {{if domainIn .EntityID "weather"}}
             {{template "weather-widget" .}}
@@ -24,4 +25,5 @@
             {{template "button" .}}
         {{end}}
     </div>
+    {{popCtx}}
 {{end}}

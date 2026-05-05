@@ -64,9 +64,15 @@
             {{end}}
 
             <div class="tiled-cards flex flex-row flex-wrap gap-inner gap-after gap-from-first" id="tiled-group-{{$gi}}">
+                {{pushCtx (ctx $group.TileOptions)}}
                 {{range $group.Cards}}
-                    <div class="tiled-card-wrapper">{{template "card-multiplex" .}}</div>
+                    <div class="tiled-card-wrapper
+                        {{if $screen.Stretch}}
+                        flex-grow
+                        {{end}}
+                        ">{{template "card-multiplex" .}}</div>
                 {{end}}
+                {{popCtx}}
             </div>
             {{if $group.NormalizeHeight}}
                 <script>
@@ -83,7 +89,7 @@
                 {{template "create-card-theme" $group.Style}}
             }
         </style>
-    {{end}}
+        {{end}}  
     {{end}}
 </div>
 {{end}}

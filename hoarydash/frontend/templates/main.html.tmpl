@@ -61,6 +61,9 @@
     {{template "base-style" .}}
     {{template "utility-styles"}}
     {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
+    {{pushCtx (ctx .TileOptions)}}
+    {{/* {{$ctx := getCtx}}
+    {{json $ctx}} */}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
@@ -193,6 +196,8 @@
     <div class="screens flex flex-row size-full">
     
     {{range $i, $screen := .Dashboard.Screens}}
+        {{/* {{$ctx = getCtx}}
+        {{json $ctx}} */}}
         {{$id := ""}}
         {{if .Name}}
             {{$id = concat "screen-" .Name}}
@@ -217,13 +222,15 @@
             {{else}}
                 <div class="layout-container layout-padding navbar-padding size-full">
             {{end}}
+            {{pushCtx (ctx $screen.TileOptions)}}
             {{if eq $screen.Layout "tiled"}}
                 {{template "tiled-layout" $screen}}
-                {{else if eq $screen.Layout "media-full"}}
-                    {{template "fullscreen-media-layout" $screen}}
-                {{else}}
-                    {{template "centered-layout" $screen}}
-                {{end}}
+            {{else if eq $screen.Layout "media-full"}}
+                {{template "fullscreen-media-layout" $screen}}
+            {{else}}
+                {{template "centered-layout" $screen}}
+            {{end}}
+            {{popCtx}}
             </div>
             {{if $showHints}}
             {{with nextScreen $.Dashboard $i}}
