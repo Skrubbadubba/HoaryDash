@@ -157,133 +157,135 @@ component(function(modal) {
 
     var elBack      = modal.querySelector('.mbrowser-back');
     var elCrumbs    = modal.querySelector('.mbrowser-breadcrumbs');
+
+    {{with .Options}}
     
-    var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
+        var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
 
-    /*
-     * Stack entries: { title, id, type }
-     * id/type are null for the root level.
-     * Pushing on navigate-in, popping on back.
-     * Re-fetching is always done from the entry now on top after a pop.
-     */
-    var stack = [];
+        /*
+        * Stack entries: { title, id, type }
+        * id/type are null for the root level.
+        * Pushing on navigate-in, popping on back.
+        * Re-fetching is always done from the entry now on top after a pop.
+        */
+        var stack = [];
 
-     var ICON_MAP = [
-        { substring: 'playlist',  svg: '{{icon "playlist-music"}}' },
-        { substring: 'artist',    svg: '{{icon "account-music"}}' },
-        { substring: 'album',     svg: '{{icon "album"}}' },
-        { substring: 'track',     svg: '{{icon "music-note"}}' },
-        { substring: 'music',     svg: '{{icon "music"}}' },
-        { substring: 'podcast',   svg: '{{icon "podcast"}}' },
-        { substring: 'episode',   svg: '{{icon "podcast"}}' },
-        { substring: 'channel',   svg: '{{icon "television-play"}}' },
-        { substring: 'movie',     svg: '{{icon "movie"}}' },
-        { substring: 'tvshow',    svg: '{{icon "television-classic"}}' },
-        { substring: 'season',    svg: '{{icon "television-classic"}}' },
-        { substring: 'image',     svg: '{{icon "image"}}' },
-        { substring: 'url',       svg: '{{icon "link"}}' },
-        { substring: 'genre',     svg: '{{icon "music-clef-treble"}}' },
-        { substring: 'composer',  svg: '{{icon "music-clef-treble"}}' },
-        { substring: 'directory', svg: '{{icon "folder"}}' }
-    ];
+        var ICON_MAP = [
+            { substring: 'playlist',  svg: '{{icon "playlist-music"}}' },
+            { substring: 'artist',    svg: '{{icon "account-music"}}' },
+            { substring: 'album',     svg: '{{icon "album"}}' },
+            { substring: 'track',     svg: '{{icon "music-note"}}' },
+            { substring: 'music',     svg: '{{icon "music"}}' },
+            { substring: 'podcast',   svg: '{{icon "podcast"}}' },
+            { substring: 'episode',   svg: '{{icon "podcast"}}' },
+            { substring: 'channel',   svg: '{{icon "television-play"}}' },
+            { substring: 'movie',     svg: '{{icon "movie"}}' },
+            { substring: 'tvshow',    svg: '{{icon "television-classic"}}' },
+            { substring: 'season',    svg: '{{icon "television-classic"}}' },
+            { substring: 'image',     svg: '{{icon "image"}}' },
+            { substring: 'url',       svg: '{{icon "link"}}' },
+            { substring: 'genre',     svg: '{{icon "music-clef-treble"}}' },
+            { substring: 'composer',  svg: '{{icon "music-clef-treble"}}' },
+            { substring: 'directory', svg: '{{icon "folder"}}' }
+        ];
 
-    var ICON_FALLBACK = '{{icon "music"}}';
+        var ICON_FALLBACK = '{{icon "music"}}';
 
-    function classIcon(mediaContentType) {
-        var t = (mediaContentType || '').toLowerCase();
-        for (var i = 0; i < ICON_MAP.length; i++) {
-            if (t.indexOf(ICON_MAP[i].substring) !== -1) {
-                return ICON_MAP[i].svg;
-            }
-        }
-        return ICON_FALLBACK;
-    }
-
-    function renderCrumbs() {
-        elCrumbs.innerHTML = '';
-        for (var i = 0; i < stack.length; i++) {
-            if (i > 0) {
-                var sep = document.createElement('span');
-                sep.className = 'mbrowser-crumb-sep on-surface-muted';
-                sep.textContent = '›';
-                elCrumbs.appendChild(sep);
-            }
-            var crumb = document.createElement('span');
-            crumb.className = 'mbrowser-crumb' +
-                (i === stack.length - 1 ? ' active on-surface' : ' on-surface-muted');
-            crumb.textContent = stack[i].title;
-            elCrumbs.appendChild(crumb);
-        }
-        elList.scrollTop = 0;
-    }
-
-    function renderList(children) {
-        var rows = [];
-
-        for (var i = 0; i < children.length; i++) {
-            (function(item) {
-                var row = document.createElement('div');
-                row.className = 'mbrowser-row';
-
-                var thumb = document.createElement('div');
-                thumb.className = 'mbrowser-row-thumb surface-subtle accent-muted';
-                if (item.thumbnail) {
-                    var img = document.createElement('img');
-                    img.setAttribute('alt', '');
-                    img.setAttribute('src', item.thumbnail);
-                    thumb.appendChild(img);
-                } else {
-                    thumb.innerHTML = classIcon(item.media_content_type);
+        function classIcon(mediaContentType) {
+            var t = (mediaContentType || '').toLowerCase();
+            for (var i = 0; i < ICON_MAP.length; i++) {
+                if (t.indexOf(ICON_MAP[i].substring) !== -1) {
+                    return ICON_MAP[i].svg;
                 }
+            }
+            return ICON_FALLBACK;
+        }
 
-                var title = document.createElement('span');
-                title.className = 'mbrowser-row-title';
-                title.textContent = item.title || '—';
+        function renderCrumbs() {
+            elCrumbs.innerHTML = '';
+            for (var i = 0; i < stack.length; i++) {
+                if (i > 0) {
+                    var sep = document.createElement('span');
+                    sep.className = 'mbrowser-crumb-sep on-surface-muted';
+                    sep.textContent = '›';
+                    elCrumbs.appendChild(sep);
+                }
+                var crumb = document.createElement('span');
+                crumb.className = 'mbrowser-crumb' +
+                    (i === stack.length - 1 ? ' active on-surface' : ' on-surface-muted');
+                crumb.textContent = stack[i].title;
+                elCrumbs.appendChild(crumb);
+            }
+            elList.scrollTop = 0;
+        }
 
-                row.appendChild(thumb);
-                row.appendChild(title);
+        function renderList(children) {
+            var rows = [];
 
-                if (item.can_play) {
-                    {{if .Queue}}
-                        var queueBtn = document.createElement('button');
-                        queueBtn.className = 'mbrowser-row-queue';
-                        queueBtn.innerHTML = '{{icon "playlist-plus"}}';
-                        queueBtn.title = 'queue';
-                        queueBtn.onclick = function(e) {
+            for (var i = 0; i < children.length; i++) {
+                (function(item) {
+                    var row = document.createElement('div');
+                    row.className = 'mbrowser-row';
+
+                    var thumb = document.createElement('div');
+                    thumb.className = 'mbrowser-row-thumb surface-subtle accent-muted';
+                    if (item.thumbnail) {
+                        var img = document.createElement('img');
+                        img.setAttribute('alt', '');
+                        img.setAttribute('src', item.thumbnail);
+                        thumb.appendChild(img);
+                    } else {
+                        thumb.innerHTML = classIcon(item.media_content_type);
+                    }
+
+                    var title = document.createElement('span');
+                    title.className = 'mbrowser-row-title';
+                    title.textContent = item.title || '—';
+
+                    row.appendChild(thumb);
+                    row.appendChild(title);
+
+                    if (item.can_play) {
+                        {{if enabledByDefault .Queue}}
+                            var queueBtn = document.createElement('button');
+                            queueBtn.className = 'mbrowser-row-queue';
+                            queueBtn.innerHTML = '{{icon "playlist-plus"}}';
+                            queueBtn.title = 'queue';
+                            queueBtn.onclick = function(e) {
+                                e.stopPropagation();
+                                ctrl.queueItem(item);
+                                modal.close();
+                            };
+                            row.appendChild(queueBtn);
+                        {{end}}
+                        var playBtn = document.createElement('button');
+                        playBtn.className = 'mbrowser-row-play';
+                        playBtn.innerHTML = '{{icon "play-circle"}}';
+                        playBtn.title = 'Play';
+                        playBtn.onclick = function(e) {
                             e.stopPropagation();
-                            ctrl.queueItem(item);
+                            ctrl.playItem(item, stack);
                             modal.close();
                         };
-                        row.appendChild(queueBtn);
-                    {{end}}
-                    var playBtn = document.createElement('button');
-                    playBtn.className = 'mbrowser-row-play';
-                    playBtn.innerHTML = '{{icon "play-circle"}}';
-                    playBtn.title = 'Play';
-                    playBtn.onclick = function(e) {
-                        e.stopPropagation();
-                        ctrl.playItem(item, stack);
-                        modal.close();
-                    };
-                    row.appendChild(playBtn);
-                    
-                }
+                        row.appendChild(playBtn);
+                        
+                    }
 
-                if (item.can_expand) {
-                    row.onclick = function() { navigateTo(item); };
-                } else if (item.can_play) {
-                    row.onclick = function() { ctrl.playItem(item, stack); modal.close(); };
-                } else {
-                    row.style.cursor = 'default';
-                    row.style.opacity = '0.45';
-                }
-                rows.push(row);
-            })(children[i]);
+                    if (item.can_expand) {
+                        row.onclick = function() { navigateTo(item); };
+                    } else if (item.can_play) {
+                        row.onclick = function() { ctrl.playItem(item, stack); modal.close(); };
+                    } else {
+                        row.style.cursor = 'default';
+                        row.style.opacity = '0.45';
+                    }
+                    rows.push(row);
+                })(children[i]);
+            }
+            modal.renderList(rows);
         }
-        modal.renderList(rows);
-    }
 
-    
+    {{end}}
 
     function navigateTo(item) {
         elList.innerHTML = '';

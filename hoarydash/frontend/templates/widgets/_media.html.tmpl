@@ -137,13 +137,12 @@
             <button class="media-ctrl-btn btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
             <button class="media-ctrl-btn btn repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
         </div>
-
+{{end}}
     </div>
-    {{if .ShowBrowser}}
+    {{if .Options.ShowBrowser}}
     {{template "media-browser" .}}
     {{end}}
 </div>
-{{end}}
 <script>
 component(function(wrapper) {
     var entityId = {{.EntityID}}
@@ -345,4 +344,4 @@ component(function(wrapper) {
 
 });
 </script>
-{{ end }}
+{{end}}

@@ -226,7 +226,7 @@
                     <span class="fml-source-name">-</span>
                 </button>
                 
-                {{if .MediaOptions.ShowBrowser}}
+                {{if enabledByDefault .Options.ShowBrowser}}
                 <button class="fml-browse-btn surface-subtle on-surface-muted badge-btn border">
                     {{icon "play-box-multiple"}}
                     <span>{{translate "media:browse"}}</span>
@@ -310,7 +310,7 @@ component(function(wrapper) {
     }, 100);
     {{end}}
 
-    {{with .MediaOptions}}
+    {{with .Options}}
 
         var ctrl = makeMediaController(entityId{{if .Spotifyplus}}, { spotifyPlus: true }{{end}});
 

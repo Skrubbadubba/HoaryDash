@@ -127,9 +127,9 @@ type Screen struct {
 	}
 
 	// Fullscreen-layout specific
-	EntityID     string `yaml:"entity_id"`
-	MediaOptions `yaml:"media_options"`
-	Badges       struct {
+	EntityID string       `yaml:"entity_id"`
+	Options  MediaOptions `yaml:"media_options"`
+	Badges   struct {
 		Sensors []Sensor
 		Badge   struct {
 			Label string
