@@ -1,29 +1,33 @@
-# v0.12.0
+# v0.13.0
 
 ### ✨ Features
-
-- **Theme inheritance** - themes can now extend other named themes via a `base` field
-- **Typography theme settings** - new `typography` block for font family, weight, style, transform, letter spacing, and a full font size scale
-- **Semantic theme variables** - color, shape, and typography fields are now automatically available as `$variable` references without needing an explicit `vars:` declaration
-- **Variable resolution across the full config** - `$variable` references are now resolved in card style fields and `custom` CSS throughout the entire YAML structure, not just inside theme definitions
-- **Variable multiplier suffix** - append `:multiplier` to any variable reference to scale it; works on both colors (opacity) and unit values (via `calc`)
-- **More dateclock customization** - independent control over time and date visibility, font sizes, font weights, and text alignment
+- **Build-time entity enrichment** -- entity labels and icons are now pre-populated from Home Assistant at build time, so the rendered HTML is fully defined before any client connects; the options serve as overrides
+    - sensor units are also pre-populated from HA state using the `unit_of_measurement` attribute
+- **Stateful icons** -- Tile cards (buttons, toggleables, toggleables with sliders), now change their icon based on state according to HA conventions
+- **Tile display options** -- new `show_icon` and `show_pill` options for entity tile cards, controllable per card, per group, per screen, and per dashboard, overrides cascadingly
+- **HA websocket warming** -- When a client visits a dashboard, a websocket connection to HA is warmed up, subscribing to entities present in that dashboard, before being handed off the client when it has finished loading. This speeds up the load time to get live state
+- **Supervisor API** -- When run as an app/addon, HoaryDash uses the supervisor APi, meaning no token or url to homeassistant has to be provided
+- **Buttons hiding** -- Buttons now hide after a timeout when nightlight is active
 
 ### ⚠ Breaking changes
+- `show_forecast` on weather cards, `unit` on sensors has moved under an `options` key alongside other domain-specific fields. See [domain-specific-fields](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md#domain-specific-fields)
 
-- Theme colors are now under a `colors` key instead of under the theme directly
-- `font_size` everywhere is now just `size`. Use the `typography` or `custom` fields of a theme to use your own css units
-- Much of the theming system is updated. See the config [guide](https://github.com/Skrubbadubba/HoaryDash/blob/main/docs/CONFIG.md#theming) for a full explanation
 ### 🏗 Fixes & Improvements
-
-- Font size YAML fields now consistently use `em` units
-- Media controller can now play non-Spotifyplus items
-- UI more consistently respects `theme.shapes` values
-- Dateclock respects `show_time` and `show_date` independently
-- Entity overlays (lights, etc) now respect the theme
+- Position of nightlight brightness slider now appears centered
 
 ### ⚙️ Internal
+- Generic `nodeWalker` pattern added; It can walk a struct of arbitrary shape looking for nodes of a certain type, allowing mutation. `SliceElem` implemented on the walker so slice-resident structs are correctly visited
+- `Dashboard` now exposes `Cards()`, `Sensors()`, and `EntityIDs()` using a `nodeWalker`
+- `RenderContext` struct introduced as a typed context frame; context stack managed via `pushCtx`/`popCtx`/`getCtx` template funcs, fresh per render. This allows outer configuration to propagate to deeply nested partials without prop drilling
+- `ComponentIconMap` filtered per dashboard to only domain+class combinations present in that dashboard; SVGs resolved at build time and inlined as `window.ICON_MAP`
+- Deprecated `api.go`, as it was not used and probably wont be. The philosophy is that everything the dashboard needs will be bundled with the html.
 
-- Introduced `mitchellh/reflectwalk` for recursive CSS field resolution across arbitrary structs
-- Theme system now emits a significantly expanded set of utility classes; components bind semantic classes rather than receiving per-component CSS
-- Shared flexbox and layout primitives moved to base utility classes, eliminating redundant per-component CSS rules - substantially reduces the rendered CSS bundle size
+## Devlog
+
+Hi guys! This update is a bit more subtle. What I wanted to focus on here is connecting to HA and prepopulating information. I feel the entire project so far has required a very heavy setup for users, needing a token, needing to write labels for every entity, etc. So while there arent any big new features or cards, hopefully its significantly simpler to setup.
+
+Don't really have much else to say regarding features. Along that note of no new big cards or such, alot of effort was spent on code architechture. I tried my best to make some new systems and use some new patterns that were more "enterprisey", in case anyone ever would feel like taking a look at it, maybe contributing 👀. Even though I tried, I'm not satisfied at all, it's still quite the mess 😅.
+
+You might have noticed this update came a bit slow compared to previous development. That trend will continue, I really have other stuff I need to spend more time on. That being said I'd really appreciate if someone felt like contributing, or suggest new features, because at the same time not having all the time for this, I'm also quite out of ideas that are within scope currently. If anyone has a speicific entity domain or ui component they would really like to see, you are more then free to make an issue!
+
+See ya 

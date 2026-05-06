@@ -69,15 +69,15 @@ I have a bunch of features planned. The idea is to make a feature rich configura
 - [ ] Calendar widget
 - [ ] Custom community cards system (altought not sure if thats a good idea)
 - [ ] A logo
-- [ ] Prepopulating dashboard with information from HA
-    - [ ] Fill all entity icons based on domain, device type, or attribute
-    - [ ] Fill label with friendly name
+- [x] Prepopulating dashboard with information from HA
+    - [x] Fill all entity icons based on domain, device type, or attribute
+    - [x] Fill label with friendly name
     - [ ] Configure timezone and language based on HA configuration
 - [ ] Create a default configuration based on available HA entities on first install
 - [ ] A drag and drop editor (this one is really out of scope though, dont get your hopes up)
 
 > [!NOTE]
-> Last updated: v0.11.0
+> Last updated: v0.13.0
 
 ## Why
 
