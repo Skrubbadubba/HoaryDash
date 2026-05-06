@@ -51,9 +51,10 @@ dashboards:
             background: transparent
           cards:
             - entity_id: weather.home
-              forecast_interval: twice_daily
-              forecast_times: 5
-              internal_borders: false
+              options:
+                forecast_interval: twice_daily
+                forecast_times: 5
+                internal_borders: false
 
         sensors:
           style:
@@ -62,28 +63,25 @@ dashboards:
           cards:
             - entity_id: sensor.living_room_temperature
               label: Temperature
-              unit: "°C"
+              options:
+                unit: "°C"
             - entity_id: sensor.living_room_humidity
-              label: Humidity
-              unit: "%"
 
       - name: Media
         icon: radio
         layout: media-full
 
         entity_id: media_player.your_media_player
-        show_album: true
-        show_browser: true
-        spotifyplus: true
-        queue: true
+        media_options:
+          show_album: true
+          show_browser: true
+          spotifyplus: true
+          queue: true
         rotate: true
 
         badges:
           sensors:
             - entity_id: sensor.living_room_temperature
-              label: Temperature
-              unit: "°C"
-              icon: thermometer
           badge:
             label: Spotify
             icon: spotify
@@ -117,11 +115,10 @@ dashboards:
               border_color: "#5b9bd5"
             cards:
               - entity_id: sensor.living_room_temperature
-                label: Temperature
-                unit: "°C"
               - entity_id: sensor.living_room_humidity
                 label: Humidity
-                unit: "%"
+                options:
+                  unit: "%"
 
           - name: Scenes
             icon: palette
