@@ -103,9 +103,10 @@
 </style>
 {{end}}
 {{template "media-controller"}}
+{{with .Options}}
 <div class="media-container widget card border card-wrapper">
     <div class="media-top-row padding widget card card-inner flex flex-row align-start">
-        <div class="media-info flex-line flex-grow">
+        <div class="media-info flex-line flex-grow-1">
             <div class="media-cover border-tight">
                 <div class="media-cover-placeholder accent flex size-full justify-center align-center font-lg">{{icon "music"}}</div>
             </div>
@@ -114,8 +115,8 @@
             </div>
         </div>
         {{if .ShowBrowser}}
-        <div class="media-browse">
-            <button class="media-browser-button on-surface-muted">{{icon "play-box-multiple"}}</button>
+        <div class="media-browse flex-shrink-0">
+            <button class="media-browser-button on-surface-muted font-lg">{{icon "play-box-multiple"}}</button>
         </div>
         {{end}}
     </div>
@@ -126,7 +127,7 @@
         {{if enabledByDefault .ShowVolume }}
         <div class="media-vol-controls flex-line">
             <span class="media-vol-icon accent-muted font-lg">{{icon "volume-high"}}</span>
-            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow" type="range" min="0" max="1" step="0.02" value="0.5" />
+            <input class="media-vol-slider interactive-muted-bg interactive-thumb thumb flex-grow-1" type="range" min="0" max="1" step="0.02" value="0.5" />
         </div>
         {{ end }}
         <div class="media-play-controls font-lg gap-inner gap-x flex-line flex-shrink-0">
@@ -136,9 +137,9 @@
             <button class="media-ctrl-btn btn forward on-surface-muted" title="Next">{{icon "skip-forward"}}</button>
             <button class="media-ctrl-btn btn repeat on-surface-subtle hide" title="repeat">{{icon "repeat"}}</button>
         </div>
-
+{{end}}
     </div>
-    {{if .ShowBrowser}}
+    {{if .Options.ShowBrowser}}
     {{template "media-browser" .}}
     {{end}}
 </div>
@@ -172,152 +173,157 @@ component(function(wrapper) {
 
     var volDragging = false;
 
-    {{if enabledByDefault .ShowVolume}}
-    if (elVolSlider) {
-        elVolSlider.ontouchstart = function() { volDragging = true; };
-        elVolSlider.onmousedown  = function() { volDragging = true; };
-        elVolSlider.ontouchend   = function() { volDragging = false; };
-        elVolSlider.onmouseup    = function() { volDragging = false; };
+    {{with .Options}}
 
-        var volDebounce;
+        {{if enabledByDefault .ShowVolume}}
+        if (elVolSlider) {
+            elVolSlider.ontouchstart = function() { volDragging = true; };
+            elVolSlider.onmousedown  = function() { volDragging = true; };
+            elVolSlider.ontouchend   = function() { volDragging = false; };
+            elVolSlider.onmouseup    = function() { volDragging = false; };
 
-        elVolSlider.oninput = function() {
-            console.log("dragging vol slider!")
-            volDragging = true;
-            clearTimeout(volDebounce);
-            var v = parseFloat(elVolSlider.value);
-            volDebounce = setTimeout(function() {
-                ctrl.setVolume(v);
-                volDragging = false;
-            }, 150);
-        };
-    }
-    {{end}}
+            var volDebounce;
 
-    {{if .ShowBrowser}}
-    if (elBrowseBtn) {
-        elBrowseBtn.onclick = function() {
-            if (elMediaBrowser) { elMediaBrowser.mediaBrowserOpen(); console.log("tried running open on: ", elMediaBrowser) }
-        };
-    }
-    {{end}}
-
-    function renderIdle() {
-        elSongInfo.innerHTML = '';
-        var idle = document.createElement('span');
-        idle.className = 'media-idle on-surface-subtle font-lg';
-        idle.textContent = 'Idle';
-        elSongInfo.appendChild(idle);
-        elIdle = idle;
-        elPlay.innerHTML = '{{icon "play"}}';
-        if (elCover.querySelector('img')) {
-            elCover.removeChild(elCover.querySelector('img'));
-        }
-        elPlaceholder.style.display = '';
-    }
-
-    // Render idle
-    ctrl.onUpdate("state", function(state, _) {
-        if (state === undefined || state === null || state === "idle") {
-            renderIdle();
-        } else {
-            elIdle.remove();
-        }
-
-    })
-
-    // Render pause/play button
-    ctrl.onUpdate("state", function(state, _) {
-        elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
-    });
-
-    // Render song info
-    ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
-        var song = attrs.media_title || '';
-        var artist = attrs.media_artist || '';
-
-        if (!song && !artist) {
-            renderIdle();
-            return;
-        }
-
-        var elSong = elSongInfo.querySelector('.media-song');
-        if (!elSong) {
-            elSong = document.createElement('span');
-            elSong.className = 'media-song on-surface text-ellipsis font-xl';
-            elSongInfo.appendChild(elSong);
-        }
-        elSong.textContent = song || '—';
-
-        var elArtist = elSongInfo.querySelector('.media-artist');
-        if (artist) {
-            if (!elArtist) {
-                elArtist = document.createElement('span');
-                elArtist.className = 'media-artist on-surface-muted text-ellipsis font-sm';
-                elSongInfo.appendChild(elArtist);
-            }
-            elArtist.textContent = artist;
-        } else if (elArtist) {
-            elSongInfo.removeChild(elArtist);
-        }
-
-        {{if disabledByDefault .ShowAlbum}}
-        var album = attrs.media_album_name || '';
-        var elAlbum = elSongInfo.querySelector('.media-album');
-        if (album) {
-            if (!elAlbum) {
-                elAlbum = document.createElement('span');
-                elAlbum.className = 'media-album on-surface-subtle text-ellipsis font-xs';
-                elSongInfo.appendChild(elAlbum);
-            }
-            elAlbum.textContent = album;
-        } else if (elAlbum) {
-            elSongInfo.removeChild(elAlbum);
+            elVolSlider.oninput = function() {
+                console.log("dragging vol slider!")
+                volDragging = true;
+                clearTimeout(volDebounce);
+                var v = parseFloat(elVolSlider.value);
+                volDebounce = setTimeout(function() {
+                    ctrl.setVolume(v);
+                    volDragging = false;
+                }, 150);
+            };
         }
         {{end}}
-    });
 
-    // Render thumbnail
-    ctrl.onUpdate(['entity_picture'], function(state, attrs) {
-        var picPath = attrs.entity_picture;
-        var existingImg = elCover.querySelector('img');
-        if (picPath) {
-            var imgSrc = window.CONFIG.haUrl + picPath;
-            if (existingImg) {
-                if (existingImg.getAttribute('src') !== imgSrc) {
-                    existingImg.setAttribute('src', imgSrc);
-                }
-            } else {
-                var img = document.createElement('img');
-                img.setAttribute('src', imgSrc);
-                img.setAttribute('alt', '');
-                elCover.appendChild(img);
+        {{if .ShowBrowser}}
+        if (elBrowseBtn) {
+            elBrowseBtn.onclick = function() {
+                if (elMediaBrowser) { elMediaBrowser.mediaBrowserOpen(); console.log("tried running open on: ", elMediaBrowser) }
+            };
+        }
+        {{end}}
+
+        function renderIdle() {
+            elSongInfo.innerHTML = '';
+            var idle = document.createElement('span');
+            idle.className = 'media-idle on-surface-subtle font-lg';
+            idle.textContent = 'Idle';
+            elSongInfo.appendChild(idle);
+            elIdle = idle;
+            elPlay.innerHTML = '{{icon "play"}}';
+            if (elCover.querySelector('img')) {
+                elCover.removeChild(elCover.querySelector('img'));
             }
-            elPlaceholder.style.display = 'none';
-        } else {
-            if (existingImg) { elCover.removeChild(existingImg); }
             elPlaceholder.style.display = '';
         }
-    });
 
-    // Render volume/mute
-    {{if enabledByDefault .ShowVolume}}
-    ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
-        if (volDragging) { return; }
-        var muted = (attrs.is_volume_muted) || (attrs.volume_level === 0);
-        if (muted) {
-            elVol.innerHTML = '{{icon "volume-mute"}}';
-            elVolSlider.classList.add('interactive-disabled-bg', 'interactive-disabled');
-            elVolSlider.classList.remove('interactive-muted-bg', 'interactive');
-        } else {
-            elVol.innerHTML = '{{icon "volume-high"}}';
-            elVolSlider.classList.remove('interactive-disabled-bg', 'interactive-disabled');
-            elVolSlider.classList.add('interactive-muted-bg', 'interactive');
-        }
-        if (!volDragging && attrs.volume_level !== undefined) {
-            elVolSlider.value = attrs.volume_level;
-        }
-    });
+        // Render idle
+        ctrl.onUpdate("state", function(state, _) {
+            if (state === undefined || state === null || state === "idle") {
+                renderIdle();
+            } else {
+                elIdle.remove();
+            }
+
+        })
+
+        // Render pause/play button
+        ctrl.onUpdate("state", function(state, _) {
+            elPlay.innerHTML = (state === 'playing') ? '{{icon "pause"}}' : '{{icon "play"}}';
+        });
+
+        // Render song info
+        ctrl.onUpdate(['media_title', 'media_artist', 'media_album_name'], function(state, attrs) {
+            var song = attrs.media_title || '';
+            var artist = attrs.media_artist || '';
+
+            if (!song && !artist) {
+                renderIdle();
+                return;
+            }
+
+            var elSong = elSongInfo.querySelector('.media-song');
+            if (!elSong) {
+                elSong = document.createElement('span');
+                elSong.className = 'media-song on-surface text-ellipsis font-xl';
+                elSongInfo.appendChild(elSong);
+            }
+            elSong.textContent = song || '—';
+
+            var elArtist = elSongInfo.querySelector('.media-artist');
+            if (artist) {
+                if (!elArtist) {
+                    elArtist = document.createElement('span');
+                    elArtist.className = 'media-artist on-surface-muted text-ellipsis font-sm';
+                    elSongInfo.appendChild(elArtist);
+                }
+                elArtist.textContent = artist;
+            } else if (elArtist) {
+                elSongInfo.removeChild(elArtist);
+            }
+
+            {{if disabledByDefault .ShowAlbum}}
+            var album = attrs.media_album_name || '';
+            var elAlbum = elSongInfo.querySelector('.media-album');
+            if (album) {
+                if (!elAlbum) {
+                    elAlbum = document.createElement('span');
+                    elAlbum.className = 'media-album on-surface-subtle text-ellipsis font-xs';
+                    elSongInfo.appendChild(elAlbum);
+                }
+                elAlbum.textContent = album;
+            } else if (elAlbum) {
+                elSongInfo.removeChild(elAlbum);
+            }
+            {{end}}
+        });
+
+
+        // Render thumbnail
+        ctrl.onUpdate(['entity_picture'], function(state, attrs) {
+            var picPath = attrs.entity_picture;
+            var existingImg = elCover.querySelector('img');
+            if (picPath) {
+                var imgSrc = "/api/proxy" + picPath;
+                if (existingImg) {
+                    if (existingImg.getAttribute('src') !== imgSrc) {
+                        existingImg.setAttribute('src', imgSrc);
+                    }
+                } else {
+                    var img = document.createElement('img');
+                    img.setAttribute('src', imgSrc);
+                    img.setAttribute('alt', '');
+                    elCover.appendChild(img);
+                }
+                elPlaceholder.style.display = 'none';
+            } else {
+                if (existingImg) { elCover.removeChild(existingImg); }
+                elPlaceholder.style.display = '';
+            }
+        });
+
+        // Render volume/mute
+        {{if enabledByDefault .ShowVolume}}
+        ctrl.onUpdate(['volume_level', 'is_volume_muted'], function(state, attrs) {
+            if (volDragging) { return; }
+            var muted = (attrs.is_volume_muted) || (attrs.volume_level === 0);
+            if (muted) {
+                elVol.innerHTML = '{{icon "volume-mute"}}';
+                elVolSlider.classList.add('interactive-disabled-bg', 'interactive-disabled');
+                elVolSlider.classList.remove('interactive-muted-bg', 'interactive');
+            } else {
+                elVol.innerHTML = '{{icon "volume-high"}}';
+                elVolSlider.classList.remove('interactive-disabled-bg', 'interactive-disabled');
+                elVolSlider.classList.add('interactive-muted-bg', 'interactive');
+            }
+            if (!volDragging && attrs.volume_level !== undefined) {
+                elVolSlider.value = attrs.volume_level;
+            }
+        });
+        {{end}}
+
     {{end}}
 
     // Render shuffle/repeat
@@ -338,4 +344,4 @@ component(function(wrapper) {
 
 });
 </script>
-{{ end }}
+{{end}}

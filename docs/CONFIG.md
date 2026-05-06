@@ -15,7 +15,7 @@ dashboards:
     theme: {...}
     navbar: {...}
 
-  another-dashboard:
+  screensaver:         # available at /screensaver/
     screens: [...]
 
 localization:
@@ -25,13 +25,21 @@ localization:
 
 fully_kiosk:
   screensaver_timeout: 60
-
-home_assistant:
-  url: "http://homeassistant.local:8123" # Defaults to this, can probably ignore
-  token: "your_long_lived_token_here"
 ```
 
 Each key under `dashboards` becomes an endpoint. `dashboards.dash` is served at `/dash/`, `dashboards.living-room` at `/living-room/`, and so on.
+
+### Home Assistant connection
+
+HoaryDash installed as an addon/app uses the supervisor API, this means no further configuration is needed. If you are running it as a docker container, you must provide details to connect to HA.
+
+```yaml
+home_assistant:
+  url: "http://homeassistant.local:8123" # Defaults to this
+  token: "your_long_lived_token_here"
+```
+
+The token can also be provided as an environment variable `HA_TOKEN`.
 
 ---
 
@@ -212,13 +220,15 @@ sensors:
   cards:
     - entity_id: sensor.living_room_temperature
       label: Temperature
-      unit: °C
+      options:
+        unit: °C
 
 widgets:
   cards:
     - entity_id: media_player.spotify
     - entity_id: weather.home
-      forecast_interval: twice_daily
+      options:
+        forecast_interval: twice_daily
 ```
 
 ```yaml
@@ -235,7 +245,8 @@ groups:
     cards:
       - entity_id: sensor.living_room_temperature
         label: Temperature
-        unit: °C
+        options:
+          unit: °C
 ```
 
 | Key | Type | Description |
@@ -249,20 +260,24 @@ The `entity_id` domain determines what control is rendered. All other fields are
 
 ```yaml
 - entity_id: light.ceiling
-  label: Ceiling light
-  icon: lightbulb
+  label: Ceiling light # Optional
+  icon: lightbulb # Optional
   style:
     border_radius: "1em"
     background: "rgba(255,255,255,0.12)"
+  options:
+    show_pill: true
 ```
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `entity_id` | string | Home Assistant entity ID. Determines the card type — see tables below |
-| `label` | string | Display label. Falls back to entity ID if omitted |
+| `label` | string | Display label |
 | `icon` | string | MDI icon name or emoji, e.g. `lightbulb`, `🔔` |
-| `unit` | string | Unit string shown below the value (sensors). e.g. `°C`, `%`, `µg/m³` |
+| `options` | object | Domain specific domain options, for example unit values for sensors e.g. `°C`, `%`, `µg/m³`. See [Domain-specific fields](#domain-specific-fields) |
 | `style` | [card style](#card-style-fields) | Style overrides for this individual card |
+
+Note that both label and icon is prepopulated. Label is either stylized from the entity id, or from friendly_name from HA if available. Icon is populated based on HAs conventions based on domain + device class.
 
 ### Card types by domain
 
@@ -280,9 +295,15 @@ The `entity_id` domain determines what is rendered. Domains not listed below ren
 
 As you can see, each card falls into a category, which is just another arbitrary way of grouping them I decided upon. Each category can be styled on a per dashboard/per screen basis, see [theming](#theming)
 
-### Widget-specific fields
+### Domain-specific fields
 
-Some card types accept additional fields.
+Some card types accept additional fields under an `options` key.
+
+**Sensor**
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `unit` | string | fetched from HA | Unit to be displayed alongside the value |
 
 **Weather**
 
@@ -299,7 +320,60 @@ Some card types accept additional fields.
 | `show_volume` | bool | `true` | Show the volume slider |
 | `show_album` | bool | `true` | Show album name below artist |
 | `show_browser` | bool | `true` | Show the media browser button |
+| `spotifyplus` | bool | `false` | Assume media player is from the the [spotifyplus integration](https://github.com/thlucas1/homeassistantcomponent_spotifyplus/tree/master). Provides extra functionality |
+| `queue` | bool | `true`| Whether or not to dhow the queue button for items in the browser. Only applicable if showing browser |
+
+#### Common for widgets
+
+Widgets are a category of richer cards for some comains. Currently including __media_player__, __weather__, and __todo__.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
 | `internal_borders` | bool | `true` | Show the divider between info and controls |
+
+#### Common for tiles
+
+Tiles is a common UI element used for many simple domains that are clickable, toggleable, and may have adjustable attributes. Currently including __switch__, __input_boolean__, __light__, and __fan__. _All_ other domains are rendered as a button tile, altough only domains __script__, __button__, __scene__, and __input_button__ are confirmed to work. 
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `show_icon` | bool | `true` | Show the entity icon, determined either from yaml or HA attributes |
+| `show_pill` | bool | | `false` | Show the toggle pill. Only applicable to toggleable entities |´
+
+Additionally, these tile options can be set as global defaults at either the dashboard, screen or card-group level. They override eachother cascadingly, with a lower level taking precedence. Example:
+
+```yaml
+dashboards:
+  dash:
+    tile_options:
+      show_icon: true
+    screens:
+    - name: Home
+      tile_options:
+        show_icon: false
+              entities:
+        cards:
+          - entity_id: switch.zibgee_square_plug_2 # will not show pill
+          - entity_id: fan.starkvind_luftrenare # will show pill
+            options:
+              show_pill: true
+    - name: Controls
+      layout: tiled
+      tile_options:
+        show_pill: true
+      groups:
+        - name: Lampor
+          tile_options:
+            show_pill: false
+          icon: lightbulb
+          cards:
+            - entity_id: switch.zibgee_square_plug_2 # will show pill
+              label: Hall-lampa
+              options:
+                show_pill: true
+              # rest of entities in group will not show pill
+            # all entities in other groups will show pill
+```
 
 ### Card style fields
 
@@ -331,7 +405,8 @@ screens:
         cards:
           - entity_id: sensor.living_room_temperature
             label: Temperature
-            unit: °C
+            options:
+              unit: °C
           - entity_id: light.ceiling
             label: Ceiling
         style:
@@ -348,6 +423,7 @@ In addition to the common screen fields, the tiled layout has the followwing:
 | Key | Type | Description |
 |-----|------|-------------|
 | `groups` | list | Groups of cards |
+| `stretch` | bool | Whether to align the items by stretching their widths to fill the screen (default _false_) |
 
 Group object:
 
@@ -356,6 +432,9 @@ Group object:
 | `name` | string | Group header label |
 | `icon` | string | Icon shown next to the group header |
 | `cards` | list | List of cards (same fields as entities, sensors, and widgets) |
+| `stretch` | bool | Whether to align the items by stretching their widths to fill the screen |
+
+The `stretch` option is prioritised per group -- screen level option serves as fallback.
 
 ---
 
@@ -387,15 +466,18 @@ screens:
     widgets:
       cards:
         - entity_id: weather.home
-          forecast_interval: hourly
-          forecast_times: 5
+          options:
+            forecast_interval: hourly
+            forecast_times: 5
         - entity_id: media_player.spotify
-          show_album: true
+          options:
+            show_album: true
     sensors:
       cards:
         - entity_id: sensor.living_room_temperature
           label: Temperature
-          unit: °C
+          options:
+            unit: °C
     theme:
       widgets:
         borders: false
@@ -444,7 +526,8 @@ screens:
   - name: Now Playing
     layout: fullscreen-media
     entity_id: media_player.spotify
-    show_browser: true
+    media_options:
+      show_browser: true
     dateclock:
       enabled: true
     badges:
@@ -470,19 +553,19 @@ In addition to the common screen fields, the fullscreen media layout has the fol
 | Key | Type | Description |
 |-----|------|-------------|
 | `entity_id` | string | The `media_player.*` entity to control |
-| `show_browser` | bool | Show a browse button that opens the media browser |
-| `rotate` | bool | Whether or not to slowly rotate the backdrop |
+| `media_options` | object | Media related options, same as the media widget. See [widget options](#domain-specific-fields) |
+| `rotate` | bool | Whether or not to slowly rotate the backdrop (default: _true_) |
 
 #### Badges object
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `badge` | object | A static label pill. Useful for a room name |
+| `badge` | object | A static label pill. Useful for a room or media player name |
 | `badge.label` | string | Text shown in the pill |
 | `badge.icon` | string | Icon shown in the pill |
 | `sensors` | list | Live sensor readings shown as pills |
 
-Sensor fields follow the same schema as sensor cards elsewhere — `entity_id`, `label`, `unit`, `icon`.
+Sensor fields follow the same schema as sensor cards elsewhere — `entity_id`, `label`, `options.unit`, `icon`.
 
 ---
 

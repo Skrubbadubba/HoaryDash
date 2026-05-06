@@ -1,24 +1,47 @@
 package main
 
 import (
-	_ "embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"strings"
+
+	"dario.cat/mergo"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
-//go:embed mdi.json
-var mdiData []byte
-
-var mdiIcons map[string]string
-
+type dashBuilder struct {
+	cfg          UserConfig
+	themes       ThemesMap
+	defaultTheme Theme
+	mdiIcons     map[string]string
+	iconMap      ComponentIconMap
+}
 type TemplateData struct {
 	Dashboard
-	Config
-	Name string
+	Settings
+	Name                    string
+	DomainClassStateIconMap ComponentIconMapSVG
+}
+
+type HAState struct {
+	EntityID   string `json:"entity_id"`
+	Attributes struct {
+		FriendlyName      string `json:"friendly_name"`
+		Icon              string `json:"icon"`
+		Class             string `json:"device_class"`
+		UnitOfMeasurement string `json:"unit_of_measurement"`
+	} `json:"attributes"`
+}
+
+type RenderContext struct {
+	TileOptions TileOptions
+	// future fields added here as needed
 }
 
 func domain(entityID string) string {
@@ -61,7 +84,246 @@ func makeDomainTranslations(lang string) func(domain string) (map[string]string,
 	}
 }
 
-var uid = 0
+func makeUid() func() int {
+	uid := 0
+	return func() int {
+		uid++
+		return uid
+	}
+}
+
+func makeCtxFuncs() template.FuncMap {
+	var ctxStack []RenderContext
+	return template.FuncMap{
+		"ctx": newRenderContext,
+		"pushCtx": func(rc RenderContext) string {
+			base := RenderContext{}
+			if len(ctxStack) > 0 {
+				base = ctxStack[len(ctxStack)-1]
+			}
+			ctxStack = append(ctxStack, base.Merge(rc))
+			return ""
+		},
+		"popCtx": func() string {
+			if len(ctxStack) > 0 {
+				ctxStack = ctxStack[:len(ctxStack)-1]
+			}
+			return ""
+		},
+		"getCtx": func() RenderContext {
+			if len(ctxStack) == 0 {
+				return RenderContext{}
+			}
+			return ctxStack[len(ctxStack)-1]
+		},
+	}
+}
+
+func newRenderContext(opts TileOptions) RenderContext {
+	return RenderContext{TileOptions: opts}
+}
+
+func (c RenderContext) Merge(other RenderContext) RenderContext {
+	mergo.Merge(&c, other, mergo.WithOverwriteWithEmptyValue)
+	return c
+}
+
+func newDashBuilder(cfg UserConfig) (*dashBuilder, error) {
+	themes, err := loadThemes(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("load themes: %w", err)
+	}
+	defaultTheme, err := getDefaultTheme()
+	if err != nil {
+		return nil, fmt.Errorf("default theme: %w", err)
+	}
+	iconMap, err := fetchComponentIcons(cfg.HA)
+	if err != nil {
+		return nil, fmt.Errorf("fetch component icons: %w", err)
+	}
+	mdiIcons, err := loadMdiIcons()
+	if err != nil {
+		return nil, fmt.Errorf("loading mdi icons: %w", err)
+	}
+	return &dashBuilder{
+		cfg:          cfg,
+		themes:       themes,
+		defaultTheme: defaultTheme,
+		mdiIcons:     mdiIcons,
+		iconMap:      iconMap,
+	}, nil
+}
+
+func friendlyName(raw string, locale string) string {
+	raw = strings.ReplaceAll(raw, "_", " ")
+	tag := language.Make(locale)
+	return cases.Title(tag).String(raw)
+}
+
+// applyState enriches the common Entity fields from HA state.
+// Shared by both Card and Sensor enrichment.
+func applyState(e *Entity, state HAState, locale string, icons ComponentIconMap) {
+	if e.Label == "" && state.Attributes.FriendlyName != "" {
+		e.Label = friendlyName(state.Attributes.FriendlyName, locale)
+	}
+	class := "_"
+	if state.Attributes.Class != "" {
+		class = state.Attributes.Class
+	}
+	e.Class = class
+	if e.Icon == "" {
+		icon := state.Attributes.Icon
+		if icon == "" {
+			if domainIcons, ok := icons[domain(e.EntityID)]; ok {
+				if classIcons, ok := domainIcons[class]; ok {
+					icon = classIcons.Default
+				} else if fallback, ok := domainIcons["_"]; ok {
+					icon = fallback.Default
+				}
+			}
+		}
+		if icon != "" {
+			e.Icon = strings.TrimPrefix(icon, "mdi:")
+		}
+	}
+}
+
+// applyCardState enriches Card-specific fields from HA state.
+func applyCardState(c *Card, state HAState) {
+	if c.Options.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
+		c.Options.Unit = state.Attributes.UnitOfMeasurement
+	}
+}
+
+// applySensorState enriches Sensor-specific fields from HA state.
+func applySensorState(s *Sensor, state HAState) {
+	if s.Unit == "" && state.Attributes.UnitOfMeasurement != "" {
+		s.Unit = state.Attributes.UnitOfMeasurement
+	}
+}
+
+func enrichEntities(dashboard *Dashboard, cfg UserConfig, icons ComponentIconMap) (map[string]HAState, DomainClassSet, error) {
+	states := map[string]HAState{}
+	domainClasses := DomainClassSet{}
+	var err error
+
+	fetchOrCached := func(id string) (HAState, error) {
+		if cached, ok := states[id]; ok {
+			return cached, nil
+		}
+		fetched, err := fetchEntityState(id, cfg.HA)
+		if err != nil {
+			return HAState{}, err
+		}
+		states[id] = fetched
+		return fetched, nil
+	}
+
+	for _, c := range dashboard.Cards() {
+		if c.EntityID == "" {
+			err = fmt.Errorf("card has no entity id")
+			continue
+		}
+		state, fetchErr := fetchOrCached(c.EntityID)
+		if fetchErr != nil {
+			continue
+		}
+		applyState(&c.Entity, state, cfg.Localization.Locale, icons)
+		applyCardState(c, state)
+		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
+	}
+
+	for _, s := range dashboard.Sensors() {
+		if s.EntityID == "" {
+			err = fmt.Errorf("sensor has no entity id")
+			continue
+		}
+		state, fetchErr := fetchOrCached(s.EntityID)
+		if fetchErr != nil {
+			continue
+		}
+		applyState(&s.Entity, state, cfg.Localization.Locale, icons)
+		applySensorState(s, state)
+		domainClasses.add(domain(state.EntityID), state.Attributes.Class)
+	}
+
+	return states, domainClasses, err
+}
+
+func fetchEntityState(id string, ha HAConfig) (HAState, error) {
+	req, err := http.NewRequest("GET", ha.HTTPURL+"/api/states/"+id, nil)
+	if err != nil {
+		return HAState{}, err
+	}
+	req.Header.Set("Authorization", "Bearer "+ha.Token)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return HAState{}, err
+	}
+	defer resp.Body.Close()
+	var state HAState
+	if err := json.NewDecoder(resp.Body).Decode(&state); err != nil {
+		return HAState{}, err
+	}
+	return state, nil
+}
+
+// stateIconMap runs the full icon pipeline for one dashboard:
+// enrich entities → collect domain/class set → filter full icon map → resolve to SVGs.
+func (b *dashBuilder) stateIconMap(dash *Dashboard) ComponentIconMapSVG {
+	_, domainClasses, _ := enrichEntities(dash, b.cfg, b.iconMap)
+	return resolveIconMapSVG(filterIconMap(b.iconMap, domainClasses), b.mdiIcons)
+}
+
+// resolveThemes applies dashboard- and screen-level theme resolution,
+// mutating a copy of the dashboard and returning it.
+func (b *dashBuilder) resolveThemes(name string, dash Dashboard) (Dashboard, error) {
+	resolvedDashTheme, err := buildTheme(b.themes, dash.ThemeRef)
+	if err != nil {
+		return dash, fmt.Errorf("dashboard %s theme: %w", name, err)
+	}
+	dashTheme := Theme{}
+	if resolvedDashTheme != nil {
+		dashTheme = *resolvedDashTheme
+	}
+	dashTheme.inheritTheme(b.defaultTheme)
+	dash.Theme = dashTheme
+
+	for i, screen := range dash.Screens {
+		resolvedScreenTheme, err := buildTheme(b.themes, screen.ThemeRef)
+		if err != nil {
+			return dash, fmt.Errorf("screen[%d] (%s) theme: %w", i, screen.Name, err)
+		}
+		dash.Screens[i].Theme = resolvedScreenTheme
+
+		effectiveTheme := resolvedScreenTheme
+		if effectiveTheme == nil {
+			effectiveTheme = &dash.Theme
+		} else {
+			effectiveTheme.inheritVars(dash.Theme)
+		}
+		if err := walkAndResolveCSS(&dash.Screens[i], effectiveTheme.Vars); err != nil {
+			return dash, fmt.Errorf("screen[%d] (%s) css resolution: %w", i, screen.Name, err)
+		}
+	}
+
+	return dash, nil
+}
+
+// prepareData produces the full TemplateData for one dashboard.
+func (b *dashBuilder) prepareData(name string, dash Dashboard) (TemplateData, error) {
+	enrichedDash, err := b.resolveThemes(name, dash)
+	if err != nil {
+		return TemplateData{}, err
+	}
+	iconMap := b.stateIconMap(&enrichedDash)
+	return TemplateData{
+		Dashboard:               enrichedDash,
+		Settings:                b.cfg.Settings,
+		Name:                    name,
+		DomainClassStateIconMap: iconMap,
+	}, nil
+}
 
 var funcMap = template.FuncMap{
 	"default": func(def any, val any) any {
@@ -92,12 +354,7 @@ var funcMap = template.FuncMap{
 	"css": func(val any) template.CSS {
 		return template.CSS(fmt.Sprintf("%v", val))
 	},
-	"enabledByDefault": func(v *bool) bool {
-		if v == nil {
-			return true
-		}
-		return *v
-	},
+	"enabledByDefault": enabledByDefault,
 	"disabledByDefault": func(v *bool) bool {
 		if v == nil {
 			return false
@@ -145,13 +402,6 @@ var funcMap = template.FuncMap{
 			out[i] = e.EntityID
 		}
 		return out
-	},
-	"icon": func(name string) template.HTML {
-		path := mdiIcons[name]
-		return template.HTML(fmt.Sprintf(
-			`<svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="%s"/></svg>`,
-			path,
-		))
 	},
 	"isEmoji": func(s string) bool {
 		for _, r := range s {
@@ -208,10 +458,12 @@ var funcMap = template.FuncMap{
 	},
 	"once":    nilfunc,
 	"globals": nilfunc,
-	"uid": func() int {
-		uid++
-		return uid
-	},
+	"uid":     nilfunc,
+	"icon":    nilfunc,
+	"ctx":     nilfunc,
+	"pushCtx": nilfunc,
+	"popCtx":  nilfunc,
+	"getCtx":  nilfunc,
 	"replace": func(old string, new string, s string) string {
 		return strings.ReplaceAll(s, old, new)
 	},
@@ -234,151 +486,146 @@ var funcMap = template.FuncMap{
 	"resolveThis": resolveThis,
 }
 
+// makeFuncMap returns a fresh FuncMap with all per-dashboard closures bound.
+// Called once per dashboard, after data is prepared, so closures capture
+// the correct per-dashboard state.
+func (b *dashBuilder) makeFuncMap(cfg UserConfig, name string) template.FuncMap {
+	lang := "en"
+	if cfg.Localization.Locale != "" {
+		lang = strings.Split(cfg.Localization.Locale, "-")[0]
+	}
+	globals := map[string]any{
+		"Animations": enabledByDefault(cfg.Dashboards[name].Animations),
+		"Lang":       lang,
+		"IsDev":      isDev,
+	}
+
+	fm := make(template.FuncMap, len(funcMap))
+	for k, v := range funcMap {
+		fm[k] = v
+	}
+	fm["once"] = makeOnceFunc()
+	fm["globals"] = makeGlobals(globals)
+	fm["translate"] = makeTranslate(lang)
+	fm["domainTranslations"] = makeDomainTranslations(lang)
+	fm["uid"] = makeUid()
+	fm["icon"] = func(name string) template.HTML {
+		return iconToSVG(name, &b.mdiIcons)
+	}
+
+	for k, v := range makeCtxFuncs() {
+		fm[k] = v
+	}
+	return fm
+}
+
+// loadTemplates parses all template globs and returns the root template.
+func loadTemplates() (*template.Template, error) {
+	tmpl, err := template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
+	if err != nil {
+		return nil, fmt.Errorf("root templates: %w", err)
+	}
+	globs := []string{
+		"/templates/css/*.html.tmpl",
+		"/templates/css/*.css.tmpl",
+		"/templates/entities/*.html.tmpl",
+		"/templates/widgets/*.html.tmpl",
+		"/templates/controllers/*.html.tmpl",
+		"/templates/navbar-styles/*.html.tmpl",
+		"/templates/layouts/*.html.tmpl",
+		"/templates/common/*.html.tmpl",
+	}
+	for _, g := range globs {
+		if tmpl, err = tmpl.ParseGlob(frontendPath + g); err != nil {
+			return nil, fmt.Errorf("templates glob %s: %w", g, err)
+		}
+	}
+	return tmpl, nil
+}
+
+type builtDash struct {
+	tmpl *template.Template
+	data TemplateData
+}
+
+func writeOutput(name string, b builtDash) {
+	outputDir := frontendPath + "/static/" + name
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Printf("Could not create output dir for %s: %v", name, err)
+		return
+	}
+	out, err := os.Create(outputDir + "/index.html")
+	if err != nil {
+		log.Printf("Could not create output file for %s: %v", name, err)
+		return
+	}
+	defer out.Close()
+	if err := b.tmpl.ExecuteTemplate(out, "main.html.tmpl", b.data); err != nil {
+		log.Printf("Could not execute template for %s: %v", name, err)
+		return
+	}
+	out.Sync()
+}
+
 func BuildDash() {
-	cfg, err := parseConfig()
+	cfg, err := loadConfig()
 	if err != nil {
 		log.Printf("Could not load config when building dashboard: %v", err)
 		return
 	}
+	BuildDashFromConfig(cfg)
+}
 
-	parsedThemes, err := parseThemes()
+func BuildDashFromConfig(cfg UserConfig) {
+	builder, err := newDashBuilder(cfg)
 	if err != nil {
-		log.Printf("Could not load themes when building dashboard: %v", err)
-		return
-	}
-	allNamed := ThemesMap{}
-	for k, v := range *parsedThemes {
-		allNamed[k] = v
-	}
-	for k, v := range cfg.Themes {
-		if err := v.Finalize(); err != nil {
-			log.Printf("Error finalizing config theme '%s': %v", k, err)
-			continue
-		}
-		allNamed[k] = v
-	}
-
-	defaultTheme, err := getDefaultTheme()
-	if err != nil {
-		log.Printf("Could not get default theme: %v", err)
-	}
-
-	var tmpl *template.Template
-
-	tmpl, err = template.New("").Funcs(funcMap).ParseGlob(frontendPath + "/templates/*.html.tmpl")
-	if err != nil {
-		log.Printf("Could not return root level templates %v", err)
+		log.Printf("Build setup failed: %v", err)
 		return
 	}
 
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/css/*.css.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/entities/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/widgets/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/controllers/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/navbar-styles/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/layouts/*.html.tmpl")
-	tmpl, err = tmpl.ParseGlob(frontendPath + "/templates/common/*.html.tmpl")
-	check(err, "Created template object")
-
-	type builtDash struct {
-		tmpl *template.Template
-		data TemplateData
+	tmpl, err := loadTemplates()
+	if err != nil {
+		log.Printf("Could not load templates: %v", err)
+		return
 	}
 
-	// First pass, to enrich template data and create function enclosures for each dashboard.
-	// Function enclosures break if template (along with its funcmap)
-	// is copied after it has been executed
-	built := make(map[string]builtDash)
+	// First pass: prepare data and clone templates.
+	//
+	// The two-pass approach is load-bearing. FuncMap closures (once, uid, globals, etc.)
+	// are per-dashboard and must be bound before cloning. If we clone-then-execute in the
+	// same loop, the next iteration mutates the funcmap on an already-cloned template,
+	// breaking the closures for previously cloned dashboards.
+	built := make(map[string]builtDash, len(cfg.Dashboards))
 	for name, dash := range cfg.Dashboards {
 		if isDev {
-			log.Printf("=== Preprocessing dashboard '%s' ===\n", name)
+			log.Printf("=== Preprocessing dashboard '%s' ===", name)
 		}
-		resolvedTheme, err := buildTheme(allNamed, dash.ThemeRef)
+
+		data, err := builder.prepareData(name, *dash)
 		if err != nil {
-			log.Printf("Error reading theme for dashboard %s: %v", name, err)
-			return
-		}
-		dashTheme := Theme{}
-		if resolvedTheme != nil {
-			dashTheme = *resolvedTheme
-		}
-		// log.Printf("resolved dash theme is currently: \n%s", jsonStr(dashTheme))
-		dashTheme.inheritTheme(defaultTheme)
-		// log.Printf("dashTheme inherited the default theme, is now: \n%s", jsonStr(dashTheme))
-		dash.Theme = dashTheme
-
-		for i, screen := range dash.Screens {
-			resolvedTheme, err := buildTheme(allNamed, screen.ThemeRef)
-			if err != nil {
-				log.Printf("Error reading theme at screen[%d] (%s): %v", i, screen.Name, err)
-				return
-			}
-			dash.Screens[i].Theme = resolvedTheme
-			usedScreenTheme := resolvedTheme
-			if usedScreenTheme == nil {
-				usedScreenTheme = &dash.Theme
-			} else {
-				// Need to inherit vars so we can use variables of parent theme in yaml css fields
-				usedScreenTheme.inheritVars(dash.Theme)
-			}
-
-			if err := walkAndResolveCSS(&dash.Screens[i], usedScreenTheme.Vars); err != nil {
-				log.Printf("Error resolving css fields at screen[%d] (%s): %v", i, screen.Name, err)
-			}
-		}
-		if isDev {
-			// log.Printf("Resolved dashboard theme is: %s", jsonStr(dash.Theme))
+			log.Printf("Could not prepare data for %s: %v", name, err)
+			continue
 		}
 
-		funcMap["once"] = makeOnceFunc()
+		fm := builder.makeFuncMap(cfg, name)
 
-		lang := "en"
-		if cfg.Localization.Locale != "" {
-			lang = strings.Split(cfg.Localization.Locale, "-")[0]
-		}
-
-		globals := map[string]any{
-			"Animations": dash.Animations,
-			"Lang":       lang,
-			"IsDev":      isDev,
-		}
-		funcMap["globals"] = makeGlobals(globals)
-
-		funcMap["translate"] = makeTranslate(lang)
-		funcMap["domainTranslations"] = makeDomainTranslations(lang)
-
-		dashTmpl, err := tmpl.Clone()
+		t, err := tmpl.Clone()
 		if err != nil {
 			log.Printf("Could not clone template for %s: %v", name, err)
 			continue
 		}
 
 		built[name] = builtDash{
-			tmpl: dashTmpl.Funcs(funcMap),
-			data: TemplateData{dash, cfg.Config, name},
+			tmpl: t.Funcs(fm),
+			data: data,
 		}
 
 		if isDev {
-			log.Print("=== Finished preprocessing ===\n")
+			log.Printf("=== Finished preprocessing '%s' ===", name)
 		}
 	}
 
 	for name, b := range built {
-		outputDir := frontendPath + "/static/" + name
-		if err := os.MkdirAll(outputDir, 0755); err != nil {
-			log.Printf("Could not create output dir for %s: %v", name, err)
-			continue
-		}
-		out, err := os.Create(outputDir + "/index.html")
-		if err != nil {
-			log.Printf("Could not create output file for %s: %v", name, err)
-			continue
-		}
-		if err := b.tmpl.ExecuteTemplate(out, "main.html.tmpl", b.data); err != nil {
-			log.Printf("Could not execute template for %s: %v", name, err)
-		}
-		out.Sync()
-		out.Close()
+		writeOutput(name, b)
 	}
 }

@@ -136,10 +136,10 @@
     <div class="todo-header widget card card-inner flex-line justify-between gap-x gap-outer">
         <div class="todo-info gap-x gap-inner flex-line">
             {{if .Icon}}
-            <span class="todo-icon">{{.Icon}}</span>
+            <span class="todo-icon accent-muted icon">{{icon .Icon}}</span>
             {{end}}
-            <span class="todo-name on-surface font-xl">Todos</span>
-            <span class="on-surface-subtle font-md"> - </span>
+            <div class="todo-name-wrapper"><span class="todo-name on-surface font-xl">Todos</span></div>
+            <span class="on-surface-subtle font-lg"> - </span>
             <span class="todo-statistic on-surface-muted font-lg">0/0</span>
         </div>
         <div class="todo-controls on-surface gap-inner gap-x gap-inner flex">
@@ -151,14 +151,14 @@
             </button>
         </div>
     </div>
-    {{if enabledByDefault .InternalBorders}}
+    {{if enabledByDefault .Options.InternalBorders}}
         <div class="divider-horizontal divider-thin border-bg"></div>
     {{end}}
     <div class="todo-list widget card card-inner gap-outer gap-y">
         <div class="todo-add flex surface-subtle border border-thick on-surface padding inner">
             <input 
                 type="text" 
-                class="todo-input flex-grow" 
+                class="todo-input flex-grow-1" 
                 placeholder="Add a todo..."
             >
             <button class="todo-add-btn interactive btn">

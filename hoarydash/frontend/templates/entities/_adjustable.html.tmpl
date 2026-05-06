@@ -67,8 +67,8 @@
 </style>
 {{end}}
 {{define "_adjustable-chevron"}}
-<div class="ha-adjustable-chevron-wrapper flex flex-col flex-grow">
-  <button class="ha-adjustable-chevron transition-fast flex-grow font-xl">
+<div class="ha-adjustable-chevron-wrapper flex flex-col flex-grow-1">
+  <button class="ha-adjustable-chevron transition-fast flex-grow-1 font-xl">
     <div class="ha-adjustable-chevron-icon interactive">{{icon "chevron-down"}}</div>
   </button>
 </div>
@@ -96,7 +96,7 @@
   {{if eq $domain "fan"}}
   <div class="ha-slider-row flex align-center speed">
     <span class="ha-slider-label">Speed</span>
-    <input class="ha-slider-input flex-grow thumb interactive-thumb" type="range" min="0" max="100" value="0" >
+    <input class="ha-slider-input flex-grow-1 thumb interactive-thumb" type="range" min="0" max="100" value="0" >
     <span class="ha-slider-val flex-shrink-0" width="0">100%</span>
     <span class="ha-slider-val flex-shrink-0" style="visibility: hidden;">100%</span>
   </div>
@@ -200,6 +200,7 @@ component(function(wrapper) {
       el = el.parentNode;
     }
     wrapper.classList.remove('expanded');
+    chevron.classList.remove('expanded');
   });
 
   {{if eq $domain "light"}}

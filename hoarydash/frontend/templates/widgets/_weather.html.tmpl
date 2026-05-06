@@ -81,6 +81,7 @@
   }
 </style>
 {{end}}
+{{with .Options}}
 <div class="weather-container widget card border card-wrapper">
   <div class="weather-main widget card card-inner flex-line justify-center gap-outer gap-x">
     <div class="weather-current flex align-center flex-auto">
@@ -105,7 +106,7 @@
     {{end}}
     <div class="weather-forecast flex">
       <div class="forecast-day template flex-line">
-        <div class="forecast-day-content widget card card-inner flex flex-grow flex-col align-center">
+        <div class="forecast-day-content widget card card-inner flex flex-grow-1 flex-col align-center">
           <div class="forecast-day-name on-surface font-sm">  timeLabel </div>
           <div class="forecast-day-icon font-lg">  icon    </div>
           <div class="forecast-day-temps flex align-baseline">
@@ -120,6 +121,7 @@
     </div>
   {{end}}
 </div>
+{{end}}
 
 <script>
 component(function(wrapper) {
@@ -181,128 +183,129 @@ component(function(wrapper) {
       if (state !== undefined) { renderCurrent(state, attributes); }
   });
 
-  {{if .ShowForecast}}
-  function dayNameFromDatetime(datetimeStr) {
-    var date = new Date(datetimeStr);
-    return date.toLocaleDateString(locale, {
-      weekday: 'short',
-      timeZone: timezone
-    });
-  }
-  
-  function isHourlyForecast(forecasts) {
-      if (!forecasts || forecasts.length < 2) { return false; }
-      var a = new Date(forecasts[0].datetime);
-      var b = new Date(forecasts[1].datetime);
-      return a.toDateString() === b.toDateString();
-  }
-
-  function formatForecastTime(datetimeStr, hourly) {
-      var date = new Date(datetimeStr);
-      if (hourly) {
-          return date.toLocaleTimeString(locale, {
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: timezone,
-              hour12: {{disabledByDefault .Hour12}},
-              weekday: 'short',
+  {{with .Options}}
+    {{if .ShowForecast}}
+        function dayNameFromDatetime(datetimeStr) {
+          var date = new Date(datetimeStr);
+          return date.toLocaleDateString(locale, {
+            weekday: 'short',
+            timeZone: timezone
           });
-      }
-      return date.toLocaleDateString(locale, {
-          weekday: 'short',
-          timeZone: timezone
-      });
-  }
-
-  function clearOldForecast() {
-    var nodes = forecastEl.querySelectorAll(".forecast-day");
-    {{/* console.log("nodes in clear old forecast: ", nodes) */}}
-    for (var i = nodes.length - 1; i >= 1; i--) { // stop at 1 to not remove template
-        var node = nodes[i];
-        node.parentNode.removeChild(node);
-    }
-  }
-
-  function renderForecast(forecast) {
-    console.log("render forecast got: ", forecast.length, forecast)
-    if (!forecast || !forecast.length) {
-      forecastEl.style.display = 'none';
-      return;
-    }
-    clearOldForecast();
-
-    var days = forecast.slice(0, {{.ForecastTimes | default 3}});
-    var hourly = isHourlyForecast(forecast);
-    for (var i = 0; i < days.length; i++) {
-      var dayEl = forecastDayTmpl.cloneNode(true);
-      dayEl.classList.remove("template");
-
-      var day       = days[i];
-      var dayName   = dayNameFromDatetime(day.datetime);
-      var timeLabel = formatForecastTime(day.datetime, hourly);
-      var icon      = iconForCondition(day.condition);
-      var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
-      var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
-
-      dayEl.querySelector(".forecast-day-name").textContent = timeLabel;
-      dayEl.querySelector(".forecast-day-icon").textContent = icon;
-      dayEl.querySelector(".forecast-temp-high").textContent = high;
-      var lowEl = dayEl.querySelector(".forecast-temp-low");
-      if (low && low != high) {
-        lowEl.textContent = low;
-      } else {
-        lowEl.remove();
-      }
-      
-      
-      forecastEl.appendChild(dayEl);
-    }
-  }
-
-  function fetchForecast() {
-    return window.haSend({
-      type: 'call_service',
-      domain: 'weather',
-      service: 'get_forecasts',
-      service_data: { type: {{.ForecastInterval | default "daily"}} },
-      target: { entity_id: entityId },
-      return_response: true
-    }).then(function(result) {
-      console.log("fetch weather got: ", result)
-      var forecasts = result.response
-        && result.response[entityId]
-        && result.response[entityId].forecast{{if .ForecastTimes}}.slice(0, {{.ForecastTimes}}){{end}};
-          console.log("forecast is: ", forecasts.length, forecasts)
-
-      renderForecast(forecasts || []);
-    });
-  }
-
-  
-  var MAX_TRIES = 15;
-  var tries = 0;
-  function tryFetch() {
-    {{/* console.log("ran tryFetch") */}}
-    if (tries >= MAX_TRIES) {
-      {{/* console.log("max tries reached, cooling down") */}}
-      setTimeout(function() {tries = 0; tryFetch()}, 3 * 60 * 1000)
-      return;
-    }
-    if (window.haSocketReady) {
-      fetchForecast();
-      {{/* console.log("tried running fetchWeather") */}}
-      } else {
-          ++tries;
-          setTimeout(tryFetch, 1000);
         }
-    }
-          
-  window.onHaReady.push(function() {
-    fetchForecast();
-    setInterval(fetchForecast, POLL_INTERVAL);
-  });
-    
-  tryFetch();
+        
+        function isHourlyForecast(forecasts) {
+            if (!forecasts || forecasts.length < 2) { return false; }
+            var a = new Date(forecasts[0].datetime);
+            var b = new Date(forecasts[1].datetime);
+            return a.toDateString() === b.toDateString();
+        }
+
+        function formatForecastTime(datetimeStr, hourly) {
+            var date = new Date(datetimeStr);
+            if (hourly) {
+                return date.toLocaleTimeString(locale, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: timezone,
+                    hour12: {{disabledByDefault .Hour12}},
+                    weekday: 'short',
+                });
+            }
+            return date.toLocaleDateString(locale, {
+                weekday: 'short',
+                timeZone: timezone
+            });
+        }
+
+        function clearOldForecast() {
+          var nodes = forecastEl.querySelectorAll(".forecast-day");
+          {{/* console.log("nodes in clear old forecast: ", nodes) */}}
+          for (var i = nodes.length - 1; i >= 1; i--) { // stop at 1 to not remove template
+              var node = nodes[i];
+              node.parentNode.removeChild(node);
+          }
+        }
+
+        function renderForecast(forecast) {
+          console.log("render forecast got: ", forecast.length, forecast)
+          if (!forecast || !forecast.length) {
+            forecastEl.style.display = 'none';
+            return;
+          }
+          clearOldForecast();
+
+          var days = forecast.slice(0, {{.ForecastTimes | default 3}});
+          var hourly = isHourlyForecast(forecast);
+          for (var i = 0; i < days.length; i++) {
+            var dayEl = forecastDayTmpl.cloneNode(true);
+            dayEl.classList.remove("template");
+
+            var day       = days[i];
+            var dayName   = dayNameFromDatetime(day.datetime);
+            var timeLabel = formatForecastTime(day.datetime, hourly);
+            var icon      = iconForCondition(day.condition);
+            var high      = day.temperature !== undefined ? Math.round(day.temperature) + '°' : '--';
+            var low       = day.templow     !== undefined ? Math.round(day.templow)     + '°' : '';
+
+            dayEl.querySelector(".forecast-day-name").textContent = timeLabel;
+            dayEl.querySelector(".forecast-day-icon").textContent = icon;
+            dayEl.querySelector(".forecast-temp-high").textContent = high;
+            var lowEl = dayEl.querySelector(".forecast-temp-low");
+            if (low && low != high) {
+              lowEl.textContent = low;
+            } else {
+              lowEl.remove();
+            }
+            
+            
+            forecastEl.appendChild(dayEl);
+          }
+        }
+
+        function fetchForecast() {
+          return window.haSend({
+            type: 'call_service',
+            domain: 'weather',
+            service: 'get_forecasts',
+            service_data: { type: {{.ForecastInterval | default "daily"}} },
+            target: { entity_id: entityId },
+            return_response: true
+          }).then(function(result) {
+            console.log("fetch weather got: ", result)
+            var forecasts = result.response
+              && result.response[entityId]
+              && result.response[entityId].forecast{{if .ForecastTimes}}.slice(0, {{.ForecastTimes}}){{end}};
+                console.log("forecast is: ", forecasts.length, forecasts)
+
+            renderForecast(forecasts || []);
+          });
+        }
+        
+      var MAX_TRIES = 15;
+      var tries = 0;
+      function tryFetch() {
+        {{/* console.log("ran tryFetch") */}}
+        if (tries >= MAX_TRIES) {
+          {{/* console.log("max tries reached, cooling down") */}}
+          setTimeout(function() {tries = 0; tryFetch()}, 3 * 60 * 1000)
+          return;
+        }
+        if (window.haSocketReady) {
+          fetchForecast();
+          {{/* console.log("tried running fetchWeather") */}}
+          } else {
+              ++tries;
+              setTimeout(tryFetch, 1000);
+            }
+        }
+              
+      window.onHaReady.push(function() {
+        fetchForecast();
+        setInterval(fetchForecast, POLL_INTERVAL);
+      });
+        
+      tryFetch();
+    {{end}}
   {{end}}
   });
 </script>

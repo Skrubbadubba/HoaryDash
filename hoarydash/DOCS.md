@@ -67,12 +67,17 @@ localization:
 
 fully_kiosk:
   screensaver_timeout: 60
-
-home_assistant:
-  token: "your_long_lived_token_here"
 ```
 
 Save the file. The dashboard will regenerate automatically each time the file is saved.
+
+If you are running as a docker container and not an addon/app, you must provide information of your HA instance. This is down at the root level in the config like so:
+
+```yaml
+home_assistant:
+  url: http://192.168.1.133:8123
+  token: "your_long_lived_token_here"
+```
 
 ### Separate dashboards
 

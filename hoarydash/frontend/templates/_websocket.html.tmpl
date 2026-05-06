@@ -54,18 +54,18 @@
   }
   window.connectToHa = function() {
     var ws = new WebSocket(
-      (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/ws'
+      (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/ws/{{.Name}}'
     );
 
     ws.onopen = function() {
       console.log("ha websocket opened")
       haSocket = ws
       window.haSocketReady = true;
-      ws.send(JSON.stringify({
+      {{/* ws.send(JSON.stringify({
         id: window.haSubscribeId,
         type: 'subscribe_entities',
         entity_ids: entityIds
-      }));
+      })); */}}
       if (window.onHaReady == []) { return ;}
       for (cb of window.onHaReady) {
         console.log("onhaready callback is: ", cb)
@@ -75,7 +75,7 @@
     };
 
     ws.onmessage = function(evt) {
-      {{/* console.log("Raw message from server ", evt.data); */}}
+      console.log("Raw message from server ", evt.data);
       var msg;
       if (evt.data == "reload") {
         location.reload()

@@ -1,9 +1,17 @@
 {{define "nightlight"}}
 <style>
-    #nightlight-btn {
+    .nightlight-anchor {
         position: fixed;
         bottom: 24px;
         right: 24px;
+        z-index: 50;
+    }
+    .nightlight-wrapper {
+        position: relative;
+       
+    }
+
+    #nightlight-btn {
         {{if not .Nightlight.OverrideColors}}
         background-color: #cc2200;
         {{end}}
@@ -18,36 +26,20 @@
         box-shadow: 0 0 24px rgba(255, 100, 0, 0.2);
     }
     
-    #nightlight-btn.active svg { fill: #ff9944; }
+    #nightlight-btn.active svg { fill: {{.Nightlight.Color | default "hsl(22, 100%, 55%)" | css}} }
 
     #brightness-panel {
-        position: fixed;
-        bottom: 90px;
-        right: 24px;
-        width: 60px;
         {{if .Nightlight.OverrideColors}}
             background-color: {{.Theme.Colors.InteractiveMuted | default "#333" | css}};
         {{else}}
             background-color: #333;
         {{end}}
-        border-radius: 26px;
-        padding: 16px 0;
-        display: -webkit-flex;
-        display: flex;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-        -webkit-align-items: center;
-        align-items: center;
-        opacity: 0;
-        pointer-events: none;
+        border-radius: 50px;
         -webkit-transform: translateY(12px);
         transform: translateY(12px);
-        z-index: 50;
     }
     
-    #brightness-panel.visible {
-        opacity: 1;
-        pointer-events: all;
+    #brightness-panel:not(.hide) {
         -webkit-transform: translateY(0);
         transform: translateY(0);
     }
@@ -65,7 +57,7 @@
         bottom: 0; left: 0;
         width: 100%;
         height: 80%;
-        background-color: #ff6600;
+        background-color: {{.Nightlight.Color | default "hsl(22, 100%, 55%)" | css}};
         border-radius: 10px;
         pointer-events: none;
     }
@@ -111,19 +103,25 @@
 
 <div class="nightlight-overlay bright" id="overlay-bright"></div>
 <div class="nightlight-overlay dark" id="overlay-dark"></div>
-<div id="brightness-panel">
-    <div id="custom-slider">
-        <div id="slider-fill"></div>
-        <div id="slider-thumb"></div>
+<div class="nightlight-anchor">
+    <div class="nightlight-wrapper flex flex-col align-center gap-y gap-inner">
+        <div id="brightness-panel" class="button flex flex-col align-center hide">
+            <div id="custom-slider">
+                <div id="slider-fill"></div>
+                <div id="slider-thumb"></div>
+            </div>
+        </div>
+        <button id="nightlight-btn" class="btn surface-prominent interactive button" title="Nightlight">
+            {{icon "candle"}}
+        </button>
     </div>
 </div>
-<button id="nightlight-btn" class="btn surface-prominent interactive button" title="Nightlight">
-    {{icon "candle"}}
-</button>
 
 <script>
-    (function() {
+component(function(anchor) {
     var nightlightActive  = false;
+
+    var wrapper           = anchor.querySelector('.nightlight-wrapper')
     var btn               = document.getElementById('nightlight-btn');
     var panel             = document.getElementById('brightness-panel');
     var overlayDark       = document.getElementById('overlay-dark');
@@ -132,6 +130,7 @@
     var sliderFill        = document.getElementById('slider-fill');
     var sliderThumb       = document.getElementById('slider-thumb');
     var dateclockEls      = document.getElementsByClassName('dateclock-container');
+    var screenOnLockBtn   = document.getElementById('screenon-btn')
     var isDragging        = false;
     var currentBrightness = 80;
     var screensaverWasOn  = false;
@@ -140,23 +139,54 @@
         sliderFill.style.height = val + '%';
         sliderThumb.style.bottom = val + '%';
     }
+
     renderSlider(currentBrightness);
 
-    btn.addEventListener('click', function() {
+    var hideTimeout = null;
+    function startButtonHideTimeout() {
+        if (hideTimeout !== null) {
+            clearTimeout(hideTimeout);
+        }
+        hideTimeout = setTimeout(function() {
+            screenOnLockBtn.classList.add('hide');
+            wrapper.classList.add('hide');
+        }, 3500)
+    }
+
+    function showButtons() {
+        clearTimeout(hideTimeout);
+        screenOnLockBtn.classList.remove('hide');
+        wrapper.classList.remove('hide');
+    }
+
+    function reshowButtons() {
+        showButtons();
+        startButtonHideTimeout();
+    }
+
+    overlayDark.addEventListener('click', reshowButtons)
+
+    panel.addEventListener('pointerdown', showButtons);
+    panel.addEventListener('pointerup', startButtonHideTimeout);
+
+    btn.addEventListener('click', function(e) {
         nightlightActive = !nightlightActive;
         if (nightlightActive) {
             document.body.className = 'nightlight';
             overlayBright.style.opacity = 1
             btn.classList.add('active');
-            panel.className = 'visible';
+            panel.classList.remove('hide');
             applyBrightness(currentBrightness);
             screensaverWasOn = window.screensaverIsOn();
             window.setScreensaverOff();
+            startButtonHideTimeout();
+            document.addEventListener('click', reshowButtons)
         } 
         else {
+            document.removeEventListener('click', reshowButtons)
             document.body.className = '';    
             btn.classList.remove('active');
-            panel.className = '';
+            panel.classList.add('hide');
             overlayDark.style.opacity = '0';
             overlayBright.style = null;
             for (dateclock of dateclockEls) {
@@ -164,6 +194,8 @@
             }
             if (screensaverWasOn) { return; }
             window.setScreensaverOn();
+            showButtons();
+            document.removeEventListener('click', reshowButtons)
         }
     });
 
@@ -193,6 +225,6 @@
     sliderContainer.addEventListener('touchstart', function(e) { isDragging = true; handleDrag(e.touches[0].clientY); e.preventDefault(); }, false);
     document.addEventListener('touchmove', function(e) { if (isDragging) { handleDrag(e.touches[0].clientY); e.preventDefault(); } }, false);
     document.addEventListener('touchend', function() { isDragging = false; }, false);
-    }());
+    });
 </script>
 {{end}}

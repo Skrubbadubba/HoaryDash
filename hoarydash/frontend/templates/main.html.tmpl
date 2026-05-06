@@ -10,12 +10,13 @@
     {{/* <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"> */}}
     <script>
         (function(){
-        var locale = '{{.Config.Localization.Locale}}' || navigator.language || 'en-US';
-        var timezone = '{{.Config.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        var locale = '{{.Settings.Localization.Locale}}' || navigator.language || 'en-US';
+        var timezone = '{{.Settings.Localization.Timezone}}' || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        window.ICON_MAP = {{.DomainClassStateIconMap}};
         window.CONFIG = {
-            {{if .Config.FullyKiosk}}
+            {{if .Settings.FullyKiosk}}
             fullyKiosk: {
-                screensaverTimeout: {{.Config.FullyKiosk.ScreensaverTimeout}}
+                screensaverTimeout: {{.Settings.FullyKiosk.ScreensaverTimeout}}
             },
             {{end}}
             entity_ids: [
@@ -30,7 +31,7 @@
                 ],
             locale: locale,
             timezone: timezone,
-            haUrl: {{if .Config.HomeAssistant.URL}}"{{.Config.HomeAssistant.URL}}"{{else}}location.origin.replace(/:\d+$/, ':8123'){{end}},
+            {{/* haUrl: {{if .Config.HA.URL}}"{{.Config.HA.URL}}"{{else}}location.origin.replace(/:\d+$/, ':8123'){{end}}, */}}
             widgetPollInterval: 10 * 60 * 1000,
             };
         window.goFetch = function(path, callback) {
@@ -49,17 +50,20 @@
         };
         }());
     </script>
-    {{template "websocket"}}
+    {{template "websocket" .}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 </head>
 <body>
     {{if globals "IsDev"}}
         {{template "isdev"}}
     {{end}}
-    {{$config := .Config}}
+    {{$settings := .Settings}}
     {{template "base-style" .}}
     {{template "utility-styles"}}
     {{template "create-theme" (merge .Dashboard.Theme (dict "Prefix" "body"))}}
+    {{pushCtx (ctx .TileOptions)}}
+    {{/* {{$ctx := getCtx}}
+    {{json $ctx}} */}}
     <script>
         function component(script) {
             var root = document.currentScript.previousElementSibling;
@@ -110,6 +114,18 @@
                 divs[i].style.width = widest + 'px';
             }
         }
+        
+        function getIconMap(domain, cls) {
+        return window.ICON_MAP && 
+                window.ICON_MAP[domain] && 
+                window.ICON_MAP[domain][cls] || null;
+        };
+
+        function resolveIcon(iconMap, state) {
+            if (!iconMap) return null;
+            if (iconMap.State && iconMap.State[state]) return iconMap.State[state];
+            return iconMap.Default || null;
+        };
     </script>
     <style>
         .screens {
@@ -180,6 +196,8 @@
     <div class="screens flex flex-row size-full">
     
     {{range $i, $screen := .Dashboard.Screens}}
+        {{/* {{$ctx = getCtx}}
+        {{json $ctx}} */}}
         {{$id := ""}}
         {{if .Name}}
             {{$id = concat "screen-" .Name}}
@@ -204,13 +222,15 @@
             {{else}}
                 <div class="layout-container layout-padding navbar-padding size-full">
             {{end}}
+            {{pushCtx (ctx $screen.TileOptions)}}
             {{if eq $screen.Layout "tiled"}}
                 {{template "tiled-layout" $screen}}
-                {{else if eq $screen.Layout "media-full"}}
-                    {{template "fullscreen-media-layout" $screen}}
-                {{else}}
-                    {{template "centered-layout" $screen}}
-                {{end}}
+            {{else if eq $screen.Layout "media-full"}}
+                {{template "fullscreen-media-layout" $screen}}
+            {{else}}
+                {{template "centered-layout" $screen}}
+            {{end}}
+            {{popCtx}}
             </div>
             {{if $showHints}}
             {{with nextScreen $.Dashboard $i}}
@@ -289,10 +309,10 @@
         {{template "screenonlock"}}
     {{end}}
     {{if or (enabledByDefault .Dashboard.Screenonlock) (enabledByDefault .Dashboard.Nightlight.Enabled)}}
-        {{if $config.FullyKiosk}}
-            {{template "screenonlock-script-fully" $config.FullyKiosk}}
-        {{else if disabledByDefault $config.WallPanel}}
-            {{template "screenonlock-script-wallpanel" $config.WallPanel}}
+        {{if $settings.FullyKiosk}}
+            {{template "screenonlock-script-fully" $settings.FullyKiosk}}
+        {{else if disabledByDefault $settings.WallPanel}}
+            {{template "screenonlock-script-wallpanel" $settings.WallPanel}}
         {{end}}
     {{end}}
     {{/* <p>{{json .Dashboard.Nightlight}}</p> */}}

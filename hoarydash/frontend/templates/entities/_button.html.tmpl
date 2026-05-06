@@ -23,52 +23,53 @@
 {{end}}
 {{end}}
 {{define "_button"}}
+{{$ctx := getCtx}}
 <div class="ha-button entity card padding transition-fast border flex flex-col">
   <button class="ha-button-body btn" title="{{.Label}}">
     <div class="ha-button-content flex align-center gap-inner gap-x">
-    {{if .Icon}}
-      <span class="ha-button-icon font-xl interactive-muted">
-        {{if isEmoji .Icon}}
-            {{.Icon}}
-        {{else}}
-            {{icon .Icon}}
-        {{end}}
-      </span>
-     {{end}}
+        {{if enabledByDefault $ctx.TileOptions.ShowIcon}}
+        <span class="ha-button-icon font-xl interactive-muted">
+          {{if isEmoji .Icon}}
+              {{.Icon}}
+          {{else}}
+              {{icon .Icon}}
+          {{end}}
+        </span>
+      {{end}}
       <span class="ha-button-label font-md text-ellipsis entity-label on-surface">{{.Label}}</span>
     </div>
     <div style="height: 2.25em;"></div>
   </button>
 </div>
-  <script>
-  component(function(wrapper) {
-    var entityId = '{{.EntityID}}';
-    var domain = entityId.split('.')[0];
-    var btn = wrapper.firstElementChild;
+<script>
+component(function(wrapper) {
+  var entityId = '{{.EntityID}}';
+  var domain = entityId.split('.')[0];
+  var btn = wrapper.firstElementChild;
 
-    var toggleOrPressMap = {
-        'input_button': 'press',
-        'switch': 'toggle',
-        'light': 'toggle',
-        'input_boolean': 'toggle',
-        'button': 'press',
-        'scene': 'turn_on',
-        'script': 'turn_on'
-    }
+  var toggleOrPressMap = {
+      'input_button': 'press',
+      'switch': 'toggle',
+      'light': 'toggle',
+      'input_boolean': 'toggle',
+      'button': 'press',
+      'scene': 'turn_on',
+      'script': 'turn_on'
+  }
 
-    btn.addEventListener('click', function() {
-      btn.classList.add('pressed');
-      setTimeout(function() { btn.classList.remove('pressed'); }, 300);
-    
-      window.haSend({
-        type: 'call_service',
-        domain: domain,
-        service: toggleOrPressMap[domain],
-        target: { entity_id: entityId }
-      });
+  btn.addEventListener('click', function() {
+    btn.classList.add('pressed');
+    setTimeout(function() { btn.classList.remove('pressed'); }, 300);
+  
+    window.haSend({
+      type: 'call_service',
+      domain: domain,
+      service: toggleOrPressMap[domain],
+      target: { entity_id: entityId }
     });
   });
-  </script>
+});
+</script>
 {{end}}
 {{define "button"}}
   {{template "_button-style"}}

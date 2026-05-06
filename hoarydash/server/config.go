@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"os"
+	"reflect"
+	"strings"
 
 	"go.yaml.in/yaml/v4"
 )
@@ -17,7 +20,7 @@ type Dashboard struct {
 		OverrideColors bool `yaml:"override_colors"`
 	}
 	ThemeRef  ThemeRef `yaml:"theme"`
-	Theme     Theme    `yaml:"_"`
+	Theme     Theme    `yaml:"-"`
 	ShowHints *bool    `yaml:"show_hints"`
 	Swipe     *bool
 	Navbar    struct {
@@ -25,7 +28,76 @@ type Dashboard struct {
 		Position string
 		Style    string
 	}
-	Screens []Screen
+	TileOptions `yaml:"tile_options,omitempty"`
+	Screens     []Screen
+
+	// internals
+	cardIndex   map[string][]*Card   `yaml:"-"`
+	sensorIndex map[string][]*Sensor `yaml:"-"`
+}
+
+var walkCards = makeNodeWalker[Card]()
+var walkSensors = makeNodeWalker[Sensor]()
+
+func (d *Dashboard) buildIndex() {
+	if d.cardIndex != nil || d.sensorIndex != nil {
+		return
+	}
+	cardIndex := map[string][]*Card{}
+	sensorIndex := map[string][]*Sensor{}
+	walkCards(d, func(f reflect.StructField, c *Card) error {
+		if c.EntityID != "" {
+			cardIndex[c.EntityID] = append(cardIndex[c.EntityID], c)
+		}
+		return nil
+	})
+	walkSensors(d, func(f reflect.StructField, s *Sensor) error {
+		if s.EntityID != "" {
+			sensorIndex[s.EntityID] = append(sensorIndex[s.EntityID], s)
+		}
+		return nil
+	})
+	d.cardIndex = cardIndex
+	d.sensorIndex = sensorIndex
+}
+
+func (d *Dashboard) EntityIDs() []string {
+	d.buildIndex()
+	seen := make(map[string]struct{}, len(d.cardIndex)+len(d.sensorIndex))
+	for id := range d.cardIndex {
+		seen[id] = struct{}{}
+	}
+	for id := range d.sensorIndex {
+		seen[id] = struct{}{}
+	}
+	ids := make([]string, 0, len(seen))
+	for id := range seen {
+		ids = append(ids, id)
+	}
+	for _, screen := range d.Screens {
+		if screen.EntityID != "" {
+			ids = append(ids, screen.EntityID)
+		}
+	}
+	return ids
+}
+
+func (d *Dashboard) Cards() []*Card {
+	d.buildIndex()
+	var cards []*Card
+	for _, ptrs := range d.cardIndex {
+		cards = append(cards, ptrs...)
+	}
+	return cards
+}
+
+func (d *Dashboard) Sensors() []*Sensor {
+	d.buildIndex()
+	var sensors []*Sensor
+	for _, ptrs := range d.sensorIndex {
+		sensors = append(sensors, ptrs...)
+	}
+	return sensors
 }
 
 type Screen struct {
@@ -34,27 +106,30 @@ type Screen struct {
 	Icon   *string
 	Dateclock
 	// Centered-layout specific
-	Widgets  *CardGroup
-	Sensors  *CardGroup
-	Entities *CardGroup
-	Order    struct {
+	Widgets     *CardGroup
+	Sensors     *CardGroup
+	Entities    *CardGroup
+	TileOptions `yaml:"tile_options,omitempty"`
+	Order       struct {
 		Entities int
 		Widgets  int
 		Sensors  int
 	}
 
 	// Tiled-layout specific
-	Groups []struct {
+	Stretch bool
+	Groups  []struct {
 		Name            string
 		Icon            string
 		NormalizeHeight bool `yaml:"normalize_height"`
+		Stretch         *bool
 		CardGroup       `yaml:",inline"`
 	}
 
 	// Fullscreen-layout specific
-	EntityID     string `yaml:"entity_id"`
-	MediaOptions `yaml:",inline"`
-	Badges       struct {
+	EntityID string       `yaml:"entity_id"`
+	Options  MediaOptions `yaml:"media_options"`
+	Badges   struct {
 		Sensors []Sensor
 		Badge   struct {
 			Label string
@@ -98,23 +173,30 @@ type Entity struct {
 	EntityID string `yaml:"entity_id"`
 	Label    string
 	Icon     string
+	Class    string `yaml:"-"`
 }
 
+type TileOptions struct {
+	ShowIcon *bool `yaml:"show_icon"`
+	ShowPill *bool `yaml:"show_pill"`
+}
+
+type SensorOptions struct {
+	Unit string
+}
 type Sensor struct {
-	Entity `yaml:",inline"`
-	Unit   string
+	Entity        `yaml:",inline"`
+	SensorOptions `yaml:",inline"`
 }
 
 type Card struct {
-	Entity `yaml:",inline"`
-	Unit   string
-	Style  CardStyle
-	// Widget specific
-	InternalBorders *bool `yaml:"internal_borders"`
-	// Weather-specific
-	WeatherOptions `yaml:",inline"`
-	// Media-specific
-	MediaOptions `yaml:",inline"`
+	Entity  `yaml:",inline"`
+	Style   CardStyle
+	Options struct {
+		TileOptions   `yaml:",inline"`
+		SensorOptions `yaml:",inline"`
+		WidgetOptions `yaml:",inline"`
+	} `yaml:"options"`
 }
 
 type WeatherOptions struct {
@@ -131,9 +213,16 @@ type MediaOptions struct {
 	Queue       *bool
 }
 
+type WidgetOptions struct {
+	InternalBorders *bool `yaml:"internal_borders"`
+	WeatherOptions  `yaml:",inline"`
+	MediaOptions    `yaml:",inline"`
+}
+
 type CardGroup struct {
-	Style CardStyle
-	Cards []Card
+	Style       CardStyle
+	TileOptions `yaml:"tile_options,omitempty"`
+	Cards       []Card
 }
 
 type ForecastInterval string
@@ -186,12 +275,12 @@ func (n *Navigation) UnmarshalYAML(value *yaml.Node) error {
 	}
 	*n = Navigation(s)
 	if !n.Valid() {
-		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'")
+		return fmt.Errorf("invalid navigation %q, must be 'swipe' or 'navbar'", s)
 	}
 	return nil
 }
 
-type Config struct {
+type Settings struct {
 	Localization struct {
 		Locale   string
 		Timezone string
@@ -199,21 +288,25 @@ type Config struct {
 	FullyKiosk *struct {
 		ScreensaverTimeout int `yaml:"screensaver_timeout"`
 	} `yaml:"fully_kiosk"`
-	WallPanel     *bool
-	HomeAssistant struct {
-		URL   string
-		TOKEN string
-	} `yaml:"home_assistant"`
+	WallPanel *bool
+	HA        HAConfig `yaml:"home_assistant"`
 }
 
-type Yaml struct {
-	Dashboards map[string]Dashboard
-	Config     `yaml:",inline"`
+type HAConfig struct {
+	HTTPURL string `yaml:"-"`
+	WSURL   string `yaml:"-"`
+	Token   string `yaml:"token"`
+	baseURL string `yaml:"url"`
+}
+
+type UserConfig struct {
+	Dashboards map[string]*Dashboard
+	Settings   `yaml:",inline"`
 	Themes     ThemesMap
 	IsDev      bool
 }
 
-func parseConfig() (*Yaml, error) {
+func loadConfig() (UserConfig, error) {
 	var yaml_file []byte
 	var err error
 	if isDev {
@@ -221,10 +314,51 @@ func parseConfig() (*Yaml, error) {
 	} else {
 		yaml_file, err = os.ReadFile(configPath + "/hoarydash.yaml")
 	}
-	parsed := Yaml{}
-	if err != nil {
-		return &parsed, err
+	parsed := struct {
+		Dashboards map[string]Dashboard
+		Settings   `yaml:",inline"`
+		Themes     ThemesMap
+	}{}
+	if err = yaml.Unmarshal(yaml_file, &parsed); err != nil {
+		return UserConfig{}, err
 	}
-	err = yaml.Unmarshal(yaml_file, &parsed)
-	return &parsed, err
+	cfg := UserConfig{
+		Settings:   parsed.Settings,
+		Themes:     parsed.Themes,
+		Dashboards: make(map[string]*Dashboard, len(parsed.Dashboards)),
+	}
+	for name, dash := range parsed.Dashboards {
+		d := dash
+		cfg.Dashboards[name] = &d
+	}
+	cfg.Settings.HA = resolveHA(cfg.Settings.HA)
+	return cfg, nil
+}
+
+func resolveHA(ha HAConfig) HAConfig {
+	resolved := ha
+	if supervisorToken := os.Getenv("SUPERVISOR_TOKEN"); supervisorToken != "" {
+		log.Printf("Supervisor token detected, using supervisor API")
+		resolved.Token = supervisorToken
+		resolved.HTTPURL = "http://supervisor/core"
+		resolved.WSURL = "ws://supervisor/core/websocket"
+		return resolved
+	}
+	if resolved.baseURL == "" {
+		log.Print("HA url not set, defaulting to 'http://homeassistant.local:8123'")
+		resolved.baseURL = "http://homeassistant.local:8123"
+	}
+	if resolved.Token == "" {
+		log.Print("Getting HA token from environment")
+		resolved.Token = os.Getenv("HA_TOKEN")
+		if resolved.Token == "" {
+			log.Print("No HA token could be read")
+		}
+	}
+	resolved.HTTPURL = resolved.baseURL
+	resolved.WSURL = strings.NewReplacer(
+		"http://", "ws://",
+		"https://", "wss://",
+	).Replace(resolved.baseURL) + "/api/websocket"
+	return resolved
 }

@@ -1,4 +1,3 @@
-// ws_proxy.go
 package main
 
 import (
@@ -6,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -20,49 +19,153 @@ type wsMsg struct {
 	data []byte
 }
 
-func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http.HandlerFunc {
+var warmingPool = struct {
+	sync.Mutex
+	conns map[string][]*warmingConn
+}{conns: map[string][]*warmingConn{}}
+
+type warmingConn struct {
+	haConn       *websocket.Conn
+	dialed       chan struct{}
+	stop         chan struct{}
+	initialState []byte
+	stateDone    chan struct{}
+}
+
+func warm(ip, haWsURL, haToken string, subscribeMsg []byte) {
+	wc := &warmingConn{
+		dialed:    make(chan struct{}),
+		stop:      make(chan struct{}),
+		stateDone: make(chan struct{}),
+	}
+
+	warmingPool.Lock()
+	warmingPool.conns[ip] = append(warmingPool.conns[ip], wc)
+	warmingPool.Unlock()
+
+	go func() {
+		haConn, _, err := websocket.DefaultDialer.Dial(haWsURL, nil)
+		if err != nil {
+			close(wc.dialed)
+			close(wc.stateDone)
+			return
+		}
+		wc.haConn = haConn
+		close(wc.dialed)
+
+		if err := haAuth(haConn, haToken); err != nil {
+			haConn.Close()
+			close(wc.stateDone)
+			return
+		}
+		if err := haConn.WriteMessage(websocket.TextMessage, subscribeMsg); err != nil {
+			haConn.Close()
+			close(wc.stateDone)
+			return
+		}
+
+		for {
+			select {
+			case <-wc.stop:
+				close(wc.stateDone)
+				return
+			default:
+			}
+			_, data, err := haConn.ReadMessage()
+			if err != nil {
+				close(wc.stateDone)
+				return
+			}
+			var env struct {
+				Type string `json:"type"`
+			}
+			json.Unmarshal(data, &env)
+			if env.Type == "event" {
+				wc.initialState = data
+				close(wc.stateDone)
+				return
+			}
+		}
+	}()
+}
+
+func consumeWarming(ip string) *warmingConn {
+	warmingPool.Lock()
+	defer warmingPool.Unlock()
+	log.Printf("consumeWarming: pool state: %v keys, conns for %s: %d", len(warmingPool.conns), ip, len(warmingPool.conns[ip]))
+	conns := warmingPool.conns[ip]
+	if len(conns) == 0 {
+		return nil
+	}
+	wc := conns[0]
+	warmingPool.conns[ip] = conns[1:]
+	return wc
+}
+
+func dashFileHandler(inner http.Handler, haWsURL, haToken string, subscribeMsg []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ip := ipOnly(r.RemoteAddr)
+		log.Printf("dashFileHandler: request from %s, ip=%s", r.RemoteAddr, ip)
+		warm(ip, haWsURL, haToken, subscribeMsg)
+		inner.ServeHTTP(w, r)
+	}
+}
+
+func wsProxyHandler(haWsURL, haToken string, subscribeMsg []byte, rebuildChan <-chan struct{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientConn, err := clientUpgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println("ws upgrade error:", err)
 			return
 		}
-		log.Printf("Client connected from %s", clientConn.RemoteAddr())
 		defer clientConn.Close()
 
-		haBaseURL, haToken = getHaDefaults(haBaseURL, haToken)
-		if haBaseURL == "" || haToken == "" {
-			return
+		var haConn *websocket.Conn
+		var initialState []byte
+
+		ip := ipOnly(clientConn.RemoteAddr().String())
+		wc := consumeWarming(ip)
+
+		if wc != nil {
+			select {
+			case <-wc.dialed:
+			}
+
+			if wc.haConn != nil {
+				// Tell warm goroutine to stop reading, take over
+				close(wc.stop)
+				// Grab initial state if warm goroutine got it
+				<-wc.stateDone
+				haConn = wc.haConn
+				initialState = wc.initialState
+			}
 		}
 
-		haURL, _ := url.Parse(haBaseURL)
-		haURL.Scheme = "ws"
-		haURL.Path = "/api/websocket"
-
-		haConn, _, err := websocket.DefaultDialer.Dial(haURL.String(), nil)
-		if err != nil {
-			log.Println("ws dial HA error:", err)
-			log.Printf("Tried dialing %v", haURL)
-			return
+		if haConn == nil {
+			// Cold connect
+			haConn, _, err = websocket.DefaultDialer.Dial(haWsURL, nil)
+			if err != nil {
+				return
+			}
+			if err := haAuth(haConn, haToken); err != nil {
+				haConn.Close()
+				return
+			}
+			if err := haConn.WriteMessage(websocket.TextMessage, subscribeMsg); err != nil {
+				haConn.Close()
+				return
+			}
 		}
-		log.Printf("Connected to ha ws at %s", haURL.String())
 		defer haConn.Close()
 
-		if err := haAuth(haConn, haToken); err != nil {
-			log.Println("ws HA auth error:", err)
-			return
-		}
+		errc := make(chan error, 2)
+		send := make(chan wsMsg, 8)
+		done := make(chan struct{})
 
-		errc := make(chan error, 2) // To signal ws disconnect
-		send := make(chan wsMsg, 8) // For single write since conn.WriteMessage is not thread safe
-		done := make(chan struct{}) // For signaling all goroutines to exit
-
-		// single writer
 		go func() {
 			for {
 				select {
 				case msg := <-send:
-					if err := clientConn.WriteMessage(websocket.TextMessage, msg.data); err != nil {
+					if err := clientConn.WriteMessage(msg.mt, msg.data); err != nil {
 						errc <- err
 						return
 					}
@@ -71,6 +174,10 @@ func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http
 				}
 			}
 		}()
+
+		if initialState != nil {
+			send <- wsMsg{websocket.TextMessage, initialState}
+		}
 
 		// HA → client
 		go func() {
@@ -108,7 +215,6 @@ func wsProxyHandler(haBaseURL, haToken string, rebuildChan <-chan struct{}) http
 			for range rebuildChan {
 				select {
 				case send <- wsMsg{websocket.TextMessage, []byte("reload")}:
-					log.Print("Sent reload message to client")
 				case <-done:
 					return
 				}
@@ -133,14 +239,12 @@ func haAuth(conn *websocket.Conn, token string) error {
 	if err := json.Unmarshal(msg, &envelope); err != nil {
 		return err
 	}
-
-	auth := map[string]string{"type": "auth", "access_token": token}
-	if err := conn.WriteJSON(auth); err != nil {
+	if err := conn.WriteJSON(map[string]string{
+		"type":         "auth",
+		"access_token": token,
+	}); err != nil {
 		return err
 	}
-	jsonString, _ := json.Marshal(auth)
-	log.Printf("Sent auth json: %s", jsonString)
-
 	_, msg, err = conn.ReadMessage()
 	if err != nil {
 		return err
@@ -151,7 +255,26 @@ func haAuth(conn *websocket.Conn, token string) error {
 	if envelope.Type != "auth_ok" {
 		return fmt.Errorf("HA auth failed: %s", envelope.Type)
 	}
-	log.Printf("Got message: %s", msg)
-
 	return nil
+}
+
+func buildSubscribeMsg(entities []string) []byte {
+	ids := make([]string, 0, len(entities))
+	for _, id := range entities {
+		ids = append(ids, id)
+	}
+	msg, _ := json.Marshal(map[string]any{
+		"id":         1,
+		"type":       "subscribe_entities",
+		"entity_ids": ids,
+	})
+	return msg
+}
+
+func handlers(entities []string, haWsURL, haToken string, rebuildChan <-chan struct{}) (fileMiddleware func(http.Handler) http.HandlerFunc, wsHandler http.HandlerFunc) {
+	subscribeMsg := buildSubscribeMsg(entities)
+	return func(inner http.Handler) http.HandlerFunc {
+			return dashFileHandler(inner, haWsURL, haToken, subscribeMsg)
+		},
+		wsProxyHandler(haWsURL, haToken, subscribeMsg, rebuildChan)
 }

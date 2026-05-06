@@ -5,9 +5,8 @@
     padding: 1em;
   }
 
-  .sensor-label {
+  .sensor-label-wrapper {
     color: rgba(255,255,255,0.6);
-    text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.35em;
     
@@ -40,11 +39,14 @@
 
 {{define "_sensor"}}
 <div class="sensor card flex flex-col align-center justify-center border">
-    <div class="sensor-label on-surface-muted font-md">{{.Label}}</div>
+    <div class="sensor-label-wrapper on-surface-muted font-md flex-line">
+      <div class="icon">{{icon .Icon}}</div>
+      <div class="sensor-label">{{.Label}}</div>
+    </div>
     <div class="sensor-value-wrapper">
       <span class="sensor-value-anchor">
         <span class="sensor-value on-surface font-xl">—</span>
-        <span class="sensor-unit on-surface-subtle font-md">{{.Unit}}</span>
+        <span class="sensor-unit on-surface-subtle font-md">{{.Options.Unit}}</span>
       </span>
     </div>
 </div>

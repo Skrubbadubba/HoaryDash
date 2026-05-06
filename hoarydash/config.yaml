@@ -1,6 +1,6 @@
 name: "HoaryDash"
 description: "A lightweight Home Assistant dashboard for old Android tablets running Chromium 44"
-version: "0.12.0"
+version: "0.13.0"
 slug: "hoarydash"
 init: false
 arch:
@@ -16,3 +16,4 @@ map:
   - addon_config:rw
 url: "https://github.com/Skrubbadubba/HoaryDash"
 stage: experimental
+homeassistant_api: true
