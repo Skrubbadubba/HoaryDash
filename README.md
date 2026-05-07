@@ -48,7 +48,6 @@ A lightweight Home Assistant frontend for old Android tablets. It runs as an add
 - Home Assistant with Supervisor (HAOS or supervised install)
   > (Or any machine with docker)
 - A browser on your tablet
-- A long-lived access token from Home Assistant
 
 
 ## Setup
